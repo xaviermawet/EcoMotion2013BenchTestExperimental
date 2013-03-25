@@ -24,6 +24,12 @@ class MainWindow : public QMainWindow
 
         void centerOnScreen(void);
 
+    private slots:
+
+        // Autoconnect
+        void on_actionImportData_triggered(void);
+        void on_actionQuit_triggered(void);
+
     protected:
 
         Ui::MainWindow* ui;

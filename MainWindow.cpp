@@ -15,7 +15,11 @@ MainWindow::MainWindow(QWidget* parent) :
 
 MainWindow::~MainWindow(void)
 {
+    qDebug() << "MainWindow début destructeur";
+
     delete this->ui;
+
+    qDebug() << "MainWindow Fin destructeur";
 }
 
 void MainWindow::centerOnScreen(void)
@@ -27,5 +31,17 @@ void MainWindow::centerOnScreen(void)
     int screenCenterX = screenGeom.center().x();
     int screenCenterY = screenGeom.center().y();
 
-    this->move(screenCenterX - width () / 2, screenCenterY - height() / 2);
+    this->move(screenCenterX - width() / 2, screenCenterY - height() / 2);
+}
+
+void MainWindow::on_actionImportData_triggered(void)
+{
+    QMessageBox::information(this, "on_actionImportData_triggered",
+                             "on_actionImportData_triggered");
+}
+
+void MainWindow::on_actionQuit_triggered(void)
+{
+    // Close the main window
+    qApp->quit();
 }
