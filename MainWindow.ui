@@ -13,7 +13,48 @@
   <property name="windowTitle">
    <string/>
   </property>
-  <widget class="QWidget" name="centralWidget"/>
+  <widget class="QWidget" name="centralWidget">
+   <layout class="QHBoxLayout" name="mainHorizontalLayout">
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
+    <item>
+     <widget class="QGroupBox" name="groupBox">
+      <property name="title">
+       <string>Données Megasquirt</string>
+      </property>
+      <layout class="QVBoxLayout" name="groupBoxVerticalLayout">
+       <item>
+        <widget class="QComboBox" name="paramMegasquirtComboBox"/>
+       </item>
+       <item>
+        <widget class="QPushButton" name="addCurvePushButton">
+         <property name="text">
+          <string>Ajouter la courbe</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+    </item>
+   </layout>
+  </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
     <rect>

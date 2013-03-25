@@ -16,10 +16,14 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         MainWindow.cpp \
-    Plot/Plot.cpp
+    Plot/Plot.cpp \
+    Utils/QCSVParser.cpp \
+    Utils/QException.cpp
 
 HEADERS  += MainWindow.hpp \
-    Plot/Plot.hpp
+    Plot/Plot.hpp \
+    Utils/QCSVParser.hpp \
+    Utils/QException.hpp
 
 FORMS    += MainWindow.ui
 

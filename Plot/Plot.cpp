@@ -38,7 +38,7 @@ Plot::Plot(const QwtText &title, QWidget *parent) :
     /* ---------------------------------------------------------------------- *
      *                      Some customization options                        *
      * ---------------------------------------------------------------------- */
-    this->enableAxis(QwtPlot::yRight);
+    //this->enableAxis(QwtPlot::yRight);
     this->setCanvasBackground(Qt::darkGray);
     this->setAxisTitle(QwtPlot::xBottom, tr("Temps (s)"));
 }
