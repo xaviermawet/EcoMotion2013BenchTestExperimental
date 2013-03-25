@@ -8,6 +8,10 @@
 #endif
 
 #include "Plot/Plot.hpp"
+#include "Utils/QException.hpp"
+#include "Utils/QCSVParser.hpp"
+#include <qwt_plot_curve.h>
+#include <qwt_legend_item.h>
 
 namespace Ui {
 class MainWindow;
@@ -32,6 +36,10 @@ class MainWindow : public QMainWindow
         // Autoconnect
         void on_actionImportData_triggered(void);
         void on_actionQuit_triggered(void);
+        void on_addCurvePushButton_clicked(void);
+
+        // Personal slots
+        void setPlotCurveVisibile(QwtPlotItem* item, bool visible);
 
     protected:
 
@@ -40,6 +48,10 @@ class MainWindow : public QMainWindow
 
         // Plot
         Plot* plot;
+
+        // CSV parser
+        QCSVParser parser;
+
 };
 
 #endif /* __MAINWINDOW_HPP__ */

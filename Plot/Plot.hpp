@@ -3,7 +3,11 @@
 
 #include <qwt_plot.h>
 #include <qwt_legend.h>
+#include <qwt_plot_grid.h>
 #include <qwt_plot_zoomer.h>
+#include <qwt_plot_panner.h>
+#include <qwt_plot_marker.h>
+#include <qwt_plot_magnifier.h>
 
 class Plot : public QwtPlot
 {
@@ -15,10 +19,23 @@ class Plot : public QwtPlot
         explicit Plot(QwtText const& title, QWidget* parent = NULL);
         virtual ~Plot(void);
 
+        // Getter
+        bool isGridVisible(void) const;
+        bool isCrossLineVisible(void) const;
+
+    public slots:
+
+        void setGridVisible(bool visible);
+        void setCrossLineVisible(bool visible);
+
     protected:
 
-        QwtLegend*     legend;
-        QwtPlotZoomer* zoomer;
+        QwtLegend*        legend;
+        QwtPlotGrid*      grid;
+        QwtPlotMarker*    crossLine;
+        QwtPlotPanner*    panner;
+        QwtPlotZoomer*    zoomer;
+        QwtPlotMagnifier* magnifier;
 };
 
 #endif /* __PLOT_HPP__ */

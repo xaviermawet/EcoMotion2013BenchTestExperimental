@@ -24,6 +24,11 @@ QCSVParser::QCSVParser(QFile &file, const QChar &separator,
 
 QCSVParser::~QCSVParser(void)
 {
+    qDebug() << "QCSVParser début destructeur";
+
+    // Nothing to do...
+
+    qDebug() << "QCSVParser fin destructeur";
 }
 
 void QCSVParser::parse(const QString &filename, const QChar &separator,

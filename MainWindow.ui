@@ -15,6 +15,9 @@
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QHBoxLayout" name="mainHorizontalLayout">
+    <property name="spacing">
+     <number>3</number>
+    </property>
     <property name="topMargin">
      <number>0</number>
     </property>
@@ -72,7 +75,15 @@
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
    </widget>
+   <widget class="QMenu" name="menuEdit">
+    <property name="title">
+     <string>&amp;Edition</string>
+    </property>
+    <addaction name="actionShowGrid"/>
+    <addaction name="actionShowCrossLine"/>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuEdit"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">
@@ -104,6 +115,34 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Q</string>
+   </property>
+  </action>
+  <action name="actionShowGrid">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Afficher la &amp;grille</string>
+   </property>
+   <property name="toolTip">
+    <string>Afficher une grille quadrillées dans le graphique </string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+G</string>
+   </property>
+  </action>
+  <action name="actionShowCrossLine">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Afficher une croix à la position de la souris</string>
+   </property>
+   <property name="toolTip">
+    <string>Affiche / Masque une ligne verticale et une ligne horizontale passant par la position de la souris</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+C</string>
    </property>
   </action>
  </widget>
