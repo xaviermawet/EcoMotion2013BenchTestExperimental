@@ -7,6 +7,8 @@
     #include <QtGui>
 #endif
 
+#include "Plot/Plot.hpp"
+
 namespace Ui {
 class MainWindow;
 }
@@ -17,12 +19,13 @@ class MainWindow : public QMainWindow
     
     public:
 
-        explicit MainWindow(QWidget* parent = 0);
+        explicit MainWindow(QWidget* parent = NULL);
         virtual ~MainWindow(void);
 
     protected:
 
         void centerOnScreen(void);
+        void createPlotZone(void);
 
     private slots:
 
@@ -32,7 +35,11 @@ class MainWindow : public QMainWindow
 
     protected:
 
+        // GUI
         Ui::MainWindow* ui;
+
+        // Plot
+        Plot* plot;
 };
 
 #endif /* __MAINWINDOW_HPP__ */

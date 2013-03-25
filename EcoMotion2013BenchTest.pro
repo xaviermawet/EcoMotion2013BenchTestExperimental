@@ -5,6 +5,7 @@
 #-------------------------------------------------
 
 QT       += core gui
+#LIBS += -L/usr/local/lib -lqwt
 CONFIG += qwt
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets

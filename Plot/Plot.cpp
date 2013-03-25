@@ -7,7 +7,7 @@ Plot::Plot(const QString &title, QWidget *parent) :
 }
 
 Plot::Plot(const QwtText &title, QWidget *parent) :
-    QwtPlot(title, parent)
+    QwtPlot(title, parent), legend(NULL), zoomer(NULL)
 {
     /* ---------------------------------------------------------------------- *
      *                         Add a legend for curves                        *
@@ -39,7 +39,6 @@ Plot::Plot(const QwtText &title, QWidget *parent) :
      *                      Some customization options                        *
      * ---------------------------------------------------------------------- */
     this->enableAxis(QwtPlot::yRight);
-    this->setAxisScaleEngine(QwtPlot::yRight, this->axisScaleEngine(QwtPlot::yLeft));
     this->setCanvasBackground(Qt::darkGray);
     this->setAxisTitle(QwtPlot::xBottom, tr("Temps (s)"));
 }
