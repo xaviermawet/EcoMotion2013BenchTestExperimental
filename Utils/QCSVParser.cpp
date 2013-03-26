@@ -19,7 +19,8 @@ QCSVParser::QCSVParser(QFile &file, const QChar &separator,
     _fileName(file.fileName()), _separator(separator), _behavior(behavior)
 {
     // Parse the file
-    this->parse(file, separator, behavior);
+    if (file.exists())
+        this->parse(file, separator, behavior);
 }
 
 QCSVParser::~QCSVParser(void)
@@ -36,7 +37,8 @@ void QCSVParser::parse(const QString &filename, const QChar &separator,
 {
     // Delegate parsing
     QFile file(filename);
-    this->parse(file, separator, behavior);
+    if (file.exists())
+        this->parse(file, separator, behavior);
 }
 
 void QCSVParser::parse(QFile &file, const QChar &separator,
