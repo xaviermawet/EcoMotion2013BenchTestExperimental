@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>861</width>
-    <height>402</height>
+    <width>1134</width>
+    <height>471</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -63,7 +63,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>861</width>
+     <width>1134</width>
      <height>19</height>
     </rect>
    </property>
@@ -79,8 +79,16 @@
     <property name="title">
      <string>&amp;Edition</string>
     </property>
-    <addaction name="actionShowGrid"/>
-    <addaction name="actionShowCrossLine"/>
+    <widget class="QMenu" name="menuGraphic">
+     <property name="title">
+      <string>&amp;Graphique</string>
+     </property>
+     <addaction name="actionShowGrid"/>
+     <addaction name="actionShowCrossLine"/>
+     <addaction name="actionIncreaseAccuracy"/>
+     <addaction name="actionReduceAccuracy"/>
+    </widget>
+    <addaction name="menuGraphic"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -136,13 +144,32 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Afficher une croix à la position de la souris</string>
+    <string>Afficher une &amp;croix à la position de la souris</string>
    </property>
    <property name="toolTip">
     <string>Affiche / Masque une ligne verticale et une ligne horizontale passant par la position de la souris</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+C</string>
+   </property>
+  </action>
+  <action name="actionIncreaseAccuracy">
+   <property name="text">
+    <string>Augmenter la précision</string>
+   </property>
+   <property name="toolTip">
+    <string>Augmenter la précision des échelles du graphique</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Up</string>
+   </property>
+  </action>
+  <action name="actionReduceAccuracy">
+   <property name="text">
+    <string>Diminuer la précision</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Down</string>
    </property>
   </action>
  </widget>

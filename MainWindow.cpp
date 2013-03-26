@@ -14,6 +14,13 @@ MainWindow::MainWindow(QWidget* parent) :
     QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
     QTextCodec::setCodecForTr(QTextCodec::codecForName("UTF-8"));
     this->centerOnScreen();
+
+    // Test
+    qDebug() << this->plot->axisMaxMajor(QwtPlot::yLeft);
+    qDebug() << this->plot->axisMaxMinor(QwtPlot::yLeft);
+
+    qDebug() << this->plot->axisMaxMajor(QwtPlot::xBottom);
+    qDebug() << this->plot->axisMaxMinor(QwtPlot::xBottom);
 }
 
 MainWindow::~MainWindow(void)
@@ -98,7 +105,73 @@ void MainWindow::on_actionQuit_triggered(void)
 
 void MainWindow::on_addCurvePushButton_clicked(void)
 {
-    QMessageBox::information(this, "", "afficher courbe");
+    QString curveName = this->ui->paramMegasquirtComboBox->currentText();
+    qDebug() << "Courbe a afficher : " << curveName;
+
+    // Create a new curves
+    QwtPlotCurve* curve = new QwtPlotCurve(curveName);
+    curve->setRenderHint(QwtPlotItem::RenderAntialiased);
+    curve->setItemAttribute(QwtPlotItem::Legend);
+    curve->setLegendAttribute(QwtPlotCurve::LegendShowLine);
+    curve->setPen(QPen(Qt::darkRed, 1));
+
+    try
+    {
+        // Récupération du temps exprimé en microsecondes
+        QCSVRow secondes = this->parser["times"];
+
+        // Récupération de la colonne de données a représenter par une courbe
+        QCSVRow data     = this->parser[curveName];
+
+        // Création de la liste de points de la courbe
+        QVector<QPointF> vect;
+        for (int i(0); i < data.count(); ++i)
+        {
+            qreal xTps = secondes.at(i).toDouble() / 1000000;
+            qreal yData = data.at(i).toDouble();
+            vect.append(QPointF(xTps, yData));
+        }
+
+        QwtPointSeriesData* serieData = new QwtPointSeriesData(vect);
+        curve->setData(serieData);
+        curve->attach(this->plot);
+        this->setPlotCurveVisibile(curve, true);
+    }
+    catch (QException const& ex)
+    {
+        QMessageBox::information(this, tr("Ajout de la courbe annulé"),
+                                 ex.what());
+    }
+}
+
+void MainWindow::on_actionIncreaseAccuracy_triggered(void)
+{
+    // Set the maximum number of major scale intervals for a specified axis
+    this->plot->setAxisMaxMajor(QwtPlot::yLeft,
+                                this->plot->axisMaxMajor(QwtPlot::yLeft) + 1);
+    this->plot->setAxisMaxMajor(QwtPlot::xBottom,
+                                this->plot->axisMaxMajor(QwtPlot::xBottom) + 1);
+
+//    // Set the maximum number of minor scale intervals for a specified axis
+//    this->plot->setAxisMaxMinor(QwtPlot::yLeft,
+//                                this->plot->axisMaxMinor(QwtPlot::yLeft) + 1);
+//    this->plot->setAxisMaxMinor(QwtPlot::xBottom,
+//                                this->plot->axisMaxMinor(QwtPlot::xBottom) + 1);
+}
+
+void MainWindow::on_actionReduceAccuracy_triggered(void)
+{
+    // Set the maximum number of major scale intervals for a specified axis
+    this->plot->setAxisMaxMajor(QwtPlot::yLeft,
+                                this->plot->axisMaxMajor(QwtPlot::yLeft) - 1);
+    this->plot->setAxisMaxMajor(QwtPlot::xBottom,
+                                this->plot->axisMaxMajor(QwtPlot::xBottom) - 1);
+
+//    // Set the maximum number of minor scale intervals for a specified axis
+//    this->plot->setAxisMaxMinor(QwtPlot::yLeft,
+//                                this->plot->axisMaxMinor(QwtPlot::yLeft) - 1);
+//    this->plot->setAxisMaxMinor(QwtPlot::xBottom,
+//                                this->plot->axisMaxMinor(QwtPlot::xBottom) - 1);
 }
 
 void MainWindow::setPlotCurveVisibile(QwtPlotItem* item, bool visible)

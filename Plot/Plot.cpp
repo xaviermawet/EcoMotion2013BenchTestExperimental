@@ -7,7 +7,7 @@ Plot::Plot(const QString &title, QWidget *parent) :
 }
 
 Plot::Plot(const QwtText &title, QWidget *parent) :
-    QwtPlot(title, parent), legend(NULL), crossLine(NULL), grid(NULL),
+    QwtPlot(title, parent), legend(NULL), grid(NULL), crossLine(NULL),
     panner(NULL), zoomer(NULL), magnifier(NULL)
 {
     /* ---------------------------------------------------------------------- *

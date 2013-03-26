@@ -37,6 +37,8 @@ class MainWindow : public QMainWindow
         void on_actionImportData_triggered(void);
         void on_actionQuit_triggered(void);
         void on_addCurvePushButton_clicked(void);
+        void on_actionIncreaseAccuracy_triggered(void);
+        void on_actionReduceAccuracy_triggered(void);
 
         // Personal slots
         void setPlotCurveVisibile(QwtPlotItem* item, bool visible);
