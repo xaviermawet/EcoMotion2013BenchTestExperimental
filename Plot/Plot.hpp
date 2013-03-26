@@ -9,6 +9,7 @@
 #include <qwt_plot_marker.h>
 #include <qwt_scale_widget.h>
 #include <qwt_plot_magnifier.h>
+#include "Zoomer.hpp"
 
 class Plot : public QwtPlot
 {
@@ -35,8 +36,8 @@ class Plot : public QwtPlot
         QwtPlotGrid*      grid;
         QwtPlotMarker*    crossLine;
         QwtPlotPanner*    panner;
-        QwtPlotZoomer*    yRightZoomer;
-        QwtPlotZoomer*    yLeftZoomer;
+        Zoomer*           yRightZoomer;
+        Zoomer*           yLeftZoomer;
         QwtPlotMagnifier* magnifier;
 };
 

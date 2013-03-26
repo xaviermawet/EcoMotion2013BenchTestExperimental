@@ -44,20 +44,19 @@ Plot::Plot(const QwtText &title, QWidget *parent) :
     /* ---------------------------------------------------------------------- *
      *                         Manage zoom for the plot                       *
      * ---------------------------------------------------------------------- *
-     * LeftButton for the zooming                                             *
-     * RightButton: zoom out by 1                                             *
-     * Ctrl+RighButton: zoom out to full size                                 *
+     * Left button               : dragging rect                              *
+     * Right button              : zoom out by 1                              *
+     * Ctrl + Righ button        : zoom out to full size                      *
      * Mouse wheel or Ctrl + +/- : zoom in/out by 1                           *
      * ---------------------------------------------------------------------- */
-    this->yLeftZoomer = new QwtPlotZoomer(this->canvas());
+    this->yLeftZoomer = new Zoomer(this->canvas());
 
     // Display coordinates at mouse position every time
     this->yLeftZoomer->setTrackerMode(QwtPicker::AlwaysOn);
 
-    this->yLeftZoomer->setMousePattern(QwtEventPattern::MouseSelect2,
-                                  Qt::RightButton, Qt::ControlModifier);
-    this->yLeftZoomer->setMousePattern(QwtEventPattern::MouseSelect3,
-                                  Qt::RightButton);
+    // Allow to zoom with left button by dragging a rect
+    this->yLeftZoomer->setRubberBand(QwtPicker::RectRubberBand);
+
 
     // Manage zoom with the mouse wheel and keyborad
     this->magnifier = new QwtPlotMagnifier(this->canvas());
@@ -75,13 +74,7 @@ Plot::Plot(const QwtText &title, QWidget *parent) :
     this->enableAxis(QwtPlot::yRight);
 
     // Zoomer for the new axis
-    this->yRightZoomer = new QwtPlotZoomer(QwtPlot::xTop, QwtPlot::yRight,
-                                           this->canvas());
-    this->yRightZoomer->setTrackerMode(QwtPicker::AlwaysOff);
-    this->yRightZoomer->setMousePattern(QwtEventPattern::MouseSelect2,
-                                        Qt::RightButton, Qt::ControlModifier);
-    this->yRightZoomer->setMousePattern(QwtEventPattern::MouseSelect3,
-                                        Qt::RightButton);
+    this->yRightZoomer = new Zoomer(xTop, yRight, this->canvas());
 
     /* ---------------------------------------------------------------------- *
      *                      Some customization options                        *

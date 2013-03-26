@@ -1,7 +1,13 @@
 #include "Zoomer.hpp"
 
-Zoomer::Zoomer(int xAxis, int yAxis, QwtPlotCanvas *canvas) :
-    QwtPlotZoomer(xAxis, yAxis, canvas)
+Zoomer::Zoomer(QwtPlotCanvas* canvas, bool doReplot) :
+    Zoomer(QwtPlot::xBottom, QwtPlot::yLeft, canvas, doReplot)
+{
+    // Delegating constructors only available with -std=c++11 or -std=gnu++11
+}
+
+Zoomer::Zoomer(int xAxis, int yAxis, QwtPlotCanvas *canvas, bool doReplot) :
+    QwtPlotZoomer(xAxis, yAxis, canvas, doReplot)
 {
     this->setTrackerMode( QwtPicker::AlwaysOff );
     this->setRubberBand( QwtPicker::NoRubberBand );
