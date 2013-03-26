@@ -18,12 +18,14 @@ SOURCES += main.cpp\
         MainWindow.cpp \
     Plot/Plot.cpp \
     Utils/QCSVParser.cpp \
-    Utils/QException.cpp
+    Utils/QException.cpp \
+    Plot/Zoomer.cpp
 
 HEADERS  += MainWindow.hpp \
     Plot/Plot.hpp \
     Utils/QCSVParser.hpp \
-    Utils/QException.hpp
+    Utils/QException.hpp \
+    Plot/Zoomer.hpp
 
 FORMS    += MainWindow.ui
 
