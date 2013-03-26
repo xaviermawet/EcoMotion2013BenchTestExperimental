@@ -24,11 +24,17 @@ class Plot : public QwtPlot
         // Getter
         bool isGridVisible(void) const;
         bool isCrossLineVisible(void) const;
+        bool isLabelPositionVisible(void) const;
 
     public slots:
 
         void setGridVisible(bool visible);
         void setCrossLineVisible(bool visible);
+        void setLabelPositionVisible(bool visible);
+
+    protected slots:
+
+        void updateCrossLinePosition(QPointF const& pos);
 
     protected:
 

@@ -85,6 +85,8 @@
      </property>
      <addaction name="actionShowGrid"/>
      <addaction name="actionShowCrossLine"/>
+     <addaction name="actionDisplayLabelPosition"/>
+     <addaction name="separator"/>
      <addaction name="actionIncreaseAccuracy"/>
      <addaction name="actionReduceAccuracy"/>
     </widget>
@@ -170,6 +172,17 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Down</string>
+   </property>
+  </action>
+  <action name="actionDisplayLabelPosition">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Afficher un label indiquant la position de la souris</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+L</string>
    </property>
   </action>
  </widget>

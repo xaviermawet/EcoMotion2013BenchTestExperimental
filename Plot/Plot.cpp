@@ -109,18 +109,44 @@ bool Plot::isCrossLineVisible(void) const
     return this->crossLine->plot() != NULL;
 }
 
+bool Plot::isLabelPositionVisible(void) const
+{
+    return this->yLeftZoomer->trackerMode() == QwtPlotPicker::AlwaysOn;
+}
+
 void Plot::setGridVisible(bool visible)
 {
     visible ? this->grid->attach(this) : this->grid->detach();
     this->replot();
-
-    //this->grid->setVisible(visible);
 }
 
 void Plot::setCrossLineVisible(bool visible)
 {
-    visible ? this->crossLine->attach(this) : this->crossLine->detach();
-    this->replot();
+    if (visible)
+    {
+        this->crossLine->attach(this);
+        connect(this->yLeftZoomer, SIGNAL(mousePosChanged(QPointF)),
+                this, SLOT(updateCrossLinePosition(QPointF)));
+    }
+    else
+    {
+        this->crossLine->detach();
+        disconnect(this->yLeftZoomer, SIGNAL(mousePosChanged(QPointF)),
+                   this, SLOT(updateCrossLinePosition(QPointF)));
+    }
 
-    //this->crossLine->setVisible(visible);
+    this->replot();
+}
+
+void Plot::setLabelPositionVisible(bool visible)
+{
+    visible ? this->yLeftZoomer->setTrackerMode(QwtPicker::AlwaysOn) :
+              this->yLeftZoomer->setTrackerMode(QwtPicker::AlwaysOff);
+
+    this->replot();
+}
+
+void Plot::updateCrossLinePosition(const QPointF& pos)
+{
+    this->crossLine->setValue(pos);
 }

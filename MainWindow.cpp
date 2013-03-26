@@ -46,6 +46,8 @@ void MainWindow::createPlotZone(void)
     // Update menu actions
     this->ui->actionShowGrid->setChecked(this->plot->isGridVisible());
     this->ui->actionShowCrossLine->setChecked(this->plot->isCrossLineVisible());
+    this->ui->actionDisplayLabelPosition->setChecked(
+                this->plot->isLabelPositionVisible());
 
     // Connect plot signals to slots
     connect(this->plot, SIGNAL(legendChecked(QwtPlotItem*, bool)),
@@ -56,6 +58,8 @@ void MainWindow::createPlotZone(void)
             this->plot, SLOT(setGridVisible(bool)));
     connect(this->ui->actionShowCrossLine, SIGNAL(triggered(bool)),
             this->plot, SLOT(setCrossLineVisible(bool)));
+    connect(this->ui->actionDisplayLabelPosition, SIGNAL(triggered(bool)),
+            this->plot, SLOT(setLabelPositionVisible(bool)));
 }
 
 void MainWindow::on_actionImportData_triggered(void)
@@ -157,12 +161,6 @@ void MainWindow::on_actionReduceAccuracy_triggered(void)
                                 this->plot->axisMaxMajor(QwtPlot::yRight) - 1);
     this->plot->setAxisMaxMajor(QwtPlot::xBottom,
                                 this->plot->axisMaxMajor(QwtPlot::xBottom) - 1);
-
-//    // Set the maximum number of minor scale intervals for a specified axis
-//    this->plot->setAxisMaxMinor(QwtPlot::yLeft,
-//                                this->plot->axisMaxMinor(QwtPlot::yLeft) - 1);
-//    this->plot->setAxisMaxMinor(QwtPlot::xBottom,
-//                                this->plot->axisMaxMinor(QwtPlot::xBottom) - 1);
 }
 
 void MainWindow::setPlotCurveVisibile(QwtPlotItem* item, bool visible)

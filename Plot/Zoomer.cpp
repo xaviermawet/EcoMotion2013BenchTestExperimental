@@ -20,3 +20,10 @@ Zoomer::Zoomer(int xAxis, int yAxis, QwtPlotCanvas *canvas, bool doReplot) :
     this->setMousePattern( QwtEventPattern::MouseSelect3,
                            Qt::RightButton );
 }
+
+QwtText Zoomer::trackerTextF(const QPointF& pos) const
+{
+    emit this->mousePosChanged(pos);
+
+    return QwtPlotZoomer::trackerTextF(pos);
+}

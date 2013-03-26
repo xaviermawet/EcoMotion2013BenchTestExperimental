@@ -7,11 +7,19 @@
 
 class Zoomer: public QwtPlotZoomer
 {
+    Q_OBJECT
+
     public:
 
-        Zoomer(QwtPlotCanvas* canvas, bool doReplot = true);
-        Zoomer(int xAxis, int yAxis, QwtPlotCanvas* canvas,
-               bool doReplot = true);
+        explicit Zoomer(QwtPlotCanvas* canvas, bool doReplot = true);
+        explicit Zoomer(int xAxis, int yAxis, QwtPlotCanvas* canvas,
+                        bool doReplot = true);
+
+        virtual QwtText trackerTextF(const QPointF& pos) const;
+
+    signals:
+
+        void mousePosChanged(const QPointF& pos) const;
 };
 
 #endif /* __ZOOMER_HPP__ */
