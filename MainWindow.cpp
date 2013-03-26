@@ -142,14 +142,10 @@ void MainWindow::on_actionIncreaseAccuracy_triggered(void)
     // Set the maximum number of major scale intervals for a specified axis
     this->plot->setAxisMaxMajor(QwtPlot::yLeft,
                                 this->plot->axisMaxMajor(QwtPlot::yLeft) + 1);
+    this->plot->setAxisMaxMajor(QwtPlot::yRight,
+                                this->plot->axisMaxMajor(QwtPlot::yRight) + 1);
     this->plot->setAxisMaxMajor(QwtPlot::xBottom,
                                 this->plot->axisMaxMajor(QwtPlot::xBottom) + 1);
-
-//    // Set the maximum number of minor scale intervals for a specified axis
-//    this->plot->setAxisMaxMinor(QwtPlot::yLeft,
-//                                this->plot->axisMaxMinor(QwtPlot::yLeft) + 1);
-//    this->plot->setAxisMaxMinor(QwtPlot::xBottom,
-//                                this->plot->axisMaxMinor(QwtPlot::xBottom) + 1);
 }
 
 void MainWindow::on_actionReduceAccuracy_triggered(void)
@@ -157,6 +153,8 @@ void MainWindow::on_actionReduceAccuracy_triggered(void)
     // Set the maximum number of major scale intervals for a specified axis
     this->plot->setAxisMaxMajor(QwtPlot::yLeft,
                                 this->plot->axisMaxMajor(QwtPlot::yLeft) - 1);
+    this->plot->setAxisMaxMajor(QwtPlot::yRight,
+                                this->plot->axisMaxMajor(QwtPlot::yRight) - 1);
     this->plot->setAxisMaxMajor(QwtPlot::xBottom,
                                 this->plot->axisMaxMajor(QwtPlot::xBottom) - 1);
 
