@@ -8,19 +8,17 @@ Plot::Plot(const QString &title, QWidget *parent) :
 
 Plot::Plot(const QwtText &title, QWidget *parent) :
     QwtPlot(title, parent), legend(NULL), grid(NULL), crossLine(NULL),
-    panner(NULL), zoomer(NULL), magnifier(NULL)
+    panner(NULL), yRightZoomer(NULL), yLeftZoomer(NULL), magnifier(NULL)
 {
     /* ---------------------------------------------------------------------- *
      *                         Add a legend for curves                        *
      * ---------------------------------------------------------------------- */
     this->legend = new QwtLegend(this);
     this->legend->setItemMode(QwtLegend::CheckableItem);
-
-    // Insert the legend into the plot
     this->insertLegend(this->legend, QwtPlot::BottomLegend);
 
     /* ---------------------------------------------------------------------- *
-     *                             Ajout d'une grille                         *
+     *                                Add a grid                              *
      * ---------------------------------------------------------------------- */
     this->grid = new QwtPlotGrid();
     this->grid->setTitle(tr("Grille"));
@@ -28,12 +26,12 @@ Plot::Plot(const QwtText &title, QWidget *parent) :
     this->grid->attach(this);
 
     /* ---------------------------------------------------------------------- *
-     *                            Ajout d'une croix                           *
+     *                            Add a cross marker                          *
      * ---------------------------------------------------------------------- */
     this->crossLine = new QwtPlotMarker();
     this->crossLine->setLineStyle(QwtPlotMarker::Cross);
     this->crossLine->setValue(0, 0);
-    //this->crossLine->attach(this);
+    //this->crossLine->attach(this); // Detached by default
 
     /* ---------------------------------------------------------------------- *
      *                      Manage panning for the plot                       *
@@ -41,7 +39,6 @@ Plot::Plot(const QwtText &title, QWidget *parent) :
      * MidButton for the panning                                              *
      * ---------------------------------------------------------------------- */
     this->panner = new QwtPlotPanner(this->canvas());
-    this->panner->setAxisEnabled( QwtPlot::yRight, false );
     this->panner->setMouseButton(Qt::MidButton);
 
     /* ---------------------------------------------------------------------- *
@@ -52,15 +49,15 @@ Plot::Plot(const QwtText &title, QWidget *parent) :
      * Ctrl+RighButton: zoom out to full size                                 *
      * Mouse wheel or Ctrl + +/- : zoom in/out by 1                           *
      * ---------------------------------------------------------------------- */
-    this->zoomer = new QwtPlotZoomer(this->canvas());
+    this->yLeftZoomer = new QwtPlotZoomer(this->canvas());
 
     // Display coordinates at mouse position every time
-    this->zoomer->setTrackerMode(QwtPicker::AlwaysOn);
+    this->yLeftZoomer->setTrackerMode(QwtPicker::AlwaysOn);
 
-    this->zoomer->setMousePattern(QwtEventPattern::MouseSelect2,
+    this->yLeftZoomer->setMousePattern(QwtEventPattern::MouseSelect2,
                                   Qt::RightButton, Qt::ControlModifier);
-    this->zoomer->setMousePattern(QwtEventPattern::MouseSelect3,
-                                  Qt::RightButton );
+    this->yLeftZoomer->setMousePattern(QwtEventPattern::MouseSelect3,
+                                  Qt::RightButton);
 
     // Manage zoom with the mouse wheel and keyborad
     this->magnifier = new QwtPlotMagnifier(this->canvas());
@@ -68,6 +65,23 @@ Plot::Plot(const QwtText &title, QWidget *parent) :
     this->magnifier->setZoomOutKey(Qt::Key_Minus, Qt::ControlModifier);
     this->magnifier->setZoomInKey(Qt::Key_Plus,
                                   Qt::ControlModifier | Qt::ShiftModifier);
+
+    /* ---------------------------------------------------------------------- *
+     *                        Add a y axis on the right                       *
+     * ---------------------------------------------------------------------- *
+     * A zoomer controls only one x and one y axis. If you want to zoom 2 y   *
+     * axis you need a second zoomer (without tracker and rubber band)        *
+     * ---------------------------------------------------------------------- */
+    this->enableAxis(QwtPlot::yRight);
+
+    // Zoomer for the new axis
+    this->yRightZoomer = new QwtPlotZoomer(QwtPlot::xTop, QwtPlot::yRight,
+                                           this->canvas());
+    this->yRightZoomer->setTrackerMode(QwtPicker::AlwaysOff);
+    this->yRightZoomer->setMousePattern(QwtEventPattern::MouseSelect2,
+                                        Qt::RightButton, Qt::ControlModifier);
+    this->yRightZoomer->setMousePattern(QwtEventPattern::MouseSelect3,
+                                        Qt::RightButton);
 
     /* ---------------------------------------------------------------------- *
      *                      Some customization options                        *
@@ -83,8 +97,10 @@ Plot::~Plot(void)
 
     delete this->legend;
     delete this->grid;
-    delete this->zoomer;
+    delete this->crossLine;
     delete this->panner;
+    delete this->yRightZoomer;
+    delete this->yLeftZoomer;
     delete this->magnifier;
 
     qDebug() << "Plot fin destructeur";

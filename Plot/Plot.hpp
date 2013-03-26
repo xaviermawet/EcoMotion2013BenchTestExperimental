@@ -7,6 +7,7 @@
 #include <qwt_plot_zoomer.h>
 #include <qwt_plot_panner.h>
 #include <qwt_plot_marker.h>
+#include <qwt_scale_widget.h>
 #include <qwt_plot_magnifier.h>
 
 class Plot : public QwtPlot
@@ -34,7 +35,8 @@ class Plot : public QwtPlot
         QwtPlotGrid*      grid;
         QwtPlotMarker*    crossLine;
         QwtPlotPanner*    panner;
-        QwtPlotZoomer*    zoomer;
+        QwtPlotZoomer*    yRightZoomer;
+        QwtPlotZoomer*    yLeftZoomer;
         QwtPlotMagnifier* magnifier;
 };
 

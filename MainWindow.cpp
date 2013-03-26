@@ -14,13 +14,6 @@ MainWindow::MainWindow(QWidget* parent) :
     QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
     QTextCodec::setCodecForTr(QTextCodec::codecForName("UTF-8"));
     this->centerOnScreen();
-
-    // Test
-    qDebug() << this->plot->axisMaxMajor(QwtPlot::yLeft);
-    qDebug() << this->plot->axisMaxMinor(QwtPlot::yLeft);
-
-    qDebug() << this->plot->axisMaxMajor(QwtPlot::xBottom);
-    qDebug() << this->plot->axisMaxMinor(QwtPlot::xBottom);
 }
 
 MainWindow::~MainWindow(void)
