@@ -55,6 +55,17 @@ void MainWindow::createMSPlotZone(void)
             this,  SLOT(setPlotCurveVisibile(QwtPlotItem*, bool)));
 }
 
+void MainWindow::createCPPlotZone(void)
+{
+    this->CPPlot = new Plot("Couple et puissance", this);
+    this->CPPlot->setAxisTitle(Plot::xBottom, tr("Tours par minute (rad/s)"));
+    this->ui->coupleAndPowerHLayout->addWidget(this->CPPlot);
+
+    // Connect plot signals to slots
+    connect(this->CPPlot, SIGNAL(legendChecked(QwtPlotItem*, bool)),
+            this,  SLOT(setPlotCurveVisibile(QwtPlotItem*, bool)));
+}
+
 Plot* MainWindow::currentPlot(void) const
 {
     switch (this->ui->mainTabWidget->currentIndex())
@@ -78,13 +89,6 @@ void MainWindow::updateMenus(void)
     this->ui->actionShowCrossLine->setChecked(plot->isCrossLineVisible());
     this->ui->actionShowLabelPosition->setChecked(
                 plot->isLabelPositionVisible());
-}
-
-void MainWindow::createCPPlotZone(void)
-{
-    this->CPPlot = new Plot("Couple et puissance", this);
-    this->CPPlot->setAxisTitle(Plot::xBottom, tr("Tours par minutes ( rad/s)"));
-    this->ui->coupleAndPowerHLayout->addWidget(this->CPPlot);
 }
 
 void MainWindow::on_actionImportData_triggered(void)
@@ -209,6 +213,13 @@ void MainWindow::on_actionShowCrossLine_triggered(bool visible)
     this->currentPlot()->setCrossLineVisible(visible);
 }
 
+void MainWindow::on_mainTabWidget_currentChanged(int index)
+{
+    Q_UNUSED(index);
+
+    this->updateMenus();
+}
+
 void MainWindow::setPlotCurveVisibile(QwtPlotItem* item, bool visible)
 {
     item->setVisible(visible);
@@ -217,11 +228,4 @@ void MainWindow::setPlotCurveVisibile(QwtPlotItem* item, bool visible)
         ((QwtLegendItem *)w)->setChecked(visible);
 
     item->plot()->replot();
-}
-
-void MainWindow::on_mainTabWidget_currentChanged(int index)
-{
-    Q_UNUSED(index);
-
-    this->updateMenus();
 }
