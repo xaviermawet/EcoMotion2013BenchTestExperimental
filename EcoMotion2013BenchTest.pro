@@ -20,14 +20,16 @@ SOURCES += main.cpp\
     Utils/QCSVParser.cpp \
     Utils/QException.cpp \
     Plot/Zoomer.cpp \
-    Megasquirt/MSDataConverter.cpp
+    Megasquirt/MSDataConverter.cpp \
+    Megasquirt/MSFileManager.cpp
 
 HEADERS  += MainWindow.hpp \
     Plot/Plot.hpp \
     Utils/QCSVParser.hpp \
     Utils/QException.hpp \
     Plot/Zoomer.hpp \
-    Megasquirt/MSDataConverter.hpp
+    Megasquirt/MSDataConverter.hpp \
+    Megasquirt/MSFileManager.hpp
 
 FORMS    += MainWindow.ui
 
