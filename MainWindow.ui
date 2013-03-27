@@ -114,6 +114,8 @@
     <addaction name="actionImportData"/>
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
+    <addaction name="actionDatToCSV"/>
+    <addaction name="actionLoadCSV"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
@@ -148,6 +150,10 @@
    </property>
   </action>
   <action name="actionQuit">
+   <property name="icon">
+    <iconset resource="Resources.qrc">
+     <normaloff>:/Icons/Resources/Icons/close.png</normaloff>:/Icons/Resources/Icons/close.png</iconset>
+   </property>
    <property name="text">
     <string>&amp;Quitter</string>
    </property>
@@ -214,6 +220,16 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+L</string>
+   </property>
+  </action>
+  <action name="actionDatToCSV">
+   <property name="text">
+    <string>Générer un fichier CSV en sélectionnant les paramètres</string>
+   </property>
+  </action>
+  <action name="actionLoadCSV">
+   <property name="text">
+    <string>Charger un fichier CSV de données issues du Megasquirt</string>
    </property>
   </action>
  </widget>

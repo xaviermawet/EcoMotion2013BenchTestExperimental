@@ -57,7 +57,7 @@ void MainWindow::createMSPlotZone(void)
 
 void MainWindow::createCPPlotZone(void)
 {
-    this->CPPlot = new Plot("Couple et puissance", this);
+    this->CPPlot = new Plot("Couple - Puissance - Puissance spécifique", this);
     this->CPPlot->setAxisTitle(Plot::xBottom, tr("Tours par minute (rad/s)"));
     this->ui->coupleAndPowerHLayout->addWidget(this->CPPlot);
 
@@ -93,34 +93,8 @@ void MainWindow::updateMenus(void)
 
 void MainWindow::on_actionImportData_triggered(void)
 {
-    /* ---------------------------------------------------------------------- *
-     *                         Récupérer le fichier CSV                       *
-     * ---------------------------------------------------------------------- *
-     * Devra changer --> sélection d'un dossier qui contient tous les         *
-     * fichiers nécéssaires                                                   *
-     * ---------------------------------------------------------------------- */
-    QString filename = QFileDialog::getOpenFileName
-            (
-                this, tr("Megasquirt - Ouvrir un fichier CSV"),
-                QDir::homePath(), tr("Fichiers CSV (*.csv)")
-            );
-
-    try
-    {
-        if (filename.isNull() || filename.isEmpty())
-            throw QException(tr("Vous n'avez pas sélectionné de fichier"));
-
-        // Load information from the CSV file
-        this->parser.parse(filename, ';', QString::SkipEmptyParts);
-
-        // Récupérer les noms des colonnes du fichier csv
-        this->ui->paramMegasquirtComboBox->clear();
-        this->ui->paramMegasquirtComboBox->addItems(this->parser.headersList());
-    }
-    catch (QException const& ex)
-    {
-        QMessageBox::warning(this, tr("Importation annulée"), ex.what());
-    }
+    QMessageBox::information(this, tr("Couple - Puissance"),
+                             tr("Importation de données"));
 }
 
 void MainWindow::on_actionQuit_triggered(void)
@@ -220,6 +194,38 @@ void MainWindow::on_mainTabWidget_currentChanged(int index)
     this->updateMenus();
 }
 
+void MainWindow::on_actionLoadCSV_triggered(void)
+{
+    /* ---------------------------------------------------------------------- *
+     *                         Récupérer le fichier CSV                       *
+     * ---------------------------------------------------------------------- *
+     * Devra changer --> sélection d'un dossier qui contient tous les         *
+     * fichiers nécéssaires                                                   *
+     * ---------------------------------------------------------------------- */
+    QString filename = QFileDialog::getOpenFileName
+            (
+                this, tr("Megasquirt - Ouvrir un fichier CSV"),
+                QDir::homePath(), tr("Fichiers CSV (*.csv)")
+            );
+
+    try
+    {
+        if (filename.isNull() || filename.isEmpty())
+            throw QException(tr("Vous n'avez pas sélectionné de fichier"));
+
+        // Load information from the CSV file
+        this->parser.parse(filename, ';', QString::SkipEmptyParts);
+
+        // Récupérer les noms des colonnes du fichier csv
+        this->ui->paramMegasquirtComboBox->clear();
+        this->ui->paramMegasquirtComboBox->addItems(this->parser.headersList());
+    }
+    catch (QException const& ex)
+    {
+        QMessageBox::warning(this, tr("Importation annulée"), ex.what());
+    }
+}
+
 void MainWindow::setPlotCurveVisibile(QwtPlotItem* item, bool visible)
 {
     item->setVisible(visible);
@@ -228,4 +234,15 @@ void MainWindow::setPlotCurveVisibile(QwtPlotItem* item, bool visible)
         ((QwtLegendItem *)w)->setChecked(visible);
 
     item->plot()->replot();
+}
+
+void MainWindow::on_actionDatToCSV_triggered(void)
+{
+    // Demander à localiser le fichier dat
+
+    // Récupérer la liste des champs à convertir
+
+    // générer le fichier csv
+
+    QMessageBox::information(this, tr("DatToCSV"), tr("DatToCSV"));
 }

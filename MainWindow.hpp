@@ -31,11 +31,11 @@ class MainWindow : public QMainWindow
 
     protected:
 
-        void centerOnScreen(void);
-        void createMSPlotZone(void);
-        void createCPPlotZone(void);
+        void  centerOnScreen(void);
+        void  createMSPlotZone(void);
+        void  createCPPlotZone(void);
         Plot* currentPlot(void) const;
-        void updateMenus(void);
+        void  updateMenus(void);
 
     private slots:
 
@@ -49,6 +49,8 @@ class MainWindow : public QMainWindow
         void on_actionShowLabelPosition_triggered(bool visible);
         void on_actionShowCrossLine_triggered(bool visible);
         void on_mainTabWidget_currentChanged(int index);
+        void on_actionLoadCSV_triggered(void);
+        void on_actionDatToCSV_triggered(void);
 
         // Personal slots
         void setPlotCurveVisibile(QwtPlotItem* item, bool visible);
