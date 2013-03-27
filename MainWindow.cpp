@@ -2,17 +2,22 @@
 #include "ui_MainWindow.h"
 
 MainWindow::MainWindow(QWidget* parent) :
-    QMainWindow(parent), ui(new Ui::MainWindow), plot(NULL), parser()
+    QMainWindow(parent), ui(new Ui::MainWindow),
+    MSPlot(NULL), CPPlot(NULL), parser()
 {
-    // GUI Configuration
-    this->ui->setupUi(this);
-
-    // Plot configuration
-    this->createPlotZone();
-
     // Display Configuration
     QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
     QTextCodec::setCodecForTr(QTextCodec::codecForName("UTF-8"));
+
+    // GUI Configuration
+    this->ui->setupUi(this);
+
+    // Plots configuration
+    this->createMSPlotZone();
+    this->createCPPlotZone();
+    this->updateMenus();
+
+    // Center the window on the screen
     this->centerOnScreen();
 }
 
@@ -21,7 +26,8 @@ MainWindow::~MainWindow(void)
     qDebug() << "MainWindow début destructeur";
 
     delete this->ui;
-    delete this->plot;
+    delete this->MSPlot;
+    delete this->CPPlot;
 
     qDebug() << "MainWindow Fin destructeur";
 }
@@ -38,28 +44,47 @@ void MainWindow::centerOnScreen(void)
     this->move(screenCenterX - width() / 2, screenCenterY - height() / 2);
 }
 
-void MainWindow::createPlotZone(void)
+void MainWindow::createMSPlotZone(void)
 {
-    this->plot = new Plot("EcoMotion 2013 - Banc d'essai", this);
-    this->ui->mainHorizontalLayout->addWidget(this->plot);
-
-    // Update menu actions
-    this->ui->actionShowGrid->setChecked(this->plot->isGridVisible());
-    this->ui->actionShowCrossLine->setChecked(this->plot->isCrossLineVisible());
-    this->ui->actionDisplayLabelPosition->setChecked(
-                this->plot->isLabelPositionVisible());
+    this->MSPlot = new Plot("Données du Megasquirt", this);
+    this->MSPlot->setAxisTitle(Plot::xBottom, tr("Temps (s)"));
+    this->ui->MSDataHLayout->addWidget(this->MSPlot);
 
     // Connect plot signals to slots
-    connect(this->plot, SIGNAL(legendChecked(QwtPlotItem*, bool)),
+    connect(this->MSPlot, SIGNAL(legendChecked(QwtPlotItem*, bool)),
             this,  SLOT(setPlotCurveVisibile(QwtPlotItem*, bool)));
+}
 
-    // Connect signals to plot slots
-    connect(this->ui->actionShowGrid, SIGNAL(triggered(bool)),
-            this->plot, SLOT(setGridVisible(bool)));
-    connect(this->ui->actionShowCrossLine, SIGNAL(triggered(bool)),
-            this->plot, SLOT(setCrossLineVisible(bool)));
-    connect(this->ui->actionDisplayLabelPosition, SIGNAL(triggered(bool)),
-            this->plot, SLOT(setLabelPositionVisible(bool)));
+Plot* MainWindow::currentPlot(void) const
+{
+    switch (this->ui->mainTabWidget->currentIndex())
+    {
+        case TAB_COUPLE_AND_POWER:
+            return this->CPPlot;
+        case TAB_MEGASQUIRT_DATA:
+            return this->MSPlot;
+        default:
+            return NULL;
+    }
+}
+
+void MainWindow::updateMenus(void)
+{
+    // Get the current plot
+    Plot* plot = this->currentPlot();
+
+    // Update menu actions
+    this->ui->actionShowGrid->setChecked(plot->isGridVisible());
+    this->ui->actionShowCrossLine->setChecked(plot->isCrossLineVisible());
+    this->ui->actionShowLabelPosition->setChecked(
+                plot->isLabelPositionVisible());
+}
+
+void MainWindow::createCPPlotZone(void)
+{
+    this->CPPlot = new Plot("Couple et puissance", this);
+    this->CPPlot->setAxisTitle(Plot::xBottom, tr("Tours par minutes ( rad/s)"));
+    this->ui->coupleAndPowerHLayout->addWidget(this->CPPlot);
 }
 
 void MainWindow::on_actionImportData_triggered(void)
@@ -131,7 +156,7 @@ void MainWindow::on_addCurvePushButton_clicked(void)
 
         QwtPointSeriesData* serieData = new QwtPointSeriesData(vect);
         curve->setData(serieData);
-        curve->attach(this->plot);
+        curve->attach(this->MSPlot);
         this->setPlotCurveVisibile(curve, true);
     }
     catch (QException const& ex)
@@ -143,24 +168,45 @@ void MainWindow::on_addCurvePushButton_clicked(void)
 
 void MainWindow::on_actionIncreaseAccuracy_triggered(void)
 {
+    // Get the current plot
+    Plot* plot = this->currentPlot();
+
     // Set the maximum number of major scale intervals for a specified axis
-    this->plot->setAxisMaxMajor(QwtPlot::yLeft,
-                                this->plot->axisMaxMajor(QwtPlot::yLeft) + 1);
-    this->plot->setAxisMaxMajor(QwtPlot::yRight,
-                                this->plot->axisMaxMajor(QwtPlot::yRight) + 1);
-    this->plot->setAxisMaxMajor(QwtPlot::xBottom,
-                                this->plot->axisMaxMajor(QwtPlot::xBottom) + 1);
+    plot->setAxisMaxMajor(QwtPlot::yLeft,
+                          plot->axisMaxMajor(QwtPlot::yLeft) + 1);
+    plot->setAxisMaxMajor(QwtPlot::yRight,
+                          plot->axisMaxMajor(QwtPlot::yRight) + 1);
+    plot->setAxisMaxMajor(QwtPlot::xBottom,
+                          plot->axisMaxMajor(QwtPlot::xBottom) + 1);
 }
 
 void MainWindow::on_actionReduceAccuracy_triggered(void)
 {
+    // Get the current plot
+    Plot* plot = this->currentPlot();
+
     // Set the maximum number of major scale intervals for a specified axis
-    this->plot->setAxisMaxMajor(QwtPlot::yLeft,
-                                this->plot->axisMaxMajor(QwtPlot::yLeft) - 1);
-    this->plot->setAxisMaxMajor(QwtPlot::yRight,
-                                this->plot->axisMaxMajor(QwtPlot::yRight) - 1);
-    this->plot->setAxisMaxMajor(QwtPlot::xBottom,
-                                this->plot->axisMaxMajor(QwtPlot::xBottom) - 1);
+    plot->setAxisMaxMajor(QwtPlot::yLeft,
+                          plot->axisMaxMajor(QwtPlot::yLeft) - 1);
+    plot->setAxisMaxMajor(QwtPlot::yRight,
+                          plot->axisMaxMajor(QwtPlot::yRight) - 1);
+    plot->setAxisMaxMajor(QwtPlot::xBottom,
+                          plot->axisMaxMajor(QwtPlot::xBottom) - 1);
+}
+
+void MainWindow::on_actionShowGrid_triggered(bool visible)
+{
+    this->currentPlot()->setGridVisible(visible);
+}
+
+void MainWindow::on_actionShowLabelPosition_triggered(bool visible)
+{
+    this->currentPlot()->setLabelPositionVisible(visible);
+}
+
+void MainWindow::on_actionShowCrossLine_triggered(bool visible)
+{
+    this->currentPlot()->setCrossLineVisible(visible);
 }
 
 void MainWindow::setPlotCurveVisibile(QwtPlotItem* item, bool visible)
@@ -171,4 +217,11 @@ void MainWindow::setPlotCurveVisibile(QwtPlotItem* item, bool visible)
         ((QwtLegendItem *)w)->setChecked(visible);
 
     item->plot()->replot();
+}
+
+void MainWindow::on_mainTabWidget_currentChanged(int index)
+{
+    Q_UNUSED(index);
+
+    this->updateMenus();
 }

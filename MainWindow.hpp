@@ -13,6 +13,9 @@
 #include <qwt_plot_curve.h>
 #include <qwt_legend_item.h>
 
+#define TAB_COUPLE_AND_POWER 0
+#define TAB_MEGASQUIRT_DATA  1
+
 namespace Ui {
 class MainWindow;
 }
@@ -29,7 +32,10 @@ class MainWindow : public QMainWindow
     protected:
 
         void centerOnScreen(void);
-        void createPlotZone(void);
+        void createMSPlotZone(void);
+        void createCPPlotZone(void);
+        Plot* currentPlot(void) const;
+        void updateMenus(void);
 
     private slots:
 
@@ -39,6 +45,10 @@ class MainWindow : public QMainWindow
         void on_addCurvePushButton_clicked(void);
         void on_actionIncreaseAccuracy_triggered(void);
         void on_actionReduceAccuracy_triggered(void);
+        void on_actionShowGrid_triggered(bool visible);
+        void on_actionShowLabelPosition_triggered(bool visible);
+        void on_actionShowCrossLine_triggered(bool visible);
+        void on_mainTabWidget_currentChanged(int index);
 
         // Personal slots
         void setPlotCurveVisibile(QwtPlotItem* item, bool visible);
@@ -48,8 +58,9 @@ class MainWindow : public QMainWindow
         // GUI
         Ui::MainWindow* ui;
 
-        // Plot
-        Plot* plot;
+        // Plots
+        Plot* MSPlot;
+        Plot* CPPlot;
 
         // CSV parser
         QCSVParser parser;

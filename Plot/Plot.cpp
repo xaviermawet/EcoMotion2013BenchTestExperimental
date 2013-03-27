@@ -80,7 +80,6 @@ Plot::Plot(const QwtText &title, QWidget *parent) :
      *                      Some customization options                        *
      * ---------------------------------------------------------------------- */
     this->setCanvasBackground(Qt::darkGray);
-    this->setAxisTitle(QwtPlot::xBottom, tr("Temps (s)"));
     this->setAutoReplot(true);
 }
 

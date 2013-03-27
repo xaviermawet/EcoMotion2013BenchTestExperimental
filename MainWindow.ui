@@ -11,49 +11,89 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string/>
+   <string>EcoMotion 2013 - Banc d'essai</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QHBoxLayout" name="mainHorizontalLayout">
+   <layout class="QVBoxLayout" name="mainVerticalLayout">
     <property name="spacing">
-     <number>3</number>
+     <number>0</number>
+    </property>
+    <property name="leftMargin">
+     <number>0</number>
     </property>
     <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
      <number>0</number>
     </property>
     <property name="bottomMargin">
      <number>0</number>
     </property>
     <item>
-     <widget class="QGroupBox" name="groupBox">
-      <property name="title">
-       <string>Données Megasquirt</string>
+     <widget class="QTabWidget" name="mainTabWidget">
+      <property name="currentIndex">
+       <number>0</number>
       </property>
-      <layout class="QVBoxLayout" name="groupBoxVerticalLayout">
-       <item>
-        <widget class="QComboBox" name="paramMegasquirtComboBox"/>
-       </item>
-       <item>
-        <widget class="QPushButton" name="addCurvePushButton">
-         <property name="text">
-          <string>Ajouter la courbe</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer name="verticalSpacer">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-      </layout>
+      <widget class="QWidget" name="coupleAndPowerTab">
+       <attribute name="title">
+        <string>Couple et Puissane</string>
+       </attribute>
+       <layout class="QHBoxLayout" name="coupleAndPowerHLayout"/>
+      </widget>
+      <widget class="QWidget" name="megasquirtData">
+       <attribute name="title">
+        <string>Données Mégasquirt</string>
+       </attribute>
+       <layout class="QHBoxLayout" name="MSDataHLayout">
+        <property name="leftMargin">
+         <number>3</number>
+        </property>
+        <property name="topMargin">
+         <number>3</number>
+        </property>
+        <property name="rightMargin">
+         <number>3</number>
+        </property>
+        <property name="bottomMargin">
+         <number>3</number>
+        </property>
+        <item>
+         <widget class="QGroupBox" name="groupBox">
+          <property name="title">
+           <string>Données Megasquirt</string>
+          </property>
+          <layout class="QVBoxLayout" name="groupBoxVerticalLayout">
+           <item>
+            <widget class="QComboBox" name="paramMegasquirtComboBox"/>
+           </item>
+           <item>
+            <widget class="QPushButton" name="addCurvePushButton">
+             <property name="text">
+              <string>Ajouter la courbe</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="verticalSpacer">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
+       <zorder>groupBox</zorder>
+       <zorder>groupBox</zorder>
+      </widget>
      </widget>
     </item>
    </layout>
@@ -85,7 +125,7 @@
      </property>
      <addaction name="actionShowGrid"/>
      <addaction name="actionShowCrossLine"/>
-     <addaction name="actionDisplayLabelPosition"/>
+     <addaction name="actionShowLabelPosition"/>
      <addaction name="separator"/>
      <addaction name="actionIncreaseAccuracy"/>
      <addaction name="actionReduceAccuracy"/>
@@ -95,15 +135,6 @@
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
   </widget>
-  <widget class="QToolBar" name="mainToolBar">
-   <attribute name="toolBarArea">
-    <enum>TopToolBarArea</enum>
-   </attribute>
-   <attribute name="toolBarBreak">
-    <bool>false</bool>
-   </attribute>
-  </widget>
-  <widget class="QStatusBar" name="statusBar"/>
   <action name="actionImportData">
    <property name="icon">
     <iconset resource="Resources.qrc">
@@ -174,7 +205,7 @@
     <string>Ctrl+Down</string>
    </property>
   </action>
-  <action name="actionDisplayLabelPosition">
+  <action name="actionShowLabelPosition">
    <property name="checkable">
     <bool>true</bool>
    </property>
