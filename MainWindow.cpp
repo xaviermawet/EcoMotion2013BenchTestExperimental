@@ -84,11 +84,18 @@ void MainWindow::updateMenus(void)
     // Get the current plot
     Plot* plot = this->currentPlot();
 
-    // Update menu actions
+    // Update menu edit actions
     this->ui->actionShowGrid->setChecked(plot->isGridVisible());
     this->ui->actionShowCrossLine->setChecked(plot->isCrossLineVisible());
     this->ui->actionShowLabelPosition->setChecked(
                 plot->isLabelPositionVisible());
+
+    // Update menu file actions
+    int currentTab = this->ui->mainTabWidget->currentIndex();
+
+    this->ui->actionImportData->setVisible(currentTab == TAB_COUPLE_AND_POWER);
+    this->ui->actionDatToCSV->setVisible(currentTab == TAB_MEGASQUIRT_DATA);
+    this->ui->actionLoadCSV->setVisible(currentTab == TAB_MEGASQUIRT_DATA);
 }
 
 void MainWindow::on_actionImportData_triggered(void)

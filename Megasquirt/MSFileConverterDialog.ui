@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Liste des paramètres du Megasquirt</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -46,7 +46,7 @@
      <item>
       <widget class="QPushButton" name="convertPushButton">
        <property name="toolTip">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Extraire les données des paramètres sélectionnés du fichier *.dat&lt;/p&gt;&lt;p&gt;et les sauver dans un fichier CSV&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Extraire les données des paramètres sélectionnés du fichier *.dat et les sauver dans un fichier CSV&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
        <property name="text">
         <string>Convertir</string>
@@ -68,6 +68,9 @@
      </item>
      <item>
       <widget class="QPushButton" name="endPushButton">
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Fermer la boite de dialogue&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
        <property name="text">
         <string>Terminer</string>
        </property>

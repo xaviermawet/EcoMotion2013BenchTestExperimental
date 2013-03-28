@@ -2,5 +2,7 @@
     <qresource prefix="/Icons">
         <file>Resources/Icons/download.png</file>
         <file>Resources/Icons/close.png</file>
+        <file>Resources/Icons/copy.png</file>
+        <file>Resources/Icons/file.png</file>
     </qresource>
 </RCC>
