@@ -1,7 +1,6 @@
-#include "MSFileManager.hpp"
-#define test 2
+#include "MSManager.hpp"
 
-MSFileManager::MSFileManager(void)
+MSManager::MSManager(void)
 {
     this->dataConverters
     << MSDataConverter("seconds",       MSDataConverter::U16, 0, "s", 1.000, 0.0)
@@ -98,12 +97,12 @@ MSFileManager::MSFileManager(void)
     << MSDataConverter("gpioport2",     MSDataConverter::U08,  	168, "",		1.000, 				0.0);
 }
 
-int MSFileManager::count(void) const
+int MSManager::count(void) const
 {
     return this->dataConverters.count();
 }
 
-int MSFileManager::fieldIndice(const QString& field) const
+int MSManager::fieldIndice(const QString& field) const
 {
     for (int i(0); i < this->count(); ++i)
         if (this->dataConverters.at(i).field() == field)
@@ -112,7 +111,7 @@ int MSFileManager::fieldIndice(const QString& field) const
     throw QException(QObject::tr("Field not found"));
 }
 
-QList<QString> MSFileManager::fields(void) const
+QList<QString> MSManager::fields(void) const
 {
     QList<QString> allFields;
 
@@ -122,7 +121,7 @@ QList<QString> MSFileManager::fields(void) const
     return allFields;
 }
 
-const MSDataConverter& MSFileManager::dataConverter(int fieldIndice) const
+const MSDataConverter& MSManager::dataConverter(int fieldIndice) const
 {
     if (fieldIndice >= this->count())
         throw QException(QObject::tr("Indice trop grand"));
@@ -130,7 +129,7 @@ const MSDataConverter& MSFileManager::dataConverter(int fieldIndice) const
     return this->dataConverters.at(fieldIndice);
 }
 
-const MSDataConverter& MSFileManager::dataConverter(const QString& field) const
+const MSDataConverter& MSManager::dataConverter(const QString& field) const
 {
     //return this->dataConverters.at(this->fieldIndice(field));
 
@@ -141,17 +140,17 @@ const MSDataConverter& MSFileManager::dataConverter(const QString& field) const
     throw QException(QObject::tr("Field not found"));
 }
 
-const MSDataConverter& MSFileManager::operator [](QString const& field) const
+const MSDataConverter& MSManager::operator [](QString const& field) const
 {
     return this->dataConverter(field);
 }
 
-const MSDataConverter& MSFileManager::operator [](int fieldIndice) const
+const MSDataConverter& MSManager::operator [](int fieldIndice) const
 {
     return this->dataConverter(fieldIndice);
 }
 
-void MSFileManager::datToCSV(const QString& datFile, const QString& CSVFile,
+void MSManager::datToCSV(const QString& datFile, const QString& CSVFile,
                              const QList<QString>& fieldList) const
 {
     // File *.dat : read binary data from a stream

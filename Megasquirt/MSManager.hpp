@@ -1,5 +1,5 @@
-#ifndef __MSFILEMANAGER_HPP__
-#define __MSFILEMANAGER_HPP__
+#ifndef __MSMANAGER_HPP__
+#define __MSMANAGER_HPP__
 
 #if QT_VERSION >= 0x050000 //  0xMMNNPP (MM = major, NN = minor, PP = patch)
     #include <QtWidgets>
@@ -12,13 +12,12 @@
 #include "../Utils/QCSVParser.hpp"
 
 #define DATA_SIZE	169
-#define TIME_SIZE   4 // 32 bits
 
-class MSFileManager
+class MSManager
 {
     public:
 
-        MSFileManager(void);
+        MSManager(void);
 
         // Getters
         int count(void) const;
@@ -41,4 +40,4 @@ class MSFileManager
         QList<MSDataConverter> dataConverters;
 };
 
-#endif /* __MSFILEMANAGER_HPP__ */
+#endif /* __MSMANAGER_HPP__ */
