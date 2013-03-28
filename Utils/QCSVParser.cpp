@@ -213,7 +213,13 @@ QCSVColumn& QCSVParser::operator [](int column)
 
 void QCSVParser::writeRow(QTextStream& out, const QCSVRow& row) const
 {
+    /*
     for (int i(0); i < row.count() - 1; ++i)
         out << row.at(i) << this->_separator;
     out << row.at(row.count() - 1);
+    */
+
+    for (int i(0); i < row.count(); ++i)
+        out << row.at(i) << this->_separator;
+    out << endl;
 }

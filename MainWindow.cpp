@@ -106,17 +106,14 @@ void MainWindow::on_actionQuit_triggered(void)
 void MainWindow::on_addCurvePushButton_clicked(void)
 {
     QString curveName = this->ui->paramMegasquirtComboBox->currentText();
-    qDebug() << "Courbe a afficher : " << curveName;
-
-    // Create a new curves
-    QwtPlotCurve* curve = new QwtPlotCurve(curveName);
-    curve->setRenderHint(QwtPlotItem::RenderAntialiased);
-    curve->setItemAttribute(QwtPlotItem::Legend);
-    curve->setLegendAttribute(QwtPlotCurve::LegendShowLine);
-    curve->setPen(QPen(Qt::darkRed, 1));
 
     try
     {
+        if (curveName.isEmpty())
+            throw QException(tr("Aucune courbe sélectionnée"));
+
+        qDebug() << "Courbe a afficher : " << curveName;
+
         // Récupération du temps exprimé en microsecondes
         QCSVRow secondes = this->parser["times"];
 
@@ -133,8 +130,16 @@ void MainWindow::on_addCurvePushButton_clicked(void)
         }
 
         QwtPointSeriesData* serieData = new QwtPointSeriesData(vect);
+
+        // Create a new curves
+        QwtPlotCurve* curve = new QwtPlotCurve(curveName);
+        curve->setRenderHint(QwtPlotItem::RenderAntialiased);
+        curve->setItemAttribute(QwtPlotItem::Legend);
+        curve->setLegendAttribute(QwtPlotCurve::LegendShowLine);
+        curve->setPen(QPen(Qt::darkRed, 1));
         curve->setData(serieData);
         curve->attach(this->MSPlot);
+
         this->setPlotCurveVisibile(curve, true);
     }
     catch (QException const& ex)
@@ -238,11 +243,18 @@ void MainWindow::setPlotCurveVisibile(QwtPlotItem* item, bool visible)
 
 void MainWindow::on_actionDatToCSV_triggered(void)
 {
-    // Demander à localiser le fichier dat
+    try
+    {
+        /* Get dat file name */
+        QString datFileName = QFileDialog::getOpenFileName(
+                    this, tr("Selectionné le fichier de données du Megasquirt"),
+                    QDir::homePath(), tr("Fichier de données (*.dat)"));
 
-    // Récupérer la liste des champs à convertir
-
-    // générer le fichier csv
-
-    QMessageBox::information(this, tr("DatToCSV"), tr("DatToCSV"));
+        MSFileConverterDialog dialog(datFileName, this);
+        dialog.exec();
+    }
+    catch(QException const& ex)
+    {
+        QMessageBox::warning(this, tr("Conversion annulée"), ex.what());
+    }
 }

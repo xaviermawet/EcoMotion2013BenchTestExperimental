@@ -10,6 +10,8 @@
 #include "Plot/Plot.hpp"
 #include "Utils/QException.hpp"
 #include "Utils/QCSVParser.hpp"
+#include "Megasquirt/MSManager.hpp"
+#include "Megasquirt/MSFileConverterDialog.hpp"
 #include <qwt_plot_curve.h>
 #include <qwt_legend_item.h>
 
@@ -66,6 +68,9 @@ class MainWindow : public QMainWindow
 
         // CSV parser
         QCSVParser parser;
+
+        // Megasquirt
+        MSManager MegasquirtManager;
 
 };
 

@@ -21,7 +21,8 @@ SOURCES += main.cpp\
     Utils/QException.cpp \
     Plot/Zoomer.cpp \
     Megasquirt/MSDataConverter.cpp \
-    Megasquirt/MSManager.cpp
+    Megasquirt/MSManager.cpp \
+    Megasquirt/MSFileConverterDialog.cpp
 
 HEADERS  += MainWindow.hpp \
     Plot/Plot.hpp \
@@ -29,9 +30,11 @@ HEADERS  += MainWindow.hpp \
     Utils/QException.hpp \
     Plot/Zoomer.hpp \
     Megasquirt/MSDataConverter.hpp \
-    Megasquirt/MSManager.hpp
+    Megasquirt/MSManager.hpp \
+    Megasquirt/MSFileConverterDialog.hpp
 
-FORMS    += MainWindow.ui
+FORMS    += MainWindow.ui \
+    Megasquirt/MSFileConverterDialog.ui
 
 RESOURCES += \
     Resources.qrc
