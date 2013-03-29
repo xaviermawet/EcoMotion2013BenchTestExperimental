@@ -21,8 +21,7 @@ MSFileConverterDialog::MSFileConverterDialog(const QString& datFilename,
         throw QException(tr("Fichier de données non valide"));
 
     // fill the list with all megasquirt parameters
-    this->ui->listParamMegasquirt->addItems(
-                QStringList(this->megasquirtManager.fields()));
+    this->ui->listParamMegasquirt->addItems(this->megasquirtManager.fields());
 }
 
 MSFileConverterDialog::~MSFileConverterDialog(void)

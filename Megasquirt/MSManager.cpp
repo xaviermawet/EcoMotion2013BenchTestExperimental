@@ -111,14 +111,13 @@ int MSManager::fieldIndice(const QString& field) const
     throw QException(QObject::tr("Field not found"));
 }
 
-QList<QString> MSManager::fields(void) const
+QStringList MSManager::fields(void) const
 {
-    QList<QString> allFields;
-
+    QStringList megasquirtFields;
     foreach (MSDataConverter converter, this->dataConverters)
-        allFields.append(converter.field());
+        megasquirtFields << converter.field();
 
-    return allFields;
+    return megasquirtFields;
 }
 
 const MSDataConverter& MSManager::dataConverter(int fieldIndice) const
@@ -151,14 +150,14 @@ const MSDataConverter& MSManager::operator [](int fieldIndice) const
 }
 
 void MSManager::datToCSV(const QString& datFile, const QString& CSVFile,
-                             const QList<QString>& fieldList) const
+                         const QStringList& fields) const
 {
-    // File *.dat : read binary data from a stream
+    // File *.dat : read binaries data from a stream
     QFile fileDAT(datFile);
     if (!fileDAT.open(QIODevice::ReadOnly))
         throw QException(QObject::tr("Impossible d'ouvrir le fichier *.dat"));
 
-    // By default, byteOrder is set to QDataStream::BigEndian
+    // Bytes order is QDataStream::BigEndian by default
     QDataStream in(&fileDAT);
 
     QCSVParser parser(CSVFile, ';');
@@ -172,7 +171,7 @@ void MSManager::datToCSV(const QString& datFile, const QString& CSVFile,
 
     /* Add CSV headers */
     row.append("times");
-    row << fieldList.toVector();
+    row << fields.toVector();
     parser.addRow(row);
 
     do
@@ -187,7 +186,7 @@ void MSManager::datToCSV(const QString& datFile, const QString& CSVFile,
         if (in.readRawData((char*)buffer, DATA_SIZE) < DATA_SIZE)
             throw QException(QObject::tr("Erreur read ms data"));
 
-        foreach (QString field, fieldList)
+        foreach (QString field, fields)
         {
             MSDataConverter dataconvert = this->dataConverter(field);
             uvar = svar = 0;
@@ -240,3 +239,94 @@ void MSManager::datToCSV(const QString& datFile, const QString& CSVFile,
     // Sauvegarder le csv
     parser.save();
 }
+
+//void MSManager::datToCSV(const QString& datFile, const QString& CSVFile,
+//                             const QList<QString>& fieldList) const
+//{
+//    // File *.dat : read binary data from a stream
+//    QFile fileDAT(datFile);
+//    if (!fileDAT.open(QIODevice::ReadOnly))
+//        throw QException(QObject::tr("Impossible d'ouvrir le fichier *.dat"));
+
+//    // By default, byteOrder is set to QDataStream::BigEndian
+//    QDataStream in(&fileDAT);
+
+//    QCSVParser parser(CSVFile, ';');
+//    QCSVRow row;
+
+//    quint32 time;
+//    unsigned char buffer[DATA_SIZE];
+//    unsigned long  uvar;
+//    signed   long  svar;
+//    double         value;
+
+//    /* Add CSV headers */
+//    row.append("times");
+//    row << fieldList.toVector();
+//    parser.addRow(row);
+
+//    do
+//    {
+//        row.clear();
+
+//        /* times */
+//        in >> time;
+//        row << QString::number(qFromBigEndian<quint32>(time));
+
+//        /* Megasquirt */
+//        if (in.readRawData((char*)buffer, DATA_SIZE) < DATA_SIZE)
+//            throw QException(QObject::tr("Erreur read ms data"));
+
+//        foreach (QString field, fieldList)
+//        {
+//            MSDataConverter dataconvert = this->dataConverter(field);
+//            uvar = svar = 0;
+//            value = 0.0;
+
+//            /* data extraction from buffer */
+//            switch (dataconvert.type())
+//            {
+//                case MSDataConverter::U08:
+//                    memcpy(&uvar, buffer + dataconvert.offset(), 1);
+//                    value = (double)uvar;
+//                    break;
+//                case MSDataConverter::U16:
+//                    memcpy(&uvar, buffer + dataconvert.offset(), 2);
+//                    uvar  = qFromBigEndian<quint16>((uchar*)&uvar); // MegaSquirt is big endian
+//                    value = (double)uvar;
+//                    break;
+//                case MSDataConverter::U32:
+//                    memcpy(&uvar, buffer + dataconvert.offset(), 4);
+//                    uvar  = qFromBigEndian<quint32>((uchar*)&uvar); // MegaSquirt is big endian
+//                    value = (double)uvar;
+//                    break;
+//                case MSDataConverter::S08:
+//                    memcpy(&svar, buffer + dataconvert.offset(), 1);
+//                    value = (double)svar;
+//                    break;
+//                case MSDataConverter::S16:
+//                    memcpy(&svar, buffer + dataconvert.offset(), 2);
+//                    svar  = qFromBigEndian<quint16>((uchar*)&svar); // MegaSquirt is big endian
+//                    value = (double)svar;
+//                    break;
+//                case MSDataConverter::S32:
+//                    memcpy(&svar, buffer + dataconvert.offset(), 4);
+//                    svar  = qFromBigEndian<quint32>((uchar*)&svar); // MegaSquirt is big endian
+//                    value = (double)svar;
+//                    break;
+//            }
+
+//            /* data convertion */
+//            value = (value + dataconvert.translate()) * dataconvert.scale();
+
+//            /* add value to the row */
+//            row << QString::number(value, 'f');
+//        }
+
+//        parser.addRow(row);
+
+//    } while (!fileDAT.atEnd());
+
+//    // Sauvegarder le csv
+//    parser.save();
+//}

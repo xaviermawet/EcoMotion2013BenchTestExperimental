@@ -98,10 +98,142 @@ void MainWindow::updateMenus(void)
     this->ui->actionLoadCSV->setVisible(currentTab == TAB_MEGASQUIRT_DATA);
 }
 
+void MainWindow::checkFolderContent(const QDir &MSDir) const
+{
+    if (!MSDir.exists())
+        throw QException(tr("Le dossier n'existe pas"));
+
+    // Check if the folder content all the files
+    QStringList files;
+    files << MEGASQUIRT_DAT_FILENAME << INERTIE_FILENAME << PROTOWHEEL_FILENAME;
+
+    foreach (QString filename, files)
+    {
+        if(!MSDir.exists(filename))
+            throw QException(tr("Fichier ") + filename + tr(" inexistant"));
+    }
+}
+
+void MainWindow::createCoupleAndPowerCurves(
+        QString const& megasquirtCSVFilename)
+{
+    qDebug() << "Début de la création des courbes ...";
+
+    QCSVParser MSFile(megasquirtCSVFilename, ';', QString::SkipEmptyParts);
+
+    qDebug() << "nombre de colonnes = " << MSFile.columnCount();
+
+    foreach (QString header, MSFile.headersList()) {
+        qDebug() << header;
+    }
+
+    qDebug() << "avant recupération de données";
+    QCSVColumn times = MSFile["times"];
+    qDebug() << "times récupérés !!!!";
+    QCSVColumn rpm   = MSFile["rpm"];
+    qDebug() << "RPM récupérés !!!!";
+
+    QVector<QPointF> couplePoints;
+
+    double w1, w2;
+    double accAngulaire;
+    double couple;
+    const double PI = 3.141592653589793;
+    const double Jdelta = 0.22; // FIXME : demander à l'utilisateur de rentrer la valeur
+
+    w2 = (PI * rpm.at(0).toDouble()) / 30;
+
+    for (int i(1); i < times.count(); ++i)
+    {
+        // filtrage des données continues ayant le meme nombre de RPM
+        if (rpm.at(i - 1) == rpm.at(i))
+        {
+            qDebug() << "ligne " << i - 1 << " et " << i << " : RPM identique "
+                     << rpm.at(i);
+            continue;
+        }
+
+        w1 = w2;
+
+    /* ---------------------------------------------------------------------- *
+     *                           ωx = (Π * Nx) / 30                           *
+     * ---------------------------------------------------------------------- *
+     * ωx = Vitesse angulaire à l'instant x (rad/s)                           *
+     * Π  = Pi, constante qui vaut 3.141592653589793...                       *
+     * N  = tours par minutes à l'instant x == RPM (rad/s)                           *
+     * ---------------------------------------------------------------------- */
+
+        w2 = (PI * rpm.at(i).toDouble()) / 30;
+
+    /* ---------------------------------------------------------------------- *
+     *                        α = (ω2 - ω1) / (t2 - t1)                       *
+     * ---------------------------------------------------------------------- *
+     * α  = Accélération angulaire (rad/s²)                                   *
+     * ωx = Vitesse angulaire à l'instant x (rad/s)                           *
+     * tx = temps x (s)                                                       *
+     * ---------------------------------------------------------------------- */
+
+        accAngulaire =                    (w2 - w1)
+                                              /
+                      (times.at(i).toDouble() - times.at(i - 1).toDouble());
+
+    /* ---------------------------------------------------------------------- *
+     *                              C = JΔ * α                                *
+     * ---------------------------------------------------------------------- *
+     * C  = Couple (N.m)                                                      *
+     * JΔ = moment d'inertie (kg.m²)                                          *
+     * α  = Accélération angulaire (rad/s²)                                   *
+     * ---------------------------------------------------------------------- */
+
+        couple = Jdelta * accAngulaire;
+
+        // Ajout du point à la liste des points de la courbe du couple
+        couplePoints.append(QPointF(rpm.at(i).toDouble(), couple));
+    }
+
+    // Crée la courbe du couple
+    QwtPointSeriesData* coupleSerieData = new QwtPointSeriesData(couplePoints);
+    QwtPlotCurve* coupleCurve = new QwtPlotCurve(tr("Couple"));
+    coupleCurve->setRenderHint(QwtPlotItem::RenderAntialiased);
+    coupleCurve->setItemAttribute(QwtPlotItem::Legend);
+    coupleCurve->setLegendAttribute(QwtPlotCurve::LegendShowLine);
+    coupleCurve->setPen(QPen(Qt::darkRed, 1));
+    coupleCurve->setData(coupleSerieData);
+    coupleCurve->attach(this->CPPlot);
+
+    qDebug() << "Fin de la création des courbes ...";
+}
+
 void MainWindow::on_actionImportData_triggered(void)
 {
-    QMessageBox::information(this, tr("Couple - Puissance"),
-                             tr("Importation de données"));
+    QDir MSDir = QFileDialog::getExistingDirectory(
+                this, tr("Sélectionnez le dossier contenant "
+                "les données du Megasquirt"), QDir::homePath());
+    try
+    {
+        // Check the folder content
+        this->checkFolderContent(MSDir);
+
+        // Remove oldest csv file if exists
+        QString csvFilename = MSDir.filePath(MEGASQUIRT_CSV_FILENAME);
+        QFile csvFile(csvFilename);
+        if (csvFile.exists())
+            csvFile.remove();
+
+        // Generate csv file by extracting data from dat file
+        MSManager megasquirtManager;
+        megasquirtManager.datToCSV(MSDir.filePath(MEGASQUIRT_DAT_FILENAME),
+                                   csvFilename,
+                                   QStringList("rpm"));
+
+        // Create couple and power curves
+        this->createCoupleAndPowerCurves(
+                    MSDir.filePath(MEGASQUIRT_CSV_FILENAME));
+    }
+    catch(QException const& ex)
+    {
+        QMessageBox::warning(this, tr("Importation annulée"), ex.what());
+    }
 }
 
 void MainWindow::on_actionQuit_triggered(void)

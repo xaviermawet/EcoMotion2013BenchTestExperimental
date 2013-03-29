@@ -23,6 +23,37 @@
    </item>
    <item>
     <widget class="QListWidget" name="listParamMegasquirt">
+     <property name="styleSheet">
+      <string notr="true"> QListWidget {
+     show-decoration-selected: 1;
+ }
+
+ QListWidget::item {
+      border: 1px solid #d9d9d9;
+     border-top-color: transparent;
+     border-bottom-color: transparent;
+ }
+
+ QListWidget::item:hover {
+     background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #e7effd, stop: 1 #cbdaf1);
+     border: 1px solid #bfcde4;
+ }
+
+ QListWidget::item:selected {
+     border: 1px solid #567dbc;
+ }
+
+ QListWidget::item:selected:active{
+     background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #6ea1f1, stop: 1 #567dbc);
+ }
+
+ QListWidget::item:selected:!active {
+     background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #6b9be8, stop: 1 #577fbf);
+ }</string>
+     </property>
+     <property name="alternatingRowColors">
+      <bool>true</bool>
+     </property>
      <property name="selectionMode">
       <enum>QAbstractItemView::MultiSelection</enum>
      </property>
@@ -49,7 +80,14 @@
         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Extraire les données des paramètres sélectionnés du fichier *.dat et les sauver dans un fichier CSV&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
        <property name="text">
-        <string>Convertir</string>
+        <string>&amp;Convertir</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../Resources.qrc">
+         <normaloff>:/Icons/Resources/Icons/copy.png</normaloff>:/Icons/Resources/Icons/copy.png</iconset>
+       </property>
+       <property name="shortcut">
+        <string>Ctrl+C</string>
        </property>
       </widget>
      </item>
@@ -72,7 +110,14 @@
         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Fermer la boite de dialogue&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
        <property name="text">
-        <string>Terminer</string>
+        <string>&amp;Terminer</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../Resources.qrc">
+         <normaloff>:/Icons/Resources/Icons/close.png</normaloff>:/Icons/Resources/Icons/close.png</iconset>
+       </property>
+       <property name="shortcut">
+        <string>Ctrl+Q</string>
        </property>
       </widget>
      </item>
@@ -93,7 +138,9 @@
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="../Resources.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>endPushButton</sender>

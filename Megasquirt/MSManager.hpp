@@ -22,7 +22,7 @@ class MSManager
         // Getters
         int count(void) const;
         int fieldIndice(QString const& field) const;
-        QList<QString> fields(void) const;
+        QStringList fields(void) const;
 
         const MSDataConverter& dataConverter(int fieldIndice) const;
         const MSDataConverter& dataConverter(QString const& field) const;
@@ -31,9 +31,8 @@ class MSManager
         const MSDataConverter& operator[](int fieldIndice) const;
 
         // File operations
-        void datToCSV(QString const& datFile, QString const& CSVFile) const;
-        void datToCSV(const QString &datFile, const QString &CSVFile,
-                      QList<QString> const& fieldList) const;
+        void datToCSV(QString const& datFile, QString const& CSVFile,
+                      QStringList const& fields = QStringList()) const;
 
     protected:
 
