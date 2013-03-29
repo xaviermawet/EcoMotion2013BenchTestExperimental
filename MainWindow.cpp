@@ -119,7 +119,7 @@ void MainWindow::createCoupleAndPowerCurves(
 {
     qDebug() << "Début de la création des courbes ...";
 
-    QCSVParser MSFile(megasquirtCSVFilename, ';', QString::SkipEmptyParts);
+    QCSVParser MSFile(megasquirtCSVFilename, ';', QString::KeepEmptyParts);
 
     qDebug() << "nombre de colonnes = " << MSFile.columnCount();
 
@@ -141,6 +141,7 @@ void MainWindow::createCoupleAndPowerCurves(
     const double PI = 3.141592653589793;
     const double Jdelta = 0.22; // FIXME : demander à l'utilisateur de rentrer la valeur
 
+    int lastDataIndice = 0;
     w2 = (PI * rpm.at(0).toDouble()) / 30;
 
     for (int i(1); i < times.count(); ++i)
@@ -155,6 +156,8 @@ void MainWindow::createCoupleAndPowerCurves(
 
         w1 = w2;
 
+        qDebug() << "w1 = " << w1;
+
     /* ---------------------------------------------------------------------- *
      *                           ωx = (Π * Nx) / 30                           *
      * ---------------------------------------------------------------------- *
@@ -164,6 +167,8 @@ void MainWindow::createCoupleAndPowerCurves(
      * ---------------------------------------------------------------------- */
 
         w2 = (PI * rpm.at(i).toDouble()) / 30;
+
+        qDebug() << "w2 = " << w2;
 
     /* ---------------------------------------------------------------------- *
      *                        α = (ω2 - ω1) / (t2 - t1)                       *
@@ -175,7 +180,13 @@ void MainWindow::createCoupleAndPowerCurves(
 
         accAngulaire =                    (w2 - w1)
                                               /
-                      (times.at(i).toDouble() - times.at(i - 1).toDouble());
+     ((times.at(i).toDouble() - times.at(lastDataIndice).toDouble()) / 1000000);
+        // times values are microseconds
+
+        qDebug() << "t2 = " << times.at(i).toDouble() << " microsecondes";
+        qDebug() << "t1 = " << times.at(lastDataIndice).toDouble() << " microsecondes";
+        qDebug() << "Δt (t2 - t1) = " << ((times.at(i).toDouble() - times.at(lastDataIndice).toDouble()) / 1000000);
+        qDebug() << "α = " << accAngulaire;
 
     /* ---------------------------------------------------------------------- *
      *                              C = JΔ * α                                *
@@ -189,6 +200,9 @@ void MainWindow::createCoupleAndPowerCurves(
 
         // Ajout du point à la liste des points de la courbe du couple
         couplePoints.append(QPointF(rpm.at(i).toDouble(), couple));
+        lastDataIndice = i;
+
+        qDebug() << "Coordonnée (rpm, couple) = " << rpm.at(i).toDouble() << couple;
     }
 
     // Crée la courbe du couple
@@ -200,6 +214,8 @@ void MainWindow::createCoupleAndPowerCurves(
     coupleCurve->setPen(QPen(Qt::darkRed, 1));
     coupleCurve->setData(coupleSerieData);
     coupleCurve->attach(this->CPPlot);
+
+    this->setPlotCurveVisibile(coupleCurve, true);
 
     qDebug() << "Fin de la création des courbes ...";
 }
@@ -220,11 +236,13 @@ void MainWindow::on_actionImportData_triggered(void)
         if (csvFile.exists())
             csvFile.remove();
 
-        // Generate csv file by extracting data from dat file
+        // Generate csv file by extracting needed data from dat file
+        QStringList megasquirtParameters;
+        megasquirtParameters << "pulseWidth1" << "rpm" << "batteryVoltage";
         MSManager megasquirtManager;
         megasquirtManager.datToCSV(MSDir.filePath(MEGASQUIRT_DAT_FILENAME),
                                    csvFilename,
-                                   QStringList("rpm"));
+                                   megasquirtParameters);
 
         // Create couple and power curves
         this->createCoupleAndPowerCurves(
