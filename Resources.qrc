@@ -4,5 +4,9 @@
         <file>Resources/Icons/close.png</file>
         <file>Resources/Icons/copy.png</file>
         <file>Resources/Icons/file.png</file>
+        <file>Resources/Icons/add.png</file>
+        <file>Resources/Icons/less.png</file>
+        <file>Resources/Icons/checkmark.png</file>
+        <file>Resources/Icons/redClose.png</file>
     </qresource>
 </RCC>

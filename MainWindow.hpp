@@ -12,6 +12,7 @@
 #include "Utils/QCSVParser.hpp"
 #include "Megasquirt/MSManager.hpp"
 #include "Megasquirt/MSFileConverterDialog.hpp"
+#include "Megasquirt/MSFileParameterDialog.hpp"
 #include <qwt_plot_curve.h>
 #include <qwt_legend_item.h>
 #include <qmath.h>
@@ -19,11 +20,10 @@
 #define TAB_COUPLE_AND_POWER 0
 #define TAB_MEGASQUIRT_DATA  1
 
-// TODO : Sauvegarder les noms des fichiers nécéssaire avec un QSetting et proposer un menu permettant de changer le nom des différents fichiers (et/ou d'en ajouter/supprimer)
-#define INERTIE_FILENAME        "Inertie.csv"
-#define PROTOWHEEL_FILENAME     "ProtoWheel.csv"
-#define MEGASQUIRT_DAT_FILENAME "Megasquirt.dat"
-#define MEGASQUIRT_CSV_FILENAME "Megasquirt.csv"
+#define KEY_INERTIE        "Inertie"
+#define KEY_PROTOWHEEL     "ProtoWheel"
+#define KEY_MEGASQUIRT_DAT "MegasquirtDAT"
+#define KEY_MEGASQUIRT_CSV "MegasquirtCSV"
 
 namespace Ui {
 class MainWindow;
@@ -40,13 +40,18 @@ class MainWindow : public QMainWindow
 
     protected:
 
+        virtual void closeEvent(QCloseEvent* event);
+
         void  centerOnScreen(void);
         void  createMSPlotZone(void);
         void  createCPPlotZone(void);
         Plot* currentPlot(void) const;
         void  updateMenus(void);
+        void  readSettings(void);
+        void  writeSettings(void) const;
 
         // Megasquirt management methods
+        void initSettings(void) const;
         void checkFolderContent(QDir const& MSDir) const;
         void createCoupleAndPowerCurves(QString const& megasquirtCSVFilename);
 
@@ -64,6 +69,7 @@ class MainWindow : public QMainWindow
         void on_mainTabWidget_currentChanged(int index);
         void on_actionLoadCSV_triggered(void);
         void on_actionDatToCSV_triggered(void);
+        void on_actionConfigureMegasquirtFileName_triggered(void);
 
         // Personal slots
         void setPlotCurveVisibile(QwtPlotItem* item, bool visible);

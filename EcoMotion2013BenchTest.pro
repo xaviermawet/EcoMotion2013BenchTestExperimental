@@ -22,7 +22,9 @@ SOURCES += main.cpp\
     Plot/Zoomer.cpp \
     Megasquirt/MSDataConverter.cpp \
     Megasquirt/MSManager.cpp \
-    Megasquirt/MSFileConverterDialog.cpp
+    Megasquirt/MSFileConverterDialog.cpp \
+    Megasquirt/MSDataParameterDialog.cpp \
+    Megasquirt/MSFileParameterDialog.cpp
 
 HEADERS  += MainWindow.hpp \
     Plot/Plot.hpp \
@@ -31,10 +33,14 @@ HEADERS  += MainWindow.hpp \
     Plot/Zoomer.hpp \
     Megasquirt/MSDataConverter.hpp \
     Megasquirt/MSManager.hpp \
-    Megasquirt/MSFileConverterDialog.hpp
+    Megasquirt/MSFileConverterDialog.hpp \
+    Megasquirt/MSDataParameterDialog.hpp \
+    Megasquirt/MSFileParameterDialog.hpp
 
 FORMS    += MainWindow.ui \
-    Megasquirt/MSFileConverterDialog.ui
+    Megasquirt/MSFileConverterDialog.ui \
+    Megasquirt/MSDataParameterDialog.ui \
+    Megasquirt/MSFileParameterDialog.ui
 
 RESOURCES += \
     Resources.qrc

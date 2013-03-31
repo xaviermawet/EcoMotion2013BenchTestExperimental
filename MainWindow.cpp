@@ -9,12 +9,18 @@ MainWindow::MainWindow(QWidget* parent) :
     QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
     QTextCodec::setCodecForTr(QTextCodec::codecForName("UTF-8"));
 
-    // GUI Configuration
+    // GUI configuration
     this->ui->setupUi(this);
 
     // Plots configuration
     this->createMSPlotZone();
     this->createCPPlotZone();
+
+    // Settings configuration
+    QCoreApplication::setOrganizationName("EcoMotion");
+    QCoreApplication::setApplicationName("BenchTest");
+    this->initSettings();
+    this->readSettings();
     this->updateMenus();
 
     // Center the window on the screen
@@ -30,6 +36,15 @@ MainWindow::~MainWindow(void)
     delete this->CPPlot;
 
     qDebug() << "MainWindow Fin destructeur";
+}
+
+void MainWindow::closeEvent(QCloseEvent* event)
+{
+    // Save the state of the mainWindow and its widgets
+    this->writeSettings();
+    qDebug() << "Paramètres sauvegardés...";
+
+    QMainWindow::closeEvent(event);
 }
 
 void MainWindow::centerOnScreen(void)
@@ -58,7 +73,9 @@ void MainWindow::createMSPlotZone(void)
 void MainWindow::createCPPlotZone(void)
 {
     this->CPPlot = new Plot("Couple - Puissance - Puissance spécifique", this);
-    this->CPPlot->setAxisTitle(Plot::xBottom, tr("Tours par minute (rad/s)"));
+    this->CPPlot->setAxisTitle(Plot::xBottom, tr("Tours par minute (tr/min)"));
+    this->CPPlot->setAxisTitle(Plot::yLeft, tr("Couple (N.m)"));;
+    this->CPPlot->setAxisTitle(Plot::yRight, tr("Puissance (W)"));
     this->ui->coupleAndPowerHLayout->addWidget(this->CPPlot);
 
     // Connect plot signals to slots
@@ -96,6 +113,103 @@ void MainWindow::updateMenus(void)
     this->ui->actionImportData->setVisible(currentTab == TAB_COUPLE_AND_POWER);
     this->ui->actionDatToCSV->setVisible(currentTab == TAB_MEGASQUIRT_DATA);
     this->ui->actionLoadCSV->setVisible(currentTab == TAB_MEGASQUIRT_DATA);
+
+    // Update menu configure actions
+    this->ui->menuConfigure->menuAction()->setVisible(
+                currentTab == TAB_COUPLE_AND_POWER);
+}
+
+void MainWindow::readSettings(void)
+{
+    QSettings settings;
+
+    // Restore plots settings
+    settings.beginGroup("MSPlot");
+    this->MSPlot->setGridVisible(
+                settings.value("isGridVisible", true).toBool());
+    this->MSPlot->setCrossLineVisible(
+                settings.value("isCrossLineVisible", false).toBool());
+    this->MSPlot->setLabelPositionVisible(
+                settings.value("isLabelPositionVisible", true).toBool());
+    settings.endGroup();
+
+    settings.beginGroup("CPPlot");
+    this->CPPlot->setGridVisible(
+                settings.value("isGridVisible", true).toBool());
+    this->CPPlot->setCrossLineVisible(
+                settings.value("isCrossLineVisible", false).toBool());
+    this->CPPlot->setLabelPositionVisible(
+                settings.value("isLabelPositionVisible", true).toBool());
+    settings.endGroup();
+
+
+    // Restore MainWindow settings
+    settings.beginGroup("MainWindow");
+
+    /* Contourne le bug non résolu par Qt de la restauration de la géométrie
+     * d'une fenetre maximisée alors qu'elle est déjà maximisée */
+    if (settings.value("isMaximized", true).toBool())
+        this->showMaximized();
+    else
+        this->restoreGeometry(settings.value("geometry").toByteArray());
+
+    this->ui->mainTabWidget->setCurrentIndex(
+                settings.value("mainTabCurrentIndex", 0).toInt());
+
+    settings.endGroup();
+}
+
+void MainWindow::writeSettings(void) const
+{
+    QSettings settings;
+
+    // Save plots settings
+    settings.beginGroup("MSPlot");
+    settings.setValue("isGridVisible",
+                      this->MSPlot->isGridVisible());
+    settings.setValue("isCrossLineVisible",
+                      this->MSPlot->isCrossLineVisible());
+    settings.setValue("isLabelPositionVisible",
+                      this->MSPlot->isLabelPositionVisible());
+    settings.endGroup();
+
+    settings.beginGroup("CPPlot");
+    settings.setValue("isGridVisible",
+                      this->CPPlot->isGridVisible());
+    settings.setValue("isCrossLineVisible",
+                      this->CPPlot->isCrossLineVisible());
+    settings.setValue("isLabelPositionVisible",
+                      this->CPPlot->isLabelPositionVisible());
+    settings.endGroup();
+
+    // Restore MainWindow settings
+    settings.beginGroup("MainWindow");
+    settings.setValue("isMaximized", this->isMaximized());
+    settings.setValue("geometry", this->saveGeometry());
+    settings.setValue("mainTabCurrentIndex",
+                      this->ui->mainTabWidget->currentIndex());
+    settings.endGroup();
+}
+
+void MainWindow::initSettings(void) const
+{
+    QSettings settings;
+
+    settings.beginGroup("files");
+
+    if(!settings.contains(KEY_INERTIE))
+        settings.setValue(KEY_INERTIE, "Inertie.csv");
+
+    if(!settings.contains(KEY_PROTOWHEEL))
+        settings.setValue(KEY_PROTOWHEEL, "ProtoWheel.csv");
+
+    if(!settings.contains(KEY_MEGASQUIRT_DAT))
+        settings.setValue(KEY_MEGASQUIRT_DAT, "Megasquirt.dat");
+
+    if(!settings.contains(KEY_MEGASQUIRT_CSV))
+        settings.setValue(KEY_MEGASQUIRT_CSV, "Megasquirt.csv");
+
+    settings.endGroup();
 }
 
 void MainWindow::checkFolderContent(const QDir &MSDir) const
@@ -103,15 +217,23 @@ void MainWindow::checkFolderContent(const QDir &MSDir) const
     if (!MSDir.exists())
         throw QException(tr("Le dossier n'existe pas"));
 
-    // Check if the folder content all the files
-    QStringList files;
-    files << MEGASQUIRT_DAT_FILENAME << INERTIE_FILENAME << PROTOWHEEL_FILENAME;
 
-    foreach (QString filename, files)
-    {
+
+    // Get all file names from settings
+    QSettings settings;
+    settings.beginGroup("files");
+
+    QStringList fileNames;
+    fileNames << settings.value(KEY_INERTIE).toString()
+              << settings.value(KEY_PROTOWHEEL).toString()
+              << settings.value(KEY_MEGASQUIRT_DAT).toString();
+
+    settings.endGroup();
+
+    // Check if the folder content all the files
+    foreach (QString filename, fileNames)
         if(!MSDir.exists(filename))
             throw QException(tr("Fichier ") + filename + tr(" inexistant"));
-    }
 }
 
 void MainWindow::createCoupleAndPowerCurves(
@@ -207,7 +329,7 @@ void MainWindow::createCoupleAndPowerCurves(
 
     // Crée la courbe du couple
     QwtPointSeriesData* coupleSerieData = new QwtPointSeriesData(couplePoints);
-    QwtPlotCurve* coupleCurve = new QwtPlotCurve(tr("Couple"));
+    QwtPlotCurve* coupleCurve = new QwtPlotCurve(tr("Couple")); // TODO : ajouter le nom de l'essai (par défaut, le nom du dossier)
     coupleCurve->setRenderHint(QwtPlotItem::RenderAntialiased);
     coupleCurve->setItemAttribute(QwtPlotItem::Legend);
     coupleCurve->setLegendAttribute(QwtPlotCurve::LegendShowLine);
@@ -225,13 +347,18 @@ void MainWindow::on_actionImportData_triggered(void)
     QDir MSDir = QFileDialog::getExistingDirectory(
                 this, tr("Sélectionnez le dossier contenant "
                 "les données du Megasquirt"), QDir::homePath());
+
+    QSettings settings;
+    settings.beginGroup("files");
+
     try
     {
         // Check the folder content
         this->checkFolderContent(MSDir);
 
         // Remove oldest csv file if exists
-        QString csvFilename = MSDir.filePath(MEGASQUIRT_CSV_FILENAME);
+        QString csvFilename = MSDir.filePath(
+                    settings.value(KEY_MEGASQUIRT_CSV).toString());
         QFile csvFile(csvFilename);
         if (csvFile.exists())
             csvFile.remove();
@@ -239,23 +366,29 @@ void MainWindow::on_actionImportData_triggered(void)
         // Generate csv file by extracting needed data from dat file
         QStringList megasquirtParameters;
         megasquirtParameters << "pulseWidth1" << "rpm" << "batteryVoltage";
+
         MSManager megasquirtManager;
-        megasquirtManager.datToCSV(MSDir.filePath(MEGASQUIRT_DAT_FILENAME),
-                                   csvFilename,
-                                   megasquirtParameters);
+        megasquirtManager.datToCSV(
+                  MSDir.filePath(settings.value(KEY_MEGASQUIRT_DAT).toString()),
+                  csvFilename,
+                  megasquirtParameters);
 
         // Create couple and power curves
-        this->createCoupleAndPowerCurves(
-                    MSDir.filePath(MEGASQUIRT_CSV_FILENAME));
+        this->createCoupleAndPowerCurves(csvFilename);
     }
     catch(QException const& ex)
     {
         QMessageBox::warning(this, tr("Importation annulée"), ex.what());
     }
+
+    settings.endGroup();
 }
 
 void MainWindow::on_actionQuit_triggered(void)
 {
+    // Save the state of the mainWindow and its widgets
+    this->writeSettings();
+
     // Close the main window
     qApp->quit();
 }
@@ -388,16 +521,6 @@ void MainWindow::on_actionLoadCSV_triggered(void)
     }
 }
 
-void MainWindow::setPlotCurveVisibile(QwtPlotItem* item, bool visible)
-{
-    item->setVisible(visible);
-    QWidget* w = item->plot()->legend()->find(item);
-    if ( w && w->inherits("QwtLegendItem") )
-        ((QwtLegendItem *)w)->setChecked(visible);
-
-    item->plot()->replot();
-}
-
 void MainWindow::on_actionDatToCSV_triggered(void)
 {
     try
@@ -414,4 +537,20 @@ void MainWindow::on_actionDatToCSV_triggered(void)
     {
         QMessageBox::warning(this, tr("Conversion annulée"), ex.what());
     }
+}
+
+void MainWindow::on_actionConfigureMegasquirtFileName_triggered(void)
+{
+    MSFileParameterDialog dial(this);
+    dial.exec();
+}
+
+void MainWindow::setPlotCurveVisibile(QwtPlotItem* item, bool visible)
+{
+    item->setVisible(visible);
+    QWidget* w = item->plot()->legend()->find(item);
+    if ( w && w->inherits("QwtLegendItem") )
+        ((QwtLegendItem *)w)->setChecked(visible);
+
+    item->plot()->replot();
 }

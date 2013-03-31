@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MSFileParameterDialog</class>
+ <widget class="QDialog" name="MSFileParameterDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>571</width>
+    <height>156</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Paramétrage du nom des fichiers Megasquirt</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <layout class="QFormLayout" name="formLayout">
+     <property name="fieldGrowthPolicy">
+      <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+     </property>
+     <item row="0" column="0">
+      <widget class="QLabel" name="megasquirtDatLabel">
+       <property name="text">
+        <string>Fichier de données du Megasquirt :</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QLineEdit" name="megasquirtDatLineEdit"/>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="protoWheelLabel">
+       <property name="text">
+        <string>Fichier de vitesse de la roue du Prototype : </string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QLineEdit" name="protoWheelLineEdit"/>
+     </item>
+     <item row="3" column="0">
+      <widget class="QLabel" name="inertieLabel">
+       <property name="text">
+        <string>Fichier de vitesse de la roue du banc d'essai :</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1">
+      <widget class="QLineEdit" name="inertieLineEdit"/>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="megasquirtCSVLabel">
+       <property name="text">
+        <string>Fichier généré pour les calculs :</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QLineEdit" name="megasquirtCSVLineEdit"/>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButton">
+       <property name="text">
+        <string>&amp;Sauvegarder et quitter</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../Resources.qrc">
+         <normaloff>:/Icons/Resources/Icons/checkmark.png</normaloff>:/Icons/Resources/Icons/checkmark.png</iconset>
+       </property>
+       <property name="shortcut">
+        <string>Ctrl+S</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButton_2">
+       <property name="text">
+        <string>&amp;Annuler</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../Resources.qrc">
+         <normaloff>:/Icons/Resources/Icons/redClose.png</normaloff>:/Icons/Resources/Icons/redClose.png</iconset>
+       </property>
+       <property name="shortcut">
+        <string>Ctrl+Q</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <tabstops>
+  <tabstop>megasquirtDatLineEdit</tabstop>
+  <tabstop>megasquirtCSVLineEdit</tabstop>
+  <tabstop>protoWheelLineEdit</tabstop>
+  <tabstop>inertieLineEdit</tabstop>
+  <tabstop>pushButton</tabstop>
+  <tabstop>pushButton_2</tabstop>
+ </tabstops>
+ <resources>
+  <include location="../Resources.qrc"/>
+ </resources>
+ <connections>
+  <connection>
+   <sender>pushButton_2</sender>
+   <signal>clicked()</signal>
+   <receiver>MSFileParameterDialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>517</x>
+     <y>134</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>133</x>
+     <y>124</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

@@ -145,8 +145,15 @@
     </widget>
     <addaction name="menuGraphic"/>
    </widget>
+   <widget class="QMenu" name="menuConfigure">
+    <property name="title">
+     <string>&amp;Configurer</string>
+    </property>
+    <addaction name="actionConfigureMegasquirtFileName"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
+   <addaction name="menuConfigure"/>
   </widget>
   <action name="actionImportData">
    <property name="icon">
@@ -258,6 +265,14 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+I</string>
+   </property>
+  </action>
+  <action name="actionConfigureMegasquirtFileName">
+   <property name="text">
+    <string>Modifier le &amp;nom des fichiers du Megasquirt</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+N</string>
    </property>
   </action>
  </widget>

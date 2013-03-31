@@ -155,7 +155,8 @@ void MSManager::datToCSV(const QString& datFile, const QString& CSVFile,
     // File *.dat : read binaries data from a stream
     QFile fileDAT(datFile);
     if (!fileDAT.open(QIODevice::ReadOnly))
-        throw QException(QObject::tr("Impossible d'ouvrir le fichier *.dat"));
+        throw QException(QObject::tr("Impossible d'ouvrir le fichier") +
+                         datFile);
 
     // Bytes order is QDataStream::BigEndian by default
     QDataStream in(&fileDAT);
