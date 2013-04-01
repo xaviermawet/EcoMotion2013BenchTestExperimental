@@ -15,7 +15,7 @@
 #include "Megasquirt/MSFileParameterDialog.hpp"
 #include <qwt_plot_curve.h>
 #include <qwt_legend_item.h>
-#include <qmath.h>
+#include <qwt_plot_renderer.h>
 
 #define TAB_COUPLE_AND_POWER 0
 #define TAB_MEGASQUIRT_DATA  1
@@ -70,6 +70,7 @@ class MainWindow : public QMainWindow
         void on_actionLoadCSV_triggered(void);
         void on_actionDatToCSV_triggered(void);
         void on_actionConfigureMegasquirtFileName_triggered(void);
+        void on_actionExportToPDF_triggered(void);
 
         // Personal slots
         void setPlotCurveVisibile(QwtPlotItem* item, bool visible);

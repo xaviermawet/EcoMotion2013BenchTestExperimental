@@ -144,6 +144,7 @@
      <addaction name="actionReduceAccuracy"/>
     </widget>
     <addaction name="menuGraphic"/>
+    <addaction name="actionExportToPDF"/>
    </widget>
    <widget class="QMenu" name="menuConfigure">
     <property name="title">
@@ -273,6 +274,17 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+N</string>
+   </property>
+  </action>
+  <action name="actionExportToPDF">
+   <property name="text">
+    <string>Exporter au format &amp;PDF</string>
+   </property>
+   <property name="toolTip">
+    <string>Exporter le graphique courant dans un fichier au format PDF (Portable Document Format)</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+P</string>
    </property>
   </action>
  </widget>

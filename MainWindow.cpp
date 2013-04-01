@@ -545,6 +545,20 @@ void MainWindow::on_actionConfigureMegasquirtFileName_triggered(void)
     dial.exec();
 }
 
+void MainWindow::on_actionExportToPDF_triggered(void)
+{
+    QString pdfFile = QFileDialog::getSaveFileName(
+                this, tr("Sauvegarder le graphique"), QDir::homePath(),
+                tr("Portable Document Format (*.pdf)"));
+
+    if (pdfFile.isNull() || pdfFile.isEmpty())
+        return; // User cancel the previous dialog
+
+    QwtPlotRenderer renderer;
+    renderer.renderDocument(this->currentPlot(), pdfFile,
+                            this->currentPlot()->size());
+}
+
 void MainWindow::setPlotCurveVisibile(QwtPlotItem* item, bool visible)
 {
     item->setVisible(visible);
