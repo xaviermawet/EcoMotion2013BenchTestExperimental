@@ -15,7 +15,21 @@ Plot::Plot(const QwtText &title, QWidget *parent) :
      * ---------------------------------------------------------------------- */
     this->legend = new QwtLegend(this);
     this->legend->setItemMode(QwtLegend::CheckableItem);
+    this->legend->setContextMenuPolicy(Qt::CustomContextMenu);
     this->insertLegend(this->legend, QwtPlot::BottomLegend);
+
+    connect(this->legend, SIGNAL(customContextMenuRequested(QPoint)),
+            this, SLOT(showLegendContextMenu(QPoint)));
+
+    this->legendContextMenu = new QMenu(this);
+    this->legendContextMenu->addAction("Effacer");
+    this->legendContextMenu->addAction("Centrer sur");
+    this->legendContextMenu->addAction("Changer la couleur");
+
+    /*
+     *m_plotContextMenu->addAction(tr("Plot Options"), this, SLOT(configurePlot()));
+     *m_plotContextMenu->addAction(QIcon(":/images/edit-copy.svg"), tr("Copy"), this, SLOT(copyPlot())); --> avec l'icon de resize de google +
+     */
 
     /* ---------------------------------------------------------------------- *
      *                                Add a grid                              *
@@ -148,4 +162,29 @@ void Plot::setLabelPositionVisible(bool visible)
 void Plot::updateCrossLinePosition(const QPointF& pos)
 {
     this->crossLine->setValue(pos);
+}
+
+void Plot::showLegendContextMenu(const QPoint& pos)
+{
+    // Stop if the user doesn't right clic on a legend item
+    QWidget* legendWidget = this->legend->childAt(pos);
+    if (!(legendWidget && legendWidget->inherits("QwtLegendItem")))
+        return;
+
+    QwtLegendItem* legendItem = qobject_cast<QwtLegendItem*>(legendWidget);
+    if (legendItem == NULL)
+        return;
+
+    QwtPlotItem* plotItem1 = NULL;
+    foreach(QwtPlotItem* plotItem, this->itemList(QwtPlotItem::Rtti_PlotCurve))
+    {
+        //if (plotItem->title().text() == legendItem->text().text())
+        if (plotItem->title().text() == legendItem->text().text())
+        {
+            qDebug() << "trouvé !!!!!!!!!!!!";
+            plotItem1 = plotItem;
+        }
+    }
+
+    this->legendContextMenu->exec(this->legend->mapToGlobal(pos));
 }

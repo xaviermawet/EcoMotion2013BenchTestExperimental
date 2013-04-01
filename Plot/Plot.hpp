@@ -1,9 +1,12 @@
 #ifndef __PLOT_HPP__
 #define __PLOT_HPP__
 
+#include <QMenu>
+
 #include <qwt_plot.h>
 #include <qwt_legend.h>
 #include <qwt_plot_grid.h>
+#include <qwt_legend_item.h>
 #include <qwt_plot_zoomer.h>
 #include <qwt_plot_panner.h>
 #include <qwt_plot_marker.h>
@@ -34,11 +37,14 @@ class Plot : public QwtPlot
 
     protected slots:
 
+        // Personnal slots
         void updateCrossLinePosition(QPointF const& pos);
+        void showLegendContextMenu(QPoint const& pos);
 
     protected:
 
         QwtLegend*        legend;
+        QMenu*            legendContextMenu;
         QwtPlotGrid*      grid;
         QwtPlotMarker*    crossLine;
         QwtPlotPanner*    panner;
