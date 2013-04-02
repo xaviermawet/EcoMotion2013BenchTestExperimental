@@ -239,57 +239,38 @@ void MainWindow::checkFolderContent(const QDir &MSDir) const
 void MainWindow::createCoupleAndPowerCurves(
         QString const& megasquirtCSVFilename)
 {
-    qDebug() << "Début de la création des courbes ...";
-
     QCSVParser MSFile(megasquirtCSVFilename, ';', QString::KeepEmptyParts);
-
-    qDebug() << "nombre de colonnes = " << MSFile.columnCount();
-
-    foreach (QString header, MSFile.headersList()) {
-        qDebug() << header;
-    }
-
-    qDebug() << "avant recupération de données";
     QCSVColumn times = MSFile["times"];
-    qDebug() << "times récupérés !!!!";
     QCSVColumn rpm   = MSFile["rpm"];
-    qDebug() << "RPM récupérés !!!!";
 
     QVector<QPointF> couplePoints;
+    QVector<QPointF> puissancePoints;
 
-    double w1, w2;
+    double w1, w2, wIntermediate;
     double accAngulaire;
-    double couple;
+    double couple, puissance;
     const double PI = 3.141592653589793;
     const double Jdelta = 0.22; // FIXME : demander à l'utilisateur de rentrer la valeur
 
-    int lastDataIndice = 0;
+    int lastDataIndice(0); // Used for futur data filtering.
+
     w2 = (PI * rpm.at(0).toDouble()) / 30;
 
     for (int i(1); i < times.count(); ++i)
     {
-        // filtrage des données continues ayant le meme nombre de RPM
-        if (rpm.at(i - 1) == rpm.at(i))
-        {
-            qDebug() << "ligne " << i - 1 << " et " << i << " : RPM identique "
-                     << rpm.at(i);
-            continue;
-        }
-
         w1 = w2;
-
-        qDebug() << "w1 = " << w1;
 
     /* ---------------------------------------------------------------------- *
      *                           ωx = (Π * Nx) / 30                           *
      * ---------------------------------------------------------------------- *
      * ωx = Vitesse angulaire à l'instant x (rad/s)                           *
      * Π  = Pi, constante qui vaut 3.141592653589793...                       *
-     * N  = tours par minutes à l'instant x == RPM (rad/s)                           *
+     * Nx = tours par minutes à l'instant x == RPM (tours/minute)             *
      * ---------------------------------------------------------------------- */
 
         w2 = (PI * rpm.at(i).toDouble()) / 30;
 
+        qDebug() << "w1 = " << w1;
         qDebug() << "w2 = " << w2;
 
     /* ---------------------------------------------------------------------- *
@@ -322,12 +303,34 @@ void MainWindow::createCoupleAndPowerCurves(
 
         // Ajout du point à la liste des points de la courbe du couple
         couplePoints.append(QPointF(rpm.at(i).toDouble(), couple));
-        lastDataIndice = i;
+        qDebug() << "couple (rpm, couple) = " << couplePoints.last();
 
-        qDebug() << "Coordonnée (rpm, couple) = " << rpm.at(i).toDouble() << couple;
+    /* ---------------------------------------------------------------------- *
+     *                        P = C * ((ω1 + ω2) / 2)                         *
+     * ---------------------------------------------------------------------- *
+     * P  = Puissance (Watts)                                                 *
+     * ωx = Vitesse angulaire à l'instant x (rad/s)                           *
+     * ---------------------------------------------------------------------- */
+
+        wIntermediate = (w1 + w2) / 2;
+        qDebug() << "(w1 + w2) / 2 = " << wIntermediate;
+
+        puissance = couple * wIntermediate;
+
+    /* ---------------------------------------------------------------------- *
+     *               ωx = (Π * Nx) / 30  <=> Nx = (30 * ωx) / Π               *
+     * ---------------------------------------------------------------------- *
+     * ωx = Vitesse angulaire à l'instant x (rad/s)                           *
+     * Π  = Pi, constante qui vaut 3.141592653589793...                       *
+     * Nx = tours par minutes à l'instant x == RPM (tours/minute)             *
+     * ---------------------------------------------------------------------- */
+        puissancePoints.append(QPointF((30 * wIntermediate) / PI, puissance));
+        qDebug() << "puissance (rpm, puissance) = " << puissancePoints.last();
+
+        lastDataIndice = i;
     }
 
-    // Crée la courbe du couple
+    // Création de la courbe du couple
     QwtPointSeriesData* coupleSerieData = new QwtPointSeriesData(couplePoints);
     QwtPlotCurve* coupleCurve = new QwtPlotCurve(tr("Couple")); // TODO : ajouter le nom de l'essai (par défaut, le nom du dossier)
     coupleCurve->setRenderHint(QwtPlotItem::RenderAntialiased);
@@ -335,10 +338,21 @@ void MainWindow::createCoupleAndPowerCurves(
     coupleCurve->setLegendAttribute(QwtPlotCurve::LegendShowLine);
     coupleCurve->setPen(QPen(Qt::darkRed, 1));
     coupleCurve->setData(coupleSerieData);
-    //coupleCurve->setAxes(Plot::xBottom, Plot::yRight);
     coupleCurve->attach(this->CPPlot);
-
     this->setPlotCurveVisibile(coupleCurve, true);
+
+    // Création de la courbe de la puissance
+    QwtPointSeriesData* puissanceSerieData =
+            new QwtPointSeriesData(puissancePoints);
+    QwtPlotCurve* puissanceCurve = new QwtPlotCurve(tr("Puissance")); // TODO : ajouter le nom de l'essai (par défaut, le nom du dossier)
+    puissanceCurve->setRenderHint(QwtPlotItem::RenderAntialiased);
+    puissanceCurve->setItemAttribute(QwtPlotItem::Legend);
+    puissanceCurve->setLegendAttribute(QwtPlotCurve::LegendShowLine);
+    puissanceCurve->setPen(QPen(Qt::darkBlue, 1));
+    puissanceCurve->setData(puissanceSerieData);
+    puissanceCurve->setAxes(Plot::xBottom, Plot::yRight);
+    puissanceCurve->attach(this->CPPlot);
+    this->setPlotCurveVisibile(puissanceCurve, true);
 
     qDebug() << "Fin de la création des courbes ...";
 }
