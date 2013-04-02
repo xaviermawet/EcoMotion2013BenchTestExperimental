@@ -8,7 +8,8 @@ Plot::Plot(const QString &title, QWidget *parent) :
 
 Plot::Plot(const QwtText &title, QWidget *parent) :
     QwtPlot(title, parent), legend(NULL), grid(NULL), crossLine(NULL),
-    panner(NULL), yRightZoomer(NULL), yLeftZoomer(NULL), magnifier(NULL)
+    panner(NULL), yRightZoomer(NULL), yLeftZoomer(NULL), magnifier(NULL),
+    curveAssociatedToLegendItem(NULL)
 {
     /* ---------------------------------------------------------------------- *
      *                         Add a legend for curves                        *
@@ -21,15 +22,14 @@ Plot::Plot(const QwtText &title, QWidget *parent) :
     connect(this->legend, SIGNAL(customContextMenuRequested(QPoint)),
             this, SLOT(showLegendContextMenu(QPoint)));
 
+    // Legend actions
     this->legendContextMenu = new QMenu(this);
-    this->legendContextMenu->addAction("Effacer");
-    this->legendContextMenu->addAction("Centrer sur");
-    this->legendContextMenu->addAction("Changer la couleur");
-
-    /*
-     *m_plotContextMenu->addAction(tr("Plot Options"), this, SLOT(configurePlot()));
-     *m_plotContextMenu->addAction(QIcon(":/images/edit-copy.svg"), tr("Copy"), this, SLOT(copyPlot())); --> avec l'icon de resize de google +
-     */
+    this->legendContextMenu->addAction(tr("Effacer"),
+                                       this, SLOT(eraseCurve()));
+    this->legendContextMenu->addAction(tr("Centrer sur"),
+                                       this, SLOT(centerOnCurve()));
+    this->legendContextMenu->addAction(tr("Changer la couleur"),
+                                       this, SLOT(changeCurveColor()));
 
     /* ---------------------------------------------------------------------- *
      *                                Add a grid                              *
@@ -90,9 +90,9 @@ Plot::Plot(const QwtText &title, QWidget *parent) :
     // Zoomer for the new axis
     this->yRightZoomer = new Zoomer(xTop, yRight, this->canvas());
 
+    this->adaptYRightAxis(this->yLeftZoomer->zoomRect());
     connect(this->yLeftZoomer, SIGNAL(zoomed(QRectF)),
             this, SLOT(adaptYRightAxis(QRectF)));
-    this->adaptYRightAxis(this->yLeftZoomer->zoomRect());
 
     /* ---------------------------------------------------------------------- *
      *                      Some customization options                        *
@@ -205,40 +205,64 @@ void Plot::showLegendContextMenu(const QPoint& pos)
         }
     }
 
-    QwtPlotCurve* curve = (QwtPlotCurve*)plotItem1;
-    if (curve)
-    {
-        qDebug() << "curve retrouvée";
-
-        //curve->setPen(QPen(Qt::black));
-        QRectF curveRect = curve->boundingRect();
-        this->yLeftZoomer->zoom(curveRect);
-
-        curveRect.setTop(curveRect.top() / 10);
-        curveRect.setBottom(curveRect.bottom() / 10);
-        this->yRightZoomer->zoom(curveRect);
-
-        /* FIXME :
-         *--------------
-         * Attention que si il y a deux axes, avant de se centrer sur une des
-         * courbes, il faut regarder si la courbe a ses coordonnées en
-         * fonction de l'axe y de droite ou de gauche !!!!
-         */
-    }
-    else
-    {
-        qDebug() << "curve NON retrouvée ....";
+    // Sauvegarde de la courbe correspond à l'élément de la légende sur lequel
+    // l'utilisateur à cliqué droit
+    this->curveAssociatedToLegendItem = (QwtPlotCurve*)plotItem1;
+    if (!this->curveAssociatedToLegendItem)
         return;
-    }
 
     this->legendContextMenu->exec(this->legend->mapToGlobal(pos));
+}
+
+void Plot::eraseCurve(void)
+{
+    if (this->curveAssociatedToLegendItem == NULL)
+        return;
+
+    this->curveAssociatedToLegendItem->detach();
+    delete this->curveAssociatedToLegendItem;
+    this->curveAssociatedToLegendItem = NULL;
+
+    this->replot();
+}
+
+void Plot::centerOnCurve(void)
+{
+    if (this->curveAssociatedToLegendItem == NULL)
+        return;
+
+    this->yLeftZoomer->zoom(this->curveAssociatedToLegendItem->boundingRect());
+
+    // FIXME : voir si les deux echelles s'adaptent correctement !!!
+
+    /* FIXME :
+     *--------------
+     * Attention que si il y a deux axes, avant de se centrer sur une des
+     * courbes, il faut regarder si la courbe a ses coordonnées en
+     * fonction de l'axe y de droite ou de gauche !!!!
+     */
+}
+
+void Plot::changeCurveColor(void)
+{
+    if (this->curveAssociatedToLegendItem == NULL)
+        return;
+
+    // Select a new color
+    QColor newColor = QColorDialog::getColor(
+                this->curveAssociatedToLegendItem->pen().color(), this,
+                tr("Choisir une nouvelle couleur pour la courbe"));
+
+    // If the user cancels the dialog, an invalid color is returned
+    if (newColor.isValid())
+        this->curveAssociatedToLegendItem->setPen(QPen(newColor));
 }
 
 void Plot::adaptYRightAxis(const QRectF &rect)
 {
     QRectF rescaledRect(rect);
-    rescaledRect.setTop(rect.top() / 10); // FIXME : le rapport (ici 10) doit etre une variable membre
-    rescaledRect.setBottom(rect.bottom() / 10); // FIXME : le rapport (ici 10) doit etre une variable membre
+    rescaledRect.setTop(rect.top() * 10); // FIXME : le rapport (ici 10) doit etre une variable membre
+    rescaledRect.setBottom(rect.bottom() * 10); // FIXME : le rapport (ici 10) doit etre une variable membre
 
     this->yRightZoomer->zoom(rescaledRect);
 }

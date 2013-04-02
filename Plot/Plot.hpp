@@ -26,8 +26,9 @@
 #ifndef __PLOT_HPP__
 #define __PLOT_HPP__
 
-// QT includes
+// Qt includes
 #include <QMenu>
+#include <QColorDialog>
 
 // Qwt includes
 #include <qwt_plot.h>
@@ -69,6 +70,11 @@ class Plot : public QwtPlot
         void updateCrossLinePosition(QPointF const& pos);
         void showLegendContextMenu(QPoint const& pos);
 
+        // Legend actions management
+        void eraseCurve(void);
+        void centerOnCurve(void);
+        void changeCurveColor(void);
+
         // Slot de test
         void adaptYRightAxis(QRectF const& rect);
 
@@ -82,6 +88,9 @@ class Plot : public QwtPlot
         Zoomer*           yRightZoomer;
         Zoomer*           yLeftZoomer;
         QwtPlotMagnifier* magnifier;
+
+        // Legend management
+        QwtPlotCurve*     curveAssociatedToLegendItem;
 };
 
 #endif /* __PLOT_HPP__ */
