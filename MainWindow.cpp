@@ -335,6 +335,7 @@ void MainWindow::createCoupleAndPowerCurves(
     coupleCurve->setLegendAttribute(QwtPlotCurve::LegendShowLine);
     coupleCurve->setPen(QPen(Qt::darkRed, 1));
     coupleCurve->setData(coupleSerieData);
+    //coupleCurve->setAxes(Plot::xBottom, Plot::yRight);
     coupleCurve->attach(this->CPPlot);
 
     this->setPlotCurveVisibile(coupleCurve, true);

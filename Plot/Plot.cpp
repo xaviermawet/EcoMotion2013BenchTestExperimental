@@ -90,6 +90,10 @@ Plot::Plot(const QwtText &title, QWidget *parent) :
     // Zoomer for the new axis
     this->yRightZoomer = new Zoomer(xTop, yRight, this->canvas());
 
+    connect(this->yLeftZoomer, SIGNAL(zoomed(QRectF)),
+            this, SLOT(adaptYRightAxis(QRectF)));
+    this->adaptYRightAxis(this->yLeftZoomer->zoomRect());
+
     /* ---------------------------------------------------------------------- *
      *                      Some customization options                        *
      * ---------------------------------------------------------------------- */
@@ -157,6 +161,22 @@ void Plot::setLabelPositionVisible(bool visible)
               this->yLeftZoomer->setTrackerMode(QwtPicker::AlwaysOff);
 
     this->replot();
+
+    /* FIXME
+     * Attention que si j'ajoute la posibilité de choisir si le label
+     * au curseur affiche la valeur en y pour l'axe de gauche ou l'axe
+     * de droite, je dois savoir (variable membre de type int qui vaudra YRight
+     * ou YLeft ou bool showLeftYValue) quel est l'axe courant
+     * choisi pour lequel on doit afficher la position
+     *
+     * exemple de code :
+     *
+     * if (this->yRightZoomer != NULL)
+     * OU
+     * if (this->axisEnable(yRight)
+     *
+     * alors dans ces cas là, vérifier pour quel y on doit afficher dans le label
+     */
 }
 
 void Plot::updateCrossLinePosition(const QPointF& pos)
@@ -178,7 +198,6 @@ void Plot::showLegendContextMenu(const QPoint& pos)
     QwtPlotItem* plotItem1 = NULL;
     foreach(QwtPlotItem* plotItem, this->itemList(QwtPlotItem::Rtti_PlotCurve))
     {
-        //if (plotItem->title().text() == legendItem->text().text())
         if (plotItem->title().text() == legendItem->text().text())
         {
             qDebug() << "trouvé !!!!!!!!!!!!";
@@ -186,5 +205,40 @@ void Plot::showLegendContextMenu(const QPoint& pos)
         }
     }
 
+    QwtPlotCurve* curve = (QwtPlotCurve*)plotItem1;
+    if (curve)
+    {
+        qDebug() << "curve retrouvée";
+
+        //curve->setPen(QPen(Qt::black));
+        QRectF curveRect = curve->boundingRect();
+        this->yLeftZoomer->zoom(curveRect);
+
+        curveRect.setTop(curveRect.top() / 10);
+        curveRect.setBottom(curveRect.bottom() / 10);
+        this->yRightZoomer->zoom(curveRect);
+
+        /* FIXME :
+         *--------------
+         * Attention que si il y a deux axes, avant de se centrer sur une des
+         * courbes, il faut regarder si la courbe a ses coordonnées en
+         * fonction de l'axe y de droite ou de gauche !!!!
+         */
+    }
+    else
+    {
+        qDebug() << "curve NON retrouvée ....";
+        return;
+    }
+
     this->legendContextMenu->exec(this->legend->mapToGlobal(pos));
+}
+
+void Plot::adaptYRightAxis(const QRectF &rect)
+{
+    QRectF rescaledRect(rect);
+    rescaledRect.setTop(rect.top() / 10); // FIXME : le rapport (ici 10) doit etre une variable membre
+    rescaledRect.setBottom(rect.bottom() / 10); // FIXME : le rapport (ici 10) doit etre une variable membre
+
+    this->yRightZoomer->zoom(rescaledRect);
 }
