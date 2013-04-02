@@ -24,7 +24,8 @@ SOURCES += main.cpp\
     Megasquirt/MSManager.cpp \
     Megasquirt/MSFileConverterDialog.cpp \
     Megasquirt/MSDataParameterDialog.cpp \
-    Megasquirt/MSFileParameterDialog.cpp
+    Megasquirt/MSFileParameterDialog.cpp \
+    Plot/PlotCurve.cpp
 
 HEADERS  += MainWindow.hpp \
     Plot/Plot.hpp \
@@ -35,7 +36,8 @@ HEADERS  += MainWindow.hpp \
     Megasquirt/MSManager.hpp \
     Megasquirt/MSFileConverterDialog.hpp \
     Megasquirt/MSDataParameterDialog.hpp \
-    Megasquirt/MSFileParameterDialog.hpp
+    Megasquirt/MSFileParameterDialog.hpp \
+    Plot/PlotCurve.hpp
 
 FORMS    += MainWindow.ui \
     Megasquirt/MSFileConverterDialog.ui \

@@ -16,12 +16,12 @@
 #endif
 
 #include "Plot/Plot.hpp"
+#include "Plot/PlotCurve.hpp"
 #include "Utils/QException.hpp"
 #include "Utils/QCSVParser.hpp"
 #include "Megasquirt/MSManager.hpp"
 #include "Megasquirt/MSFileConverterDialog.hpp"
 #include "Megasquirt/MSFileParameterDialog.hpp"
-#include <qwt_plot_curve.h>
 #include <qwt_legend_item.h>
 #include <qwt_plot_renderer.h>
 

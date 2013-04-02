@@ -244,7 +244,7 @@ void MainWindow::createCoupleAndPowerCurves(
     QCSVColumn rpm   = MSFile["rpm"];
 
     QVector<QPointF> couplePoints;
-    QVector<QPointF> puissancePoints;
+    QVector<QPointF> powerPoints;
 
     double w1, w2, wIntermediate;
     double accAngulaire;
@@ -324,35 +324,26 @@ void MainWindow::createCoupleAndPowerCurves(
      * Π  = Pi, constante qui vaut 3.141592653589793...                       *
      * Nx = tours par minutes à l'instant x == RPM (tours/minute)             *
      * ---------------------------------------------------------------------- */
-        puissancePoints.append(QPointF((30 * wIntermediate) / PI, puissance));
-        qDebug() << "puissance (rpm, puissance) = " << puissancePoints.last();
+        powerPoints.append(QPointF((30 * wIntermediate) / PI, puissance));
+        qDebug() << "puissance (rpm, puissance) = " << powerPoints.last();
 
         lastDataIndice = i;
     }
 
     // Création de la courbe du couple
     QwtPointSeriesData* coupleSerieData = new QwtPointSeriesData(couplePoints);
-    QwtPlotCurve* coupleCurve = new QwtPlotCurve(tr("Couple")); // TODO : ajouter le nom de l'essai (par défaut, le nom du dossier)
-    coupleCurve->setRenderHint(QwtPlotItem::RenderAntialiased);
-    coupleCurve->setItemAttribute(QwtPlotItem::Legend);
-    coupleCurve->setLegendAttribute(QwtPlotCurve::LegendShowLine);
-    coupleCurve->setPen(QPen(Qt::darkRed, 1));
+    PlotCurve* coupleCurve = new PlotCurve(tr("Couple"), QPen(Qt::darkRed)); // TODO : ajouter le nom de l'essai (par défaut, le nom du dossier)
     coupleCurve->setData(coupleSerieData);
     coupleCurve->attach(this->CPPlot);
     this->setPlotCurveVisibile(coupleCurve, true);
 
     // Création de la courbe de la puissance
-    QwtPointSeriesData* puissanceSerieData =
-            new QwtPointSeriesData(puissancePoints);
-    QwtPlotCurve* puissanceCurve = new QwtPlotCurve(tr("Puissance")); // TODO : ajouter le nom de l'essai (par défaut, le nom du dossier)
-    puissanceCurve->setRenderHint(QwtPlotItem::RenderAntialiased);
-    puissanceCurve->setItemAttribute(QwtPlotItem::Legend);
-    puissanceCurve->setLegendAttribute(QwtPlotCurve::LegendShowLine);
-    puissanceCurve->setPen(QPen(Qt::darkBlue, 1));
-    puissanceCurve->setData(puissanceSerieData);
-    puissanceCurve->setAxes(Plot::xBottom, Plot::yRight);
-    puissanceCurve->attach(this->CPPlot);
-    this->setPlotCurveVisibile(puissanceCurve, true);
+    QwtPointSeriesData* powerSerieData = new QwtPointSeriesData(powerPoints);
+    PlotCurve* powerCurve = new PlotCurve(tr("Puissance"), QPen(Qt::darkBlue));
+    powerCurve->setData(powerSerieData);
+    powerCurve->setAxes(Plot::xBottom, Plot::yRight);
+    powerCurve->attach(this->CPPlot);
+    this->setPlotCurveVisibile(powerCurve, true);
 
     qDebug() << "Fin de la création des courbes ...";
 }
