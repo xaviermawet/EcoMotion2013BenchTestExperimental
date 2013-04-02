@@ -26,11 +26,6 @@
 #ifndef __PLOT_HPP__
 #define __PLOT_HPP__
 
-// Qt includes
-#include <QMenu>
-#include <QColorDialog>
-
-// Qwt includes
 #include <qwt_plot.h>
 #include <qwt_legend.h>
 #include <qwt_plot_grid.h>
@@ -58,6 +53,10 @@ class Plot : public QwtPlot
         bool isCrossLineVisible(void) const;
         bool isLabelPositionVisible(void) const;
 
+    signals:
+
+        void legendRightClicked(QwtPlotItem const* item, QPoint const& pos);
+
     public slots:
 
         void setGridVisible(bool visible);
@@ -70,27 +69,18 @@ class Plot : public QwtPlot
         void updateCrossLinePosition(QPointF const& pos);
         void showLegendContextMenu(QPoint const& pos);
 
-        // Legend actions management
-        void eraseCurve(void);
-        void centerOnCurve(void);
-        void changeCurveColor(void);
-
         // Slot de test
         void adaptYRightAxis(QRectF const& rect);
 
     protected:
 
         QwtLegend*        legend;
-        QMenu*            legendContextMenu;
         QwtPlotGrid*      grid;
         QwtPlotMarker*    crossLine;
         QwtPlotPanner*    panner;
         Zoomer*           yRightZoomer;
         Zoomer*           yLeftZoomer;
         QwtPlotMagnifier* magnifier;
-
-        // Legend management
-        QwtPlotCurve*     curveAssociatedToLegendItem;
 };
 
 #endif /* __PLOT_HPP__ */

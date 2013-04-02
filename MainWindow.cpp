@@ -3,7 +3,8 @@
 
 MainWindow::MainWindow(QWidget* parent) :
     QMainWindow(parent), ui(new Ui::MainWindow),
-    MSPlot(NULL), CPPlot(NULL), parser()
+    MSPlot(NULL), CPPlot(NULL), legendContextMenu(NULL),
+    curveAssociatedToLegendItem(NULL), parser()
 {
     // Display Configuration
     QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
@@ -13,6 +14,7 @@ MainWindow::MainWindow(QWidget* parent) :
     this->ui->setupUi(this);
 
     // Plots configuration
+    this->createPlotLegendContextMenu();
     this->createMSPlotZone();
     this->createCPPlotZone();
 
@@ -34,6 +36,7 @@ MainWindow::~MainWindow(void)
     delete this->ui;
     delete this->MSPlot;
     delete this->CPPlot;
+    delete this->legendContextMenu;
 
     qDebug() << "MainWindow Fin destructeur";
 }
@@ -59,6 +62,18 @@ void MainWindow::centerOnScreen(void)
     this->move(screenCenterX - width() / 2, screenCenterY - height() / 2);
 }
 
+void MainWindow::createPlotLegendContextMenu(void)
+{
+    // Legend actions
+    this->legendContextMenu = new QMenu(this);
+    this->legendContextMenu->addAction(tr("Effacer"),
+                                       this, SLOT(eraseCurve()));
+    this->legendContextMenu->addAction(tr("Centrer sur"),
+                                       this, SLOT(centerOnCurve()));
+    this->legendContextMenu->addAction(tr("Changer la couleur"),
+                                       this, SLOT(changeCurveColor()));
+}
+
 void MainWindow::createMSPlotZone(void)
 {
     this->MSPlot = new Plot("Données du Megasquirt", this);
@@ -68,6 +83,8 @@ void MainWindow::createMSPlotZone(void)
     // Connect plot signals to slots
     connect(this->MSPlot, SIGNAL(legendChecked(QwtPlotItem*, bool)),
             this,  SLOT(setPlotCurveVisibile(QwtPlotItem*, bool)));
+    connect(this->MSPlot, SIGNAL(legendRightClicked(const QwtPlotItem*,QPoint)),
+            this, SLOT(showLegendContextMenu(const QwtPlotItem*,QPoint)));
 }
 
 void MainWindow::createCPPlotZone(void)
@@ -81,6 +98,8 @@ void MainWindow::createCPPlotZone(void)
     // Connect plot signals to slots
     connect(this->CPPlot, SIGNAL(legendChecked(QwtPlotItem*, bool)),
             this,  SLOT(setPlotCurveVisibile(QwtPlotItem*, bool)));
+    connect(this->CPPlot, SIGNAL(legendRightClicked(const QwtPlotItem*,QPoint)),
+            this, SLOT(showLegendContextMenu(const QwtPlotItem*,QPoint)));
 }
 
 Plot* MainWindow::currentPlot(void) const
@@ -111,8 +130,8 @@ void MainWindow::updateMenus(void)
     int currentTab = this->ui->mainTabWidget->currentIndex();
 
     this->ui->actionImportData->setVisible(currentTab == TAB_COUPLE_AND_POWER);
-    this->ui->actionDatToCSV->setVisible(currentTab == TAB_MEGASQUIRT_DATA);
-    this->ui->actionLoadCSV->setVisible(currentTab == TAB_MEGASQUIRT_DATA);
+    this->ui->actionDatToCSV->setVisible(currentTab   == TAB_MEGASQUIRT_DATA);
+    this->ui->actionLoadCSV->setVisible(currentTab    == TAB_MEGASQUIRT_DATA);
 
     // Update menu configure actions
     this->ui->menuConfigure->menuAction()->setVisible(
@@ -339,7 +358,7 @@ void MainWindow::createCoupleAndPowerCurves(
 
     // Création de la courbe de la puissance
     QwtPointSeriesData* powerSerieData = new QwtPointSeriesData(powerPoints);
-    PlotCurve* powerCurve = new PlotCurve(tr("Puissance"), QPen(Qt::darkBlue));
+    PlotCurve* powerCurve = new PlotCurve(tr("Puissance"), QPen(Qt::darkBlue)); // TODO : ajouter le nom de l'essai (par défaut, le nom du dossier)
     powerCurve->setData(powerSerieData);
     powerCurve->setAxes(Plot::xBottom, Plot::yRight);
     powerCurve->attach(this->CPPlot);
@@ -565,6 +584,48 @@ void MainWindow::on_actionExportToPDF_triggered(void)
                             this->currentPlot()->size());
 }
 
+void MainWindow::eraseCurve(void)
+{
+    // if no curve associated to the legend item. This shouldn't happen!
+    if (this->curveAssociatedToLegendItem == NULL)
+        return;
+
+    // Delete the curve associated to the legend item
+    this->curveAssociatedToLegendItem->detach();
+    delete this->curveAssociatedToLegendItem;
+    this->curveAssociatedToLegendItem = NULL;
+
+    // update the plot
+    this->currentPlot()->replot();
+}
+
+void MainWindow::centerOnCurve(void)
+{
+    qDebug() << "Centrer le graphique courant sur la courbe..";
+
+    /* TODO :
+     *-------
+     * attention de bien savoir de quel graphique il est question et de
+     * réaliser le zoom sur le bon graphique ^^
+     */
+}
+
+void MainWindow::changeCurveColor(void)
+{
+    // if no curve associated to the legend item. This shouldn't happen!
+    if (this->curveAssociatedToLegendItem == NULL)
+        return;
+
+    // Select a new color
+    QColor newColor = QColorDialog::getColor(
+                this->curveAssociatedToLegendItem->pen().color(), this,
+                tr("Choisir une nouvelle couleur pour la courbe"));
+
+    // If the user cancels the dialog, an invalid color is returned
+    if (newColor.isValid())
+        this->curveAssociatedToLegendItem->setPen(QPen(newColor));
+}
+
 void MainWindow::setPlotCurveVisibile(QwtPlotItem* item, bool visible)
 {
     item->setVisible(visible);
@@ -573,4 +634,16 @@ void MainWindow::setPlotCurveVisibile(QwtPlotItem* item, bool visible)
         ((QwtLegendItem *)w)->setChecked(visible);
 
     item->plot()->replot();
+}
+
+void MainWindow::showLegendContextMenu(const QwtPlotItem* item,
+                                       const QPoint& pos)
+{
+    // Save the plot curve associated to the legend item
+    this->curveAssociatedToLegendItem = (PlotCurve*) item;
+    if(!this->curveAssociatedToLegendItem)
+        return;
+
+    // Display custom contextual menu
+    this->legendContextMenu->exec(pos);
 }

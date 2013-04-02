@@ -51,6 +51,7 @@ class MainWindow : public QMainWindow
         virtual void closeEvent(QCloseEvent* event);
 
         void  centerOnScreen(void);
+        void  createPlotLegendContextMenu(void);
         void  createMSPlotZone(void);
         void  createCPPlotZone(void);
         Plot* currentPlot(void) const;
@@ -80,8 +81,12 @@ class MainWindow : public QMainWindow
         void on_actionConfigureMegasquirtFileName_triggered(void);
         void on_actionExportToPDF_triggered(void);
 
-        // Personal slots
+        // Personal slots - Legend actions management
+        void eraseCurve(void);
+        void centerOnCurve(void);
+        void changeCurveColor(void);
         void setPlotCurveVisibile(QwtPlotItem* item, bool visible);
+        void showLegendContextMenu(QwtPlotItem const* item, QPoint const& pos);
 
     protected:
 
@@ -89,8 +94,10 @@ class MainWindow : public QMainWindow
         Ui::MainWindow* ui;
 
         // Plots
-        Plot* MSPlot;
-        Plot* CPPlot;
+        Plot*      MSPlot;
+        Plot*      CPPlot;
+        QMenu*     legendContextMenu;
+        PlotCurve* curveAssociatedToLegendItem;
 
         // CSV parser
         QCSVParser parser;
