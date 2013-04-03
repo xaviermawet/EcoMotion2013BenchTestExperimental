@@ -236,8 +236,6 @@ void MainWindow::checkFolderContent(const QDir &MSDir) const
     if (!MSDir.exists())
         throw QException(tr("Le dossier n'existe pas"));
 
-
-
     // Get all file names from settings
     QSettings settings;
     settings.beginGroup("files");
@@ -497,9 +495,12 @@ void MainWindow::createCoupleAndPowerCurves_old(
 
 void MainWindow::on_actionImportData_triggered(void)
 {
-    QDir MSDir = QFileDialog::getExistingDirectory(
-                this, tr("Sélectionnez le dossier contenant "
-                "les données du Megasquirt"), QDir::homePath());
+    QString dirPath = QFileDialog::getExistingDirectory(
+                      this, tr("Sélectionnez le dossier contenant "
+                      "les données du Megasquirt"), QDir::homePath());
+
+    if (dirPath.isEmpty())
+        return;
 
     QSettings settings;
     settings.beginGroup("files");
@@ -507,7 +508,13 @@ void MainWindow::on_actionImportData_triggered(void)
     try
     {
         // Check the folder content
+        QDir MSDir(dirPath);
         this->checkFolderContent(MSDir);
+
+        // Set import parameters
+        MSDataParameterDialog importParamDial(MSDir.dirName(), this);
+        if (importParamDial.exec() == QDialog::Rejected)
+            return;
 
         // Remove oldest csv file if exists
         QString csvFilename = MSDir.filePath(
@@ -528,9 +535,8 @@ void MainWindow::on_actionImportData_triggered(void)
 
         // Create couple and power curves
         //this->createCoupleAndPowerCurves(csvFilename);
-
-        QString inertieFilePath = MSDir.filePath(settings.value(KEY_INERTIE).toString());
-        //this->createCoupleAndPowerCurves2SansFiltrage(inertieFilePath);
+        QString inertieFilePath = MSDir.filePath(
+                    settings.value(KEY_INERTIE).toString());
         this->createCoupleAndPowerCurves(inertieFilePath);
     }
     catch(QException const& ex)

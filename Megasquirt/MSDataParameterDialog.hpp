@@ -1,5 +1,5 @@
-#ifndef MSDATAPARAMETERDIALOG_HPP
-#define MSDATAPARAMETERDIALOG_HPP
+#ifndef __MSDATAPARAMETERDIALOG_HPP__
+#define __MSDATAPARAMETERDIALOG_HPP__
 
 #if QT_VERSION >= 0x050000 //  0xMMNNPP (MM = major, NN = minor, PP = patch)
     #include <QtWidgets>
@@ -17,12 +17,18 @@ class MSDataParameterDialog : public QDialog
     
     public:
 
-        explicit MSDataParameterDialog(QWidget* parent = NULL);
+        explicit MSDataParameterDialog(
+            QString const& defaultTestName = QString(), QWidget* parent = NULL);
         virtual ~MSDataParameterDialog(void);
+
+        // Getter
+        double  inertia(void) const;
+        QString fuelType(void) const;
+        QString testName(void) const;
 
     protected:
 
         Ui::MSDataParameterDialog* ui;
 };
 
-#endif // MSDATAPARAMETERDIALOG_HPP
+#endif /* __MSDATAPARAMETERDIALOG_HPP__ */

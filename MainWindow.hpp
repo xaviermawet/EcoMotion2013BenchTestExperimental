@@ -22,6 +22,7 @@
 #include "Megasquirt/MSManager.hpp"
 #include "Megasquirt/MSFileConverterDialog.hpp"
 #include "Megasquirt/MSFileParameterDialog.hpp"
+#include "Megasquirt/MSDataParameterDialog.hpp"
 #include <qwt_legend_item.h>
 #include <qwt_plot_renderer.h>
 
