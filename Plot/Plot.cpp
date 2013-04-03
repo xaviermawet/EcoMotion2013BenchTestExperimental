@@ -214,8 +214,8 @@ void Plot::showLegendContextMenu(const QPoint& pos)
 void Plot::adaptYRightAxis(const QRectF &rect)
 {
     QRectF rescaledRect(rect);
-    rescaledRect.setTop(rect.top() * 10); // FIXME : le rapport (ici 10) doit etre une variable membre
-    rescaledRect.setBottom(rect.bottom() * 10); // FIXME : le rapport (ici 10) doit etre une variable membre
+    rescaledRect.setTop(rect.top() * 150); // FIXME : le rapport (ici 10) doit etre une variable membre
+    rescaledRect.setBottom(rect.bottom() * 150); // FIXME : le rapport (ici 10) doit etre une variable membre
 
     this->yRightZoomer->zoom(rescaledRect);
 }

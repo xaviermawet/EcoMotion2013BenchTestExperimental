@@ -255,7 +255,135 @@ void MainWindow::checkFolderContent(const QDir &MSDir) const
             throw QException(tr("Fichier ") + filename + tr(" inexistant"));
 }
 
-void MainWindow::createCoupleAndPowerCurves(
+void MainWindow::createCoupleAndPowerCurves(const QString &inertieCSVFilename)
+{
+    // Open inertie file that contains time values
+    QFile inertieFile(inertieCSVFilename);
+    if (!inertieFile.open(QIODevice::ReadOnly | QIODevice::Text))
+        throw QException(QObject::tr("Impossible d'ouvrir le fichier ")
+                         + inertieCSVFilename);
+
+    // Read the file line-by-line and covert time value into seconds
+    QList<double> inertieTimes;
+    while(!inertieFile.atEnd())
+        inertieTimes.append(QString(inertieFile.readLine()).toDouble() / 1000000);
+    inertieFile.close();
+
+    // Remove wrong values (first ones)
+    for (int i(0); i < 6; ++i)
+        inertieTimes.pop_front();
+
+    // We need at least 3 values of time to calculate the couple
+    if (inertieTimes.count() < 3)
+        throw QException(QObject::tr("Le fichier ") + inertieCSVFilename +
+                         QObject::tr(" ne contient pas assez de valeurs"));
+
+    // Create couple and power curves
+    const double PI = 3.141592653589793;
+    const double Jdelta = 0.22; // FIXME : demander à l'utilisateur de rentrer la valeur
+
+    double angularSpeed_a, angularSpeed_b;
+    double ta_average, tb_average;
+    double angularAcceleration;
+    double couple, power;
+
+    QVector<QPointF> powerPoints;
+    QVector<QPointF> couplePoints;
+
+    /* ---------------------------------------------------------------------- *
+     *                           ωa = 2Π / (t2 - t1)                          *
+     * ---------------------------------------------------------------------- *
+     * ωa = Première vitesse angulaire (rad/s)                                *
+     * Π  = Pi, constante qui vaut 3.141592653589793...                       *
+     * tx = temps à l'instant x (s) ave t2 > t1                               *
+     * ---------------------------------------------------------------------- */
+
+    angularSpeed_b = (2 * PI) / (inertieTimes.at(1) - inertieTimes.at(0));
+
+    for (int i(2); i < inertieTimes.count(); ++i)
+    {
+        angularSpeed_a = angularSpeed_b;
+
+    /* ---------------------------------------------------------------------- *
+     *                           ωb = 2Π / (t3 - t2)                          *
+     * ---------------------------------------------------------------------- *
+     * ωb = Deuxième vitesse angulaire (rad/s)                                *
+     * Π  = Pi, constante qui vaut 3.141592653589793...                       *
+     * tx = temps à l'instant x (s) ave t2 > t1                               *
+     * ---------------------------------------------------------------------- */
+
+        angularSpeed_b = (2 * PI) / (inertieTimes.at(i) - inertieTimes.at(i - 1));
+
+    /* ---------------------------------------------------------------------- *
+     *                        ta_moyen = (t1 + t2) / 2                        *
+     *                        tb_moyen = (t2 + t3) / 2                        *
+     *                   α = (ωb - ωa) / (tb_moyen - ta_moyen)                *
+     * ---------------------------------------------------------------------- *
+     * α  = Accélération angulaire (rad/s²)                                   *
+     * ωx = Vitesse angulaire à l'instant x (rad/s)                           *
+     * tx = temps x (s)                                                       *
+     * ---------------------------------------------------------------------- */
+
+        //accAngulaire = (wb - wa) / tb;
+
+        ta_average = (inertieTimes.at(i - 2) + inertieTimes.at(i - 1)) / 2;
+        tb_average = (inertieTimes.at(i - 1) + inertieTimes.at(i)) / 2;
+
+        angularAcceleration = (angularSpeed_b - angularSpeed_a)
+                                              /
+                                  (tb_average - ta_average);
+
+    /* ---------------------------------------------------------------------- *
+     *                              C = JΔ * α                                *
+     * ---------------------------------------------------------------------- *
+     * C  = Couple (N.m)                                                      *
+     * JΔ = moment d'inertie (kg.m²)                                          *
+     * α  = Accélération angulaire (rad/s²)                                   *
+     * ---------------------------------------------------------------------- */
+
+        couple = Jdelta * angularAcceleration;
+
+    /* ---------------------------------------------------------------------- *
+     *                               P = C * ωb                               *
+     * ---------------------------------------------------------------------- *
+     * P  = Puissance (Watts)                                                 *
+     * ωx = Vitesse angulaire à l'instant x (rad/s)                           *
+     * ---------------------------------------------------------------------- */
+
+        power = couple * angularSpeed_b;
+
+    /* ---------------------------------------------------------------------- *
+     *               ωx = (Π * Nx) / 30  <=> Nx = (30 * ωx) / Π               *
+     * ---------------------------------------------------------------------- *
+     * ω = Vitesse angulaire (rad/s)                                          *
+     * Π = Pi, constante qui vaut 3.141592653589793...                        *
+     * N = tours par minute == RPM (tours/minute)                             *
+     * ---------------------------------------------------------------------- */
+
+            double rpm_b = (30 * angularSpeed_b) / PI;
+
+            // create curves coordinates
+            powerPoints.append(QPointF(rpm_b, power));
+            couplePoints.append(QPointF(rpm_b, couple));
+    }
+
+    // Create couple curve
+    QwtPointSeriesData* coupleSerieData = new QwtPointSeriesData(couplePoints);
+    PlotCurve* coupleCurve = new PlotCurve(tr("Couple"), QPen(Qt::darkRed)); // TODO : ajouter le nom de l'essai (par défaut, le nom du dossier)
+    coupleCurve->setData(coupleSerieData);
+    coupleCurve->attach(this->CPPlot);
+    this->setPlotCurveVisibile(coupleCurve, true);
+
+    // Create power curve
+    QwtPointSeriesData* powerSerieData = new QwtPointSeriesData(powerPoints);
+    PlotCurve* powerCurve = new PlotCurve(tr("Puissance"), QPen(Qt::darkBlue)); // TODO : ajouter le nom de l'essai (par défaut, le nom du dossier)
+    powerCurve->setData(powerSerieData);
+    powerCurve->setAxes(Plot::xBottom, Plot::yRight);
+    powerCurve->attach(this->CPPlot);
+    this->setPlotCurveVisibile(powerCurve, true);
+}
+
+void MainWindow::createCoupleAndPowerCurves_old(
         QString const& megasquirtCSVFilename)
 {
     QCSVParser MSFile(megasquirtCSVFilename, ';', QString::KeepEmptyParts);
@@ -284,7 +412,7 @@ void MainWindow::createCoupleAndPowerCurves(
      * ---------------------------------------------------------------------- *
      * ωx = Vitesse angulaire à l'instant x (rad/s)                           *
      * Π  = Pi, constante qui vaut 3.141592653589793...                       *
-     * Nx = tours par minutes à l'instant x == RPM (tours/minute)             *
+     * Nx = tours par minute à l'instant x == RPM (tours/minute)              *
      * ---------------------------------------------------------------------- */
 
         w2 = (PI * rpm.at(i).toDouble()) / 30;
@@ -341,7 +469,7 @@ void MainWindow::createCoupleAndPowerCurves(
      * ---------------------------------------------------------------------- *
      * ωx = Vitesse angulaire à l'instant x (rad/s)                           *
      * Π  = Pi, constante qui vaut 3.141592653589793...                       *
-     * Nx = tours par minutes à l'instant x == RPM (tours/minute)             *
+     * Nx = tours par minute à l'instant x == RPM (tours/minute)              *
      * ---------------------------------------------------------------------- */
         powerPoints.append(QPointF((30 * wIntermediate) / PI, puissance));
         qDebug() << "puissance (rpm, puissance) = " << powerPoints.last();
@@ -365,123 +493,6 @@ void MainWindow::createCoupleAndPowerCurves(
     this->setPlotCurveVisibile(powerCurve, true);
 
     qDebug() << "Fin de la création des courbes ...";
-}
-
-void MainWindow::createCoupleAndPowerCurves2(const QString &inertieCSVFilename,
-                                             int differenceTpsObligatoireEntreDeuxDonnees)
-{
-    // Ouverture du fichier inertie et lecture ligne par ligne
-    QFile inertieFile(inertieCSVFilename);
-    if (!inertieFile.open(QIODevice::ReadOnly | QIODevice::Text))
-        throw QException(QObject::tr("Impossible d'ouvrir le fichier"));
-
-    // Lecture de toutes les données de temps
-    QList<double> inertieTimes;
-    while(!inertieFile.atEnd())
-        inertieTimes.append(QString(inertieFile.readLine()).toDouble() / 1000000);
-    inertieFile.close();
-
-    // filtrage ----------------------------------------------------------------
-    // Eneleve les première valeur erronées
-    for (int i(0); i < 6; ++i)
-        inertieTimes.pop_front();
-    // Fin filtrage ------------------------------------------------------------
-
-    // We need at least 3 values of time to calculate the couple
-    if (inertieTimes.count() < 3)
-        throw QException(QObject::tr("données insuffisantes"));
-
-    QVector<QPointF> couplePoints;
-
-    double ta, tb;
-    double wa, wb;
-    double accAngulaire;
-    double couple, puissance;
-    const double PI = 3.141592653589793;
-    const double Jdelta = 0.22; // FIXME : demander à l'utilisateur de rentrer la valeur
-
-    tb = inertieTimes.at(1) - inertieTimes.at(0);
-    wb = (2 * PI) / tb;
-
-    for(int i(2); i < inertieTimes.count(); ++i)
-    {
-        ta = tb;
-        wa = wb;
-
-                qDebug() << "t2 = " << inertieTimes.at(i - 1);
-                qDebug() << "t1 = " << inertieTimes.at(i - 2);
-
-                qDebug() << "ta = " << ta;
-                qDebug() << "wa = " << wa;
-
-                qDebug() << "t3 = " << inertieTimes.at(i);
-                qDebug() << "t2 = " << inertieTimes.at(i - 1);
-
-        tb = inertieTimes.at(i) - inertieTimes.at(i - 1);
-        wb = (2 * PI) / tb;
-
-                qDebug() << "tb = " << tb;
-                qDebug() << "wb = " << wb;
-
-        //accAngulaire = (wb - wa) / (ta - tb);
-        //accAngulaire = (wb - wa) / tb;
-
-                double t1 = inertieTimes.at(i - 2);
-                double t2 = inertieTimes.at(i - 1);
-                double ta_moyen = (t1 + t2) / 2;
-
-                double t3 = inertieTimes.at(i);
-                double tb_moyen = (t2 + t3) / 2;
-                accAngulaire = (wb - wa) / (tb_moyen - ta_moyen);
-
-                qDebug() << "Δt = tb - ta = " << QString::number(ta - tb, 'f');
-                qDebug() << "α = " << accAngulaire;
-
-        couple = Jdelta * accAngulaire;
-
-    /* ---------------------------------------------------------------------- *
-     *               ωx = (Π * Nx) / 30  <=> Nx = (30 * ωx) / Π               *
-     * ---------------------------------------------------------------------- */
-        couplePoints.append(QPointF((30 * wb) / PI, couple));
-        qDebug() << "couple (rpm, couple) = " << couplePoints.last();
-
-    }
-
-    // filtrage des données calculées ------------------------------------------
-
-    // Si pour deux valeur de couple qui se suivent il y a une différence > 1 alors on retire la donnée
-
-
-    // fin de filtrage ---------------------------------------------------------
-
-    // Création de la courbe du couple
-    QwtPointSeriesData* coupleSerieData = new QwtPointSeriesData(couplePoints);
-    PlotCurve* coupleCurve = new PlotCurve(tr("Couple"), QPen(Qt::darkRed)); // TODO : ajouter le nom de l'essai (par défaut, le nom du dossier)
-    coupleCurve->setData(coupleSerieData);
-    coupleCurve->attach(this->CPPlot);
-    this->setPlotCurveVisibile(coupleCurve, true);
-
-/*
-    // Open succed
-    QVector<QPointF> couplePoints;
-    QVector<QPointF> powerPoints;
-
-    double t1, t2;
-    double w1, w2, wIntermediate;
-    double accAngulaire;
-    double couple, puissance;
-    const double PI = 3.141592653589793;
-    const double Jdelta = 0.22; // FIXME : demander à l'utilisateur de rentrer la valeur
-
-    // Calcul de la première vitesse angulaire du rouleau
-    w2 = 2 * PI
-
-    QString line;
-    while(!inertieFile.atEnd())
-    {
-        line = inertieFile.readLine();
-    }
-*/
 }
 
 void MainWindow::on_actionImportData_triggered(void)
@@ -519,7 +530,8 @@ void MainWindow::on_actionImportData_triggered(void)
         //this->createCoupleAndPowerCurves(csvFilename);
 
         QString inertieFilePath = MSDir.filePath(settings.value(KEY_INERTIE).toString());
-        this->createCoupleAndPowerCurves2(inertieFilePath, 10000);
+        //this->createCoupleAndPowerCurves2SansFiltrage(inertieFilePath);
+        this->createCoupleAndPowerCurves(inertieFilePath);
     }
     catch(QException const& ex)
     {

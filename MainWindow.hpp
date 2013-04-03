@@ -58,13 +58,12 @@ class MainWindow : public QMainWindow
         void  updateMenus(void);
         void  readSettings(void);
         void  writeSettings(void) const;
+        void  initSettings(void) const;
 
         // Megasquirt management methods
-        void initSettings(void) const;
         void checkFolderContent(QDir const& MSDir) const;
-        void createCoupleAndPowerCurves(QString const& megasquirtCSVFilename);
-        void createCoupleAndPowerCurves2(QString const& inertieCSVFilename,
-                                         int differenceTpsObligatoireEntreDeuxDonnees);
+        void createCoupleAndPowerCurves(QString const& inertieCSVFilename);
+        void createCoupleAndPowerCurves_old(QString const& megasquirtCSVFilename);
 
     private slots:
 
