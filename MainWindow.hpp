@@ -63,6 +63,8 @@ class MainWindow : public QMainWindow
         void initSettings(void) const;
         void checkFolderContent(QDir const& MSDir) const;
         void createCoupleAndPowerCurves(QString const& megasquirtCSVFilename);
+        void createCoupleAndPowerCurves2(QString const& inertieCSVFilename,
+                                         int differenceTpsObligatoireEntreDeuxDonnees);
 
     private slots:
 

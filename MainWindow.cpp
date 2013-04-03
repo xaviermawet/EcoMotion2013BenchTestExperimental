@@ -367,6 +367,123 @@ void MainWindow::createCoupleAndPowerCurves(
     qDebug() << "Fin de la création des courbes ...";
 }
 
+void MainWindow::createCoupleAndPowerCurves2(const QString &inertieCSVFilename,
+                                             int differenceTpsObligatoireEntreDeuxDonnees)
+{
+    // Ouverture du fichier inertie et lecture ligne par ligne
+    QFile inertieFile(inertieCSVFilename);
+    if (!inertieFile.open(QIODevice::ReadOnly | QIODevice::Text))
+        throw QException(QObject::tr("Impossible d'ouvrir le fichier"));
+
+    // Lecture de toutes les données de temps
+    QList<double> inertieTimes;
+    while(!inertieFile.atEnd())
+        inertieTimes.append(QString(inertieFile.readLine()).toDouble() / 1000000);
+    inertieFile.close();
+
+    // filtrage ----------------------------------------------------------------
+    // Eneleve les première valeur erronées
+    for (int i(0); i < 6; ++i)
+        inertieTimes.pop_front();
+    // Fin filtrage ------------------------------------------------------------
+
+    // We need at least 3 values of time to calculate the couple
+    if (inertieTimes.count() < 3)
+        throw QException(QObject::tr("données insuffisantes"));
+
+    QVector<QPointF> couplePoints;
+
+    double ta, tb;
+    double wa, wb;
+    double accAngulaire;
+    double couple, puissance;
+    const double PI = 3.141592653589793;
+    const double Jdelta = 0.22; // FIXME : demander à l'utilisateur de rentrer la valeur
+
+    tb = inertieTimes.at(1) - inertieTimes.at(0);
+    wb = (2 * PI) / tb;
+
+    for(int i(2); i < inertieTimes.count(); ++i)
+    {
+        ta = tb;
+        wa = wb;
+
+                qDebug() << "t2 = " << inertieTimes.at(i - 1);
+                qDebug() << "t1 = " << inertieTimes.at(i - 2);
+
+                qDebug() << "ta = " << ta;
+                qDebug() << "wa = " << wa;
+
+                qDebug() << "t3 = " << inertieTimes.at(i);
+                qDebug() << "t2 = " << inertieTimes.at(i - 1);
+
+        tb = inertieTimes.at(i) - inertieTimes.at(i - 1);
+        wb = (2 * PI) / tb;
+
+                qDebug() << "tb = " << tb;
+                qDebug() << "wb = " << wb;
+
+        //accAngulaire = (wb - wa) / (ta - tb);
+        //accAngulaire = (wb - wa) / tb;
+
+                double t1 = inertieTimes.at(i - 2);
+                double t2 = inertieTimes.at(i - 1);
+                double ta_moyen = (t1 + t2) / 2;
+
+                double t3 = inertieTimes.at(i);
+                double tb_moyen = (t2 + t3) / 2;
+                accAngulaire = (wb - wa) / (tb_moyen - ta_moyen);
+
+                qDebug() << "Δt = tb - ta = " << QString::number(ta - tb, 'f');
+                qDebug() << "α = " << accAngulaire;
+
+        couple = Jdelta * accAngulaire;
+
+    /* ---------------------------------------------------------------------- *
+     *               ωx = (Π * Nx) / 30  <=> Nx = (30 * ωx) / Π               *
+     * ---------------------------------------------------------------------- */
+        couplePoints.append(QPointF((30 * wb) / PI, couple));
+        qDebug() << "couple (rpm, couple) = " << couplePoints.last();
+
+    }
+
+    // filtrage des données calculées ------------------------------------------
+
+    // Si pour deux valeur de couple qui se suivent il y a une différence > 1 alors on retire la donnée
+
+
+    // fin de filtrage ---------------------------------------------------------
+
+    // Création de la courbe du couple
+    QwtPointSeriesData* coupleSerieData = new QwtPointSeriesData(couplePoints);
+    PlotCurve* coupleCurve = new PlotCurve(tr("Couple"), QPen(Qt::darkRed)); // TODO : ajouter le nom de l'essai (par défaut, le nom du dossier)
+    coupleCurve->setData(coupleSerieData);
+    coupleCurve->attach(this->CPPlot);
+    this->setPlotCurveVisibile(coupleCurve, true);
+
+/*
+    // Open succed
+    QVector<QPointF> couplePoints;
+    QVector<QPointF> powerPoints;
+
+    double t1, t2;
+    double w1, w2, wIntermediate;
+    double accAngulaire;
+    double couple, puissance;
+    const double PI = 3.141592653589793;
+    const double Jdelta = 0.22; // FIXME : demander à l'utilisateur de rentrer la valeur
+
+    // Calcul de la première vitesse angulaire du rouleau
+    w2 = 2 * PI
+
+    QString line;
+    while(!inertieFile.atEnd())
+    {
+        line = inertieFile.readLine();
+    }
+*/
+}
+
 void MainWindow::on_actionImportData_triggered(void)
 {
     QDir MSDir = QFileDialog::getExistingDirectory(
@@ -399,7 +516,10 @@ void MainWindow::on_actionImportData_triggered(void)
                   megasquirtParameters);
 
         // Create couple and power curves
-        this->createCoupleAndPowerCurves(csvFilename);
+        //this->createCoupleAndPowerCurves(csvFilename);
+
+        QString inertieFilePath = MSDir.filePath(settings.value(KEY_INERTIE).toString());
+        this->createCoupleAndPowerCurves2(inertieFilePath, 10000);
     }
     catch(QException const& ex)
     {
