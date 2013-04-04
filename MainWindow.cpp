@@ -739,6 +739,10 @@ void MainWindow::eraseCurve(void)
 
 void MainWindow::centerOnCurve(void)
 {
+    // if no curve associated to the legend item. This shouldn't happen!
+    if (this->curveAssociatedToLegendItem == NULL)
+        return;
+
     qDebug() << "Centrer le graphique courant sur la courbe..";
 
     /* TODO :

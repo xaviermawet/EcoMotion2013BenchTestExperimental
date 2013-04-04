@@ -82,8 +82,15 @@ Plot::Plot(const QwtText &title, QWidget *parent) :
     // Zoomer for the new axis
     this->yRightZoomer = new Zoomer(xTop, yRight, this->canvas());
 
-    connect(this->yLeftZoomer, SIGNAL(zoomed(QRectF)),
-            this, SLOT(adaptYRightAxis(QRectF)));
+    /* ---------------------------------------------------------------------- *
+     *       Rescaler takes care of fixed aspect ratios for plot scales       *
+     * ---------------------------------------------------------------------- */
+    this->rescaler = new QwtPlotRescaler(this->canvas());
+    this->rescaler->setReferenceAxis(Plot::yLeft);
+    this->rescaler->setAspectRatio(Plot::yRight, 0.01);
+    this->rescaler->setAspectRatio(Plot::xBottom, 0.0);
+    this->rescaler->setAspectRatio(Plot::xTop, 0.0);
+    this->setAxisScale(Plot::yLeft, 0, 10);
 
     /* ---------------------------------------------------------------------- *
      *                      Some customization options                        *
@@ -188,7 +195,6 @@ void Plot::showLegendContextMenu(const QPoint& pos)
     {
         if (plotItem->title().text() == legendItem->text().text())
         {
-            //emit this->legendRightClicked(plotItem, pos);
             emit this->legendRightClicked(plotItem,
                                           this->legend->mapToGlobal(pos));
             break;

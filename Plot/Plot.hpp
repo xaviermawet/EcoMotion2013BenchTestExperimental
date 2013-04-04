@@ -35,6 +35,7 @@
 #include <qwt_plot_panner.h>
 #include <qwt_plot_marker.h>
 #include <qwt_scale_widget.h>
+#include <qwt_plot_rescaler.h>
 #include <qwt_plot_magnifier.h>
 #include "Zoomer.hpp"
 
@@ -81,6 +82,8 @@ class Plot : public QwtPlot
         Zoomer*           yRightZoomer;
         Zoomer*           yLeftZoomer;
         QwtPlotMagnifier* magnifier;
+
+        QwtPlotRescaler*  rescaler;
 };
 
 #endif /* __PLOT_HPP__ */
