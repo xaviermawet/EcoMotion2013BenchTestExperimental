@@ -102,7 +102,7 @@ class MainWindow : public QMainWindow
         PlotCurve* curveAssociatedToLegendItem;
 
         // CSV parser
-        QCSVParser parser;
+        QCSVParser MSPlotParser;
 };
 
 #endif /* __MAINWINDOW_HPP__ */

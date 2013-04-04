@@ -10,6 +10,8 @@ Plot::Plot(const QwtText &title, QWidget *parent) :
     QwtPlot(title, parent), legend(NULL), grid(NULL), crossLine(NULL),
     panner(NULL), yRightZoomer(NULL), yLeftZoomer(NULL), magnifier(NULL)
 {
+    this->setAutoReplot(false);
+
     /* ---------------------------------------------------------------------- *
      *                         Add a legend for curves                        *
      * ---------------------------------------------------------------------- */
@@ -80,7 +82,6 @@ Plot::Plot(const QwtText &title, QWidget *parent) :
     // Zoomer for the new axis
     this->yRightZoomer = new Zoomer(xTop, yRight, this->canvas());
 
-    this->adaptYRightAxis(this->yLeftZoomer->zoomRect());
     connect(this->yLeftZoomer, SIGNAL(zoomed(QRectF)),
             this, SLOT(adaptYRightAxis(QRectF)));
 
@@ -88,6 +89,7 @@ Plot::Plot(const QwtText &title, QWidget *parent) :
      *                      Some customization options                        *
      * ---------------------------------------------------------------------- */
     this->setCanvasBackground(Qt::darkGray);
+
     this->setAutoReplot(true);
 }
 
@@ -214,8 +216,8 @@ void Plot::showLegendContextMenu(const QPoint& pos)
 void Plot::adaptYRightAxis(const QRectF &rect)
 {
     QRectF rescaledRect(rect);
-    rescaledRect.setTop(rect.top() * 150); // FIXME : le rapport (ici 10) doit etre une variable membre
-    rescaledRect.setBottom(rect.bottom() * 150); // FIXME : le rapport (ici 10) doit etre une variable membre
+    rescaledRect.setTop(rect.top() * 100); // FIXME : le rapport (ici 100) doit etre une variable membre
+    rescaledRect.setBottom(rect.bottom() * 100); // FIXME : le rapport (ici 100) doit etre une variable membre
 
     this->yRightZoomer->zoom(rescaledRect);
 }

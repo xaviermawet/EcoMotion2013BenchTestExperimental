@@ -4,7 +4,7 @@
 MainWindow::MainWindow(QWidget* parent) :
     QMainWindow(parent), ui(new Ui::MainWindow),
     MSPlot(NULL), CPPlot(NULL), legendContextMenu(NULL),
-    curveAssociatedToLegendItem(NULL), parser()
+    curveAssociatedToLegendItem(NULL), MSPlotParser()
 {
     // Display Configuration
     QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
@@ -365,13 +365,6 @@ void MainWindow::createCoupleAndPowerCurves(const QString &inertieCSVFilename)
             couplePoints.append(QPointF(rpm_b, couple));
     }
 
-    // Create couple curve
-    QwtPointSeriesData* coupleSerieData = new QwtPointSeriesData(couplePoints);
-    PlotCurve* coupleCurve = new PlotCurve(tr("Couple"), QPen(Qt::darkRed)); // TODO : ajouter le nom de l'essai (par défaut, le nom du dossier)
-    coupleCurve->setData(coupleSerieData);
-    coupleCurve->attach(this->CPPlot);
-    this->setPlotCurveVisibile(coupleCurve, true);
-
     // Create power curve
     QwtPointSeriesData* powerSerieData = new QwtPointSeriesData(powerPoints);
     PlotCurve* powerCurve = new PlotCurve(tr("Puissance"), QPen(Qt::darkBlue)); // TODO : ajouter le nom de l'essai (par défaut, le nom du dossier)
@@ -379,6 +372,13 @@ void MainWindow::createCoupleAndPowerCurves(const QString &inertieCSVFilename)
     powerCurve->setAxes(Plot::xBottom, Plot::yRight);
     powerCurve->attach(this->CPPlot);
     this->setPlotCurveVisibile(powerCurve, true);
+
+    // Create couple curve
+    QwtPointSeriesData* coupleSerieData = new QwtPointSeriesData(couplePoints);
+    PlotCurve* coupleCurve = new PlotCurve(tr("Couple"), QPen(Qt::darkRed)); // TODO : ajouter le nom de l'essai (par défaut, le nom du dossier)
+    coupleCurve->setData(coupleSerieData);
+    coupleCurve->attach(this->CPPlot);
+    this->setPlotCurveVisibile(coupleCurve, true);
 }
 
 void MainWindow::createCoupleAndPowerCurves_old(
@@ -568,10 +568,10 @@ void MainWindow::on_addCurvePushButton_clicked(void)
         qDebug() << "Courbe a afficher : " << curveName;
 
         // Récupération du temps exprimé en microsecondes
-        QCSVRow secondes = this->parser["times"];
+        QCSVRow secondes = this->MSPlotParser["times"];
 
         // Récupération de la colonne de données a représenter par une courbe
-        QCSVRow data     = this->parser[curveName];
+        QCSVRow data     = this->MSPlotParser[curveName];
 
         // Création de la liste de points de la courbe
         QVector<QPointF> vect;
@@ -672,11 +672,11 @@ void MainWindow::on_actionLoadCSV_triggered(void)
             throw QException(tr("Vous n'avez pas sélectionné de fichier"));
 
         // Load information from the CSV file
-        this->parser.parse(filename, ';', QString::SkipEmptyParts);
+        this->MSPlotParser.parse(filename, ';', QString::SkipEmptyParts);
 
         // Récupérer les noms des colonnes du fichier csv
         this->ui->paramMegasquirtComboBox->clear();
-        this->ui->paramMegasquirtComboBox->addItems(this->parser.headersList());
+        this->ui->paramMegasquirtComboBox->addItems(this->MSPlotParser.headersList());
     }
     catch (QException const& ex)
     {
