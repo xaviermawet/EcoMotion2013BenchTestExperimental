@@ -33,7 +33,7 @@
     <item>
      <widget class="QTabWidget" name="mainTabWidget">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="coupleAndPowerTab">
        <attribute name="title">
@@ -72,35 +72,52 @@
          <number>3</number>
         </property>
         <item>
-         <widget class="QGroupBox" name="groupBox">
-          <property name="title">
-           <string>Données Megasquirt</string>
+         <widget class="QSplitter" name="megasquirtDataSplitter">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
           </property>
-          <layout class="QVBoxLayout" name="groupBoxVerticalLayout">
-           <item>
-            <widget class="QComboBox" name="paramMegasquirtComboBox"/>
-           </item>
-           <item>
-            <widget class="QPushButton" name="addCurvePushButton">
-             <property name="text">
-              <string>Ajouter la courbe</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <spacer name="verticalSpacer">
-             <property name="orientation">
-              <enum>Qt::Vertical</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>20</width>
-               <height>40</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-          </layout>
+          <widget class="QGroupBox" name="groupBox">
+           <property name="title">
+            <string>Données Megasquirt</string>
+           </property>
+           <layout class="QVBoxLayout" name="groupBoxVerticalLayout">
+            <property name="leftMargin">
+             <number>3</number>
+            </property>
+            <property name="topMargin">
+             <number>3</number>
+            </property>
+            <property name="rightMargin">
+             <number>3</number>
+            </property>
+            <property name="bottomMargin">
+             <number>3</number>
+            </property>
+            <item>
+             <widget class="QComboBox" name="paramMegasquirtComboBox"/>
+            </item>
+            <item>
+             <widget class="QPushButton" name="addCurvePushButton">
+              <property name="text">
+               <string>Ajouter la courbe</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="verticalSpacer">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </widget>
          </widget>
         </item>
        </layout>

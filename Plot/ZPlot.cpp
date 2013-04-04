@@ -1,14 +1,14 @@
-#include "Plot.hpp"
+#include "ZPlot.hpp"
 
-Plot::Plot(const QString& title, QWidget* parent) :
-    Plot(QwtText(title), parent)
+ZPlot::ZPlot(const QString &title, QWidget *parent) :
+    ZPlot(QwtText(title), parent)
 {
     // Delegating constructors only available with -std=c++11 or -std=gnu++11
 }
 
-Plot::Plot(const QwtText& title, QWidget* parent) :
+ZPlot::ZPlot(const QwtText &title, QWidget *parent) :
     QwtPlot(title, parent), _legend(NULL), _grid(NULL), _crossLine(NULL),
-    _panner(NULL), _yLeftZoomer(NULL), _magnifier(NULL)
+    _panner(NULL), _yRightZoomer(NULL), _yLeftZoomer(NULL), _magnifier(NULL)
 {
     this->setAutoReplot(false);
 
@@ -37,7 +37,7 @@ Plot::Plot(const QwtText& title, QWidget* parent) :
     this->_crossLine = new QwtPlotMarker();
     this->_crossLine->setLineStyle(QwtPlotMarker::Cross);
     this->_crossLine->setValue(0, 0);
-    this->_crossLine->attach(this);
+    //this->crossLine->attach(this); // Detached by default
 
     /* ---------------------------------------------------------------------- *
      *                      Manage panning for the plot                       *
@@ -65,10 +65,32 @@ Plot::Plot(const QwtText& title, QWidget* parent) :
 
 
     // Manage zoom with the mouse wheel and keyborad
-    this->_magnifier = new PlotMagnifier(this->canvas());
+    this->_magnifier = new QwtPlotMagnifier(this->canvas());
+    this->_magnifier->setMouseFactor(_magnifier->keyFactor() / 2);
     this->_magnifier->setZoomOutKey(Qt::Key_Minus, Qt::ControlModifier);
     this->_magnifier->setZoomInKey(Qt::Key_Plus,
                                   Qt::ControlModifier | Qt::ShiftModifier);
+
+    /* ---------------------------------------------------------------------- *
+     *                        Add a y axis on the right                       *
+     * ---------------------------------------------------------------------- *
+     * A zoomer controls only one x and one y axis. If you want to zoom 2 y   *
+     * axis you need a second zoomer (without tracker and rubber band)        *
+     * ---------------------------------------------------------------------- */
+    this->enableAxis(QwtPlot::yRight);
+
+    // Zoomer for the new axis
+    this->_yRightZoomer = new Zoomer(xTop, yRight, this->canvas());
+
+    /* ---------------------------------------------------------------------- *
+     *       Rescaler takes care of fixed aspect ratios for plot scales       *
+     * ---------------------------------------------------------------------- */
+    this->_rescaler = new QwtPlotRescaler(this->canvas());
+    this->_rescaler->setReferenceAxis(ZPlot::yLeft);
+    this->_rescaler->setAspectRatio(ZPlot::yRight, 0.01);
+    this->_rescaler->setAspectRatio(ZPlot::xBottom, 0.0);
+    this->_rescaler->setAspectRatio(ZPlot::xTop, 0.0);
+    this->setAxisScale(ZPlot::yLeft, 0, 10);
 
     /* ---------------------------------------------------------------------- *
      *                      Some customization options                        *
@@ -78,7 +100,7 @@ Plot::Plot(const QwtText& title, QWidget* parent) :
     this->setAutoReplot(true);
 }
 
-Plot::~Plot(void)
+ZPlot::~ZPlot(void)
 {
     qDebug() << "Plot Début destructeur";
 
@@ -86,104 +108,82 @@ Plot::~Plot(void)
     delete this->_grid;
     delete this->_crossLine;
     delete this->_panner;
+    delete this->_yRightZoomer;
     delete this->_yLeftZoomer;
     delete this->_magnifier;
 
     qDebug() << "Plot fin destructeur";
 }
 
-void Plot::zoom(const QRectF& zoomRectF)
-{
-    this->_magnifier->restoreScale();
-    this->_yLeftZoomer->zoom(zoomRectF);
-}
-
-bool Plot::isGridVisible(void) const
+bool ZPlot::isGridVisible(void) const
 {
     return this->_grid->plot() != NULL;
 }
 
-bool Plot::isCrossLineVisible(void) const
+bool ZPlot::isCrossLineVisible(void) const
 {
     return this->_crossLine->plot() != NULL;
 }
 
-bool Plot::isLabelPositionVisible(void) const
+bool ZPlot::isLabelPositionVisible(void) const
 {
     return this->_yLeftZoomer->trackerMode() == QwtPlotPicker::AlwaysOn;
 }
 
-QwtPlotGrid* Plot::grid(void) const
-{
-    return this->_grid;
-}
-
-QwtPlotMarker* Plot::crossLine(void) const
-{
-    return this->_crossLine;
-}
-
-Zoomer* Plot::zoomer(void) const
-{
-    return this->_yLeftZoomer;
-}
-
-void Plot::setGridVisible(bool visible)
+void ZPlot::setGridVisible(bool visible)
 {
     visible ? this->_grid->attach(this) : this->_grid->detach();
     this->replot();
 }
 
-void Plot::setCrossLineVisible(bool visible)
+void ZPlot::setCrossLineVisible(bool visible)
 {
     if (visible)
     {
-        // Change cross line visibility
         this->_crossLine->attach(this);
         connect(this->_yLeftZoomer, SIGNAL(mousePosChanged(QPointF)),
                 this, SLOT(updateCrossLinePosition(QPointF)));
-
-        // Save the previous label visibility
-        this->_labelWasVisible = this->isLabelPositionVisible();
-        this->setLabelPositionVisible(true);
     }
     else
     {
-        // Change cross line visibility
         this->_crossLine->detach();
         disconnect(this->_yLeftZoomer, SIGNAL(mousePosChanged(QPointF)),
                    this, SLOT(updateCrossLinePosition(QPointF)));
-
-        // Restore the previous label visibility
-        this->setLabelPositionVisible(this->_labelWasVisible);
     }
 
     this->replot();
 }
 
-void Plot::setLabelPositionVisible(bool visible)
+void ZPlot::setLabelPositionVisible(bool visible)
 {
-    if (visible)
-    {
-        this->_yLeftZoomer->setTrackerMode(QwtPicker::AlwaysOn);
-    }
-    else
-    {
-        if (this->isCrossLineVisible())
-            return;
-
-        this->_yLeftZoomer->setTrackerMode(QwtPicker::AlwaysOff);
-    }
+    visible ? this->_yLeftZoomer->setTrackerMode(QwtPicker::AlwaysOn) :
+              this->_yLeftZoomer->setTrackerMode(QwtPicker::AlwaysOff);
 
     this->replot();
+
+    /* FIXME
+     * Attention que si j'ajoute la posibilité de choisir si le label
+     * au curseur affiche la valeur en y pour l'axe de gauche ou l'axe
+     * de droite, je dois savoir (variable membre de type int qui vaudra YRight
+     * ou YLeft ou bool showLeftYValue) quel est l'axe courant
+     * choisi pour lequel on doit afficher la position
+     *
+     * exemple de code :
+     *
+     * if (this->yRightZoomer != NULL)
+     * OU
+     * if (this->axisEnable(yRight)
+     *
+     * alors dans ces cas là, vérifier pour quel y on doit afficher dans le label
+     */
 }
 
-void Plot::updateCrossLinePosition(const QPointF& pos)
+void ZPlot::updateCrossLinePosition(const QPointF& pos)
 {
     this->_crossLine->setValue(pos);
 }
 
-void Plot::showLegendContextMenu(const QPoint& pos)
+void ZPlot::showLegendContextMenu(const QPoint& pos)
 {
     // Stop if the user doesn't right clic on a legend item
     QwtLegendItem* legendItem = qobject_cast<QwtLegendItem*>(
@@ -195,9 +195,18 @@ void Plot::showLegendContextMenu(const QPoint& pos)
     {
         if (plotItem->title().text() == legendItem->text().text())
         {
-            QPoint globalPos = this->_legend->mapToGlobal(pos);
-            emit this->legendRightClicked(plotItem, globalPos);
+            emit this->legendRightClicked(
+                        plotItem, this->_legend->mapToGlobal(pos));
             break;
         }
     }
+}
+
+void ZPlot::adaptYRightAxis(const QRectF &rect)
+{
+    QRectF rescaledRect(rect);
+    rescaledRect.setTop(rect.top() * 100); // FIXME : le rapport (ici 100) doit etre une variable membre
+    rescaledRect.setBottom(rect.bottom() * 100); // FIXME : le rapport (ici 100) doit etre une variable membre
+
+    this->_yRightZoomer->zoom(rescaledRect);
 }

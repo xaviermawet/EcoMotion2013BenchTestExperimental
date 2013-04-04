@@ -78,7 +78,7 @@ void MainWindow::createMSPlotZone(void)
 {
     this->MSPlot = new Plot("Données du Megasquirt", this);
     this->MSPlot->setAxisTitle(Plot::xBottom, tr("Temps (s)"));
-    this->ui->MSDataHLayout->addWidget(this->MSPlot);
+    this->ui->megasquirtDataSplitter->addWidget(this->MSPlot);
 
     // Connect plot signals to slots
     connect(this->MSPlot, SIGNAL(legendChecked(QwtPlotItem*, bool)),
@@ -175,6 +175,9 @@ void MainWindow::readSettings(void)
     this->ui->mainTabWidget->setCurrentIndex(
                 settings.value("mainTabCurrentIndex", 0).toInt());
 
+    this->ui->megasquirtDataSplitter->restoreState(
+                settings.value("megasquirtDataSplitter").toByteArray());
+
     settings.endGroup();
 }
 
@@ -207,6 +210,8 @@ void MainWindow::writeSettings(void) const
     settings.setValue("geometry", this->saveGeometry());
     settings.setValue("mainTabCurrentIndex",
                       this->ui->mainTabWidget->currentIndex());
+    settings.setValue("megasquirtDataSplitter",
+                      this->ui->megasquirtDataSplitter->saveState());
     settings.endGroup();
 }
 
@@ -718,6 +723,7 @@ void MainWindow::on_actionExportToPDF_triggered(void)
         return; // User cancel the previous dialog
 
     QwtPlotRenderer renderer;
+    renderer.setDiscardFlag(QwtPlotRenderer::DiscardBackground);
     renderer.renderDocument(this->currentPlot(), pdfFile,
                             this->currentPlot()->size());
 }
@@ -744,6 +750,10 @@ void MainWindow::centerOnCurve(void)
         return;
 
     qDebug() << "Centrer le graphique courant sur la courbe..";
+
+    QRectF curveRect = this->curveAssociatedToLegendItem->boundingRect();
+    this->currentPlot()->zoom(curveRect);
+    //this->currentPlot()->zoomer()->zoom(curveRect);
 
     /* TODO :
      *-------
