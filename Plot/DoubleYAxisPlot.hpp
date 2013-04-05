@@ -11,16 +11,20 @@ class DoubleYAxisPlot : public Plot
 
     public:
 
-        explicit DoubleYAxisPlot(QString const& title, QWidget* parent = NULL);
-        explicit DoubleYAxisPlot(QwtText const& title, QWidget* parent = NULL);
+        explicit DoubleYAxisPlot(QString const& title, double aspectRatio,
+                                 QWidget* parent = NULL);
+        explicit DoubleYAxisPlot(QwtText const& title, double aspectRatio,
+                                 QWidget* parent = NULL);
+
         virtual ~DoubleYAxisPlot(void);
 
         virtual void zoom(QwtPlotItem const* item);
 
     protected:
 
-        Zoomer*          _yRightZoomer;
-        QwtPlotRescaler* _rescaler;
+        double  _ratio;
+        Zoomer* _yRightZoomer;
+        QwtPlotRescaler* _yRescaler;
 };
 
 #endif /* __DOUBLEYAXISPLOT_HPP__ */

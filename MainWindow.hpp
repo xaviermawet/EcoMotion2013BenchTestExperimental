@@ -106,7 +106,7 @@ class MainWindow : public QMainWindow
         QCSVParser MSPlotParser;
 
         // Couple - Power plot
-        DoubleYAxisPlot* CPPlot; //Plot*            CPPlot;
+        DoubleYAxisPlot* CPPlot;
         QwtPlotRescaler* rescaler;
         Zoomer*          yRightZoomer;
 };

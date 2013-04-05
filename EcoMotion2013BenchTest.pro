@@ -26,7 +26,6 @@ SOURCES += main.cpp\
     Megasquirt/MSDataParameterDialog.cpp \
     Megasquirt/MSFileParameterDialog.cpp \
     Plot/PlotCurve.cpp \
-    Plot/ZPlot.cpp \
     Plot/PlotMagnifier.cpp \
     Plot/DoubleYAxisPlot.cpp
 
@@ -41,7 +40,6 @@ HEADERS  += MainWindow.hpp \
     Megasquirt/MSDataParameterDialog.hpp \
     Megasquirt/MSFileParameterDialog.hpp \
     Plot/PlotCurve.hpp \
-    Plot/ZPlot.hpp \
     Plot/PlotMagnifier.hpp \
     Plot/DoubleYAxisPlot.hpp
 

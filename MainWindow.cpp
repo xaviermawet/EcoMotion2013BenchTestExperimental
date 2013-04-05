@@ -92,9 +92,8 @@ void MainWindow::createMSPlotZone(void)
 
 void MainWindow::createCPPlotZone(void)
 {
-    //this->CPPlot = new Plot("Couple - Puissance - Puissance spécifique", this);
     this->CPPlot = new DoubleYAxisPlot(
-                "Couple - Puissance - Puissance spécifique", this);
+                "Couple - Puissance - Puissance spécifique", 0.01, this);
     this->CPPlot->setAxisTitle(Plot::xBottom, tr("Tours par minute (tr/min)"));
     this->CPPlot->setAxisTitle(Plot::yLeft, tr("Couple (N.m)"));;
     this->CPPlot->setAxisTitle(Plot::yRight, tr("Puissance (W)"));
@@ -381,7 +380,7 @@ void MainWindow::createCoupleAndPowerCurves(const QString &inertieCSVFilename)
     QwtPointSeriesData* powerSerieData = new QwtPointSeriesData(powerPoints);
     PlotCurve* powerCurve = new PlotCurve(tr("Puissance"), QPen(Qt::darkBlue)); // TODO : ajouter le nom de l'essai (par défaut, le nom du dossier)
     powerCurve->setData(powerSerieData);
-    powerCurve->setAxes(Plot::xBottom, Plot::yRight);
+    powerCurve->setAxes(Plot::xTop, Plot::yRight);
     powerCurve->attach(this->CPPlot);
     this->setPlotCurveVisibile(powerCurve, true);
 
@@ -391,6 +390,9 @@ void MainWindow::createCoupleAndPowerCurves(const QString &inertieCSVFilename)
     coupleCurve->setData(coupleSerieData);
     coupleCurve->attach(this->CPPlot);
     this->setPlotCurveVisibile(coupleCurve, true);
+
+    // Zoom on the biggest curve
+    this->CPPlot->zoom(powerCurve);
 }
 
 void MainWindow::createCoupleAndPowerCurves_old(
