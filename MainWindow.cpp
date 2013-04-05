@@ -671,11 +671,11 @@ void MainWindow::on_actionLoadCSV_triggered(void)
                 QDir::homePath(), tr("Fichiers CSV (*.csv)")
             );
 
+    if (filename.isEmpty())
+        return;
+
     try
     {
-        if (filename.isNull() || filename.isEmpty())
-            throw QException(tr("Vous n'avez pas sélectionné de fichier"));
-
         // Load information from the CSV file
         this->MSPlotParser.parse(filename, ';', QString::SkipEmptyParts);
 
