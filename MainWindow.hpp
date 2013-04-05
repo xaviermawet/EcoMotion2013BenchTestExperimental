@@ -1,11 +1,3 @@
-/* TODO
- * -------
- * 1) Menu contextuel lors d'un clic droit sur un élément de la légende
- *      - Centrer sur
- *      - Effacer
- *      - Changer la couleur
- */
-
 #ifndef __MAINWINDOW_HPP__
 #define __MAINWINDOW_HPP__
 

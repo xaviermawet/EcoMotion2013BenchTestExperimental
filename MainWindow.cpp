@@ -758,18 +758,7 @@ void MainWindow::centerOnCurve(void)
     if (this->curveAssociatedToLegendItem == NULL)
         return;
 
-    qDebug() << "Centrer le graphique courant sur la courbe..";
-
-    //QRectF curveRect = this->curveAssociatedToLegendItem->boundingRect();
-    //this->currentPlot()->zoom(curveRect);
     this->currentPlot()->zoom(this->curveAssociatedToLegendItem);
-    //this->currentPlot()->zoomer()->zoom(curveRect);
-
-    /* TODO :
-     *-------
-     * attention de bien savoir de quel graphique il est question et de
-     * réaliser le zoom sur le bon graphique ^^
-     */
 }
 
 void MainWindow::changeCurveColor(void)
