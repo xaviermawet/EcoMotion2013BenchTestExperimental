@@ -16,6 +16,7 @@
 #endif
 
 #include "Plot/Plot.hpp"
+#include "Plot/DoubleYAxisPlot.hpp"
 #include "Plot/PlotCurve.hpp"
 #include "Utils/QException.hpp"
 #include "Utils/QCSVParser.hpp"
@@ -25,6 +26,7 @@
 #include "Megasquirt/MSDataParameterDialog.hpp"
 #include <qwt_legend_item.h>
 #include <qwt_plot_renderer.h>
+#include <qwt_plot_rescaler.h>
 
 #define TAB_COUPLE_AND_POWER 0
 #define TAB_MEGASQUIRT_DATA  1
@@ -95,14 +97,18 @@ class MainWindow : public QMainWindow
         // GUI
         Ui::MainWindow* ui;
 
-        // Plots
-        Plot*      MSPlot;
-        Plot*      CPPlot;
+        // Plot context Menu
         QMenu*     legendContextMenu;
         PlotCurve* curveAssociatedToLegendItem;
 
-        // CSV parser
+        // Megasquirt data plots
+        Plot*      MSPlot;
         QCSVParser MSPlotParser;
+
+        // Couple - Power plot
+        DoubleYAxisPlot* CPPlot; //Plot*            CPPlot;
+        QwtPlotRescaler* rescaler;
+        Zoomer*          yRightZoomer;
 };
 
 #endif /* __MAINWINDOW_HPP__ */

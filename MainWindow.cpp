@@ -3,8 +3,8 @@
 
 MainWindow::MainWindow(QWidget* parent) :
     QMainWindow(parent), ui(new Ui::MainWindow),
-    MSPlot(NULL), CPPlot(NULL), legendContextMenu(NULL),
-    curveAssociatedToLegendItem(NULL), MSPlotParser()
+    legendContextMenu(NULL), curveAssociatedToLegendItem(NULL), MSPlot(NULL),
+    MSPlotParser(), CPPlot(NULL), rescaler(NULL), yRightZoomer(NULL)
 {
     // Display Configuration
     QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
@@ -34,9 +34,12 @@ MainWindow::~MainWindow(void)
     qDebug() << "MainWindow début destructeur";
 
     delete this->ui;
-    delete this->MSPlot;
-    delete this->CPPlot;
     delete this->legendContextMenu;
+    delete this->MSPlot;
+
+    delete this->rescaler;
+    delete this->yRightZoomer;
+    delete this->CPPlot;
 
     qDebug() << "MainWindow Fin destructeur";
 }
@@ -89,10 +92,14 @@ void MainWindow::createMSPlotZone(void)
 
 void MainWindow::createCPPlotZone(void)
 {
-    this->CPPlot = new Plot("Couple - Puissance - Puissance spécifique", this);
+    //this->CPPlot = new Plot("Couple - Puissance - Puissance spécifique", this);
+    this->CPPlot = new DoubleYAxisPlot(
+                "Couple - Puissance - Puissance spécifique", this);
     this->CPPlot->setAxisTitle(Plot::xBottom, tr("Tours par minute (tr/min)"));
     this->CPPlot->setAxisTitle(Plot::yLeft, tr("Couple (N.m)"));;
     this->CPPlot->setAxisTitle(Plot::yRight, tr("Puissance (W)"));
+
+    // Add plot into a main window's layout
     this->ui->coupleAndPowerHLayout->addWidget(this->CPPlot);
 
     // Connect plot signals to slots
@@ -751,8 +758,9 @@ void MainWindow::centerOnCurve(void)
 
     qDebug() << "Centrer le graphique courant sur la courbe..";
 
-    QRectF curveRect = this->curveAssociatedToLegendItem->boundingRect();
-    this->currentPlot()->zoom(curveRect);
+    //QRectF curveRect = this->curveAssociatedToLegendItem->boundingRect();
+    //this->currentPlot()->zoom(curveRect);
+    this->currentPlot()->zoom(this->curveAssociatedToLegendItem);
     //this->currentPlot()->zoomer()->zoom(curveRect);
 
     /* TODO :

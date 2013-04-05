@@ -98,6 +98,13 @@ void Plot::zoom(const QRectF& zoomRectF)
     this->_yLeftZoomer->zoom(zoomRectF);
 }
 
+void Plot::zoom(const QwtPlotItem* item)
+{
+    qDebug() << "Je suis un zoom normal ... je n'ai qu'un zoomer...";
+
+    this->zoom(item->boundingRect());
+}
+
 bool Plot::isGridVisible(void) const
 {
     return this->_grid->plot() != NULL;

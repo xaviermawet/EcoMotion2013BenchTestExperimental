@@ -23,6 +23,7 @@ class Plot : public QwtPlot
         virtual ~Plot(void);
 
         void zoom(QRectF const& zoomRectF);
+        virtual void zoom(QwtPlotItem const* item);
 
         // Getter
         bool isGridVisible(void) const;
