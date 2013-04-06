@@ -35,12 +35,12 @@ DoubleYAxisPlot::DoubleYAxisPlot(const QwtText& title, double aspectRatio,
 
 DoubleYAxisPlot::~DoubleYAxisPlot(void)
 {
-    qDebug() << "DoubleYAxisPlot Début destructeur";
+    qDebug() << "DoubleYAxisPlot (" << this->objectName() << ") Début destructeur";
 
     delete this->_yRightZoomer;
     delete this->_yRescaler;
 
-    qDebug() << "DoubleYAxisPlot fin destructeur";
+    qDebug() << "DoubleYAxisPlot (" << this->objectName() << ") Fin destructeur";
 }
 
 void DoubleYAxisPlot::zoom(const QwtPlotItem* item)

@@ -54,7 +54,13 @@
         </property>
        </layout>
       </widget>
-      <widget class="QWidget" name="megasquirtData">
+      <widget class="QWidget" name="reductionRatioTab">
+       <attribute name="title">
+        <string>Rapport de réduction</string>
+       </attribute>
+       <layout class="QHBoxLayout" name="reductionRatioHLayout"/>
+      </widget>
+      <widget class="QWidget" name="megasquirtDataTab">
        <attribute name="title">
         <string>Données Mégasquirt</string>
        </attribute>

@@ -21,12 +21,15 @@
 #include <qwt_plot_rescaler.h>
 
 #define TAB_COUPLE_AND_POWER 0
-#define TAB_MEGASQUIRT_DATA  1
+#define TAB_REDUCTION_RATIO  1
+#define TAB_MEGASQUIRT_DATA  2
 
 #define KEY_INERTIE        "Inertie"
 #define KEY_PROTOWHEEL     "ProtoWheel"
 #define KEY_MEGASQUIRT_DAT "MegasquirtDAT"
 #define KEY_MEGASQUIRT_CSV "MegasquirtCSV"
+
+typedef QList<Plot*> PlotList;
 
 namespace Ui {
 class MainWindow;
@@ -49,6 +52,7 @@ class MainWindow : public QMainWindow
         void  createPlotLegendContextMenu(void);
         void  createMSPlotZone(void);
         void  createCPPlotZone(void);
+        void  createRRPlotZone(void);
         Plot* currentPlot(void) const;
         void  updateMenus(void);
         void  readSettings(void);
@@ -57,7 +61,8 @@ class MainWindow : public QMainWindow
 
         // Megasquirt management methods
         void checkFolderContent(QDir const& MSDir) const;
-        void createCoupleAndPowerCurves(QString const& inertieCSVFilename);
+        void createCoupleAndPowerCurves(QString const& inertieCSVFilename,
+                                        QString const& msCSVFilename);
         void createCoupleAndPowerCurves_old(QString const& megasquirtCSVFilename);
 
     private slots:
@@ -99,8 +104,12 @@ class MainWindow : public QMainWindow
 
         // Couple - Power plot
         DoubleYAxisPlot* CPPlot;
-        QwtPlotRescaler* rescaler;
-        Zoomer*          yRightZoomer;
+
+        // Reduction ratio
+        Plot* RRPlot;
+
+        // List of all Plots
+        PlotList plots;
 };
 
 #endif /* __MAINWINDOW_HPP__ */

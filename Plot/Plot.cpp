@@ -80,7 +80,7 @@ Plot::Plot(const QwtText& title, QWidget* parent) :
 
 Plot::~Plot(void)
 {
-    qDebug() << "Plot Début destructeur";
+    qDebug() << "Plot (" << this->objectName() << ") Début destructeur";
 
     delete this->_legend;
     delete this->_grid;
@@ -89,7 +89,7 @@ Plot::~Plot(void)
     delete this->_yLeftZoomer;
     delete this->_magnifier;
 
-    qDebug() << "Plot fin destructeur";
+    qDebug() << "Plot (" << this->objectName() << ") fin destructeur";
 }
 
 void Plot::zoom(const QRectF& zoomRectF)
