@@ -3,8 +3,9 @@
 
 MainWindow::MainWindow(QWidget* parent) :
     QMainWindow(parent), ui(new Ui::MainWindow),
-    legendContextMenu(NULL), curveAssociatedToLegendItem(NULL), MSPlot(NULL),
-    MSPlotParser(), CPPlot(NULL), RRPlot(NULL)
+    legendContextMenu(NULL), curveAssociatedToLegendItem(NULL),
+    megasquirtDataPlot(NULL), MSPlotParser(), couplePowerPlot(NULL),
+    reductionRatioPlot(NULL)
 {
     // Display Configuration
     QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
@@ -12,12 +13,17 @@ MainWindow::MainWindow(QWidget* parent) :
 
     // GUI configuration
     this->ui->setupUi(this);
+    connect(this->ui->mainTabWidget, SIGNAL(currentChanged(int)),
+            this, SLOT(updateMenus()));
+    connect(this->ui->benchTestTabWidget, SIGNAL(currentChanged(int)),
+            this, SLOT(updateMenus()));
 
     // Plots configuration
     this->createPlotLegendContextMenu();
-    this->createCPPlotZone();
-    this->createRRPlotZone();
-    this->createMSPlotZone();
+    this->createCouplePowerPlotZone();
+    this->createReductionRatioPlotZone();
+    this->createMegasquirtDataPlotZone();
+    this->createDistancePlotZone();
 
     // Settings configuration
     QCoreApplication::setOrganizationName("EcoMotion");
@@ -75,77 +81,109 @@ void MainWindow::createPlotLegendContextMenu(void)
                                        this, SLOT(changeCurveColor()));
 }
 
-void MainWindow::createMSPlotZone(void)
+void MainWindow::createMegasquirtDataPlotZone(void)
 {
-    this->MSPlot = new Plot("Données du Megasquirt", this);
-    this->MSPlot->setAxisTitle(Plot::xBottom, tr("Temps (s)"));
-    this->ui->megasquirtDataSplitter->addWidget(this->MSPlot);
+    this->megasquirtDataPlot = new Plot("Données du Megasquirt", this);
+    this->megasquirtDataPlot->setAxisTitle(Plot::xBottom, tr("Temps (s)"));
+    this->ui->megasquirtDataSplitter->addWidget(this->megasquirtDataPlot);
 
     // Connect plot signals to slots
-    connect(this->MSPlot, SIGNAL(legendChecked(QwtPlotItem*, bool)),
+    connect(this->megasquirtDataPlot, SIGNAL(legendChecked(QwtPlotItem*, bool)),
             this,  SLOT(setPlotCurveVisibile(QwtPlotItem*, bool)));
-    connect(this->MSPlot, SIGNAL(legendRightClicked(const QwtPlotItem*,QPoint)),
+    connect(this->megasquirtDataPlot,
+            SIGNAL(legendRightClicked(const QwtPlotItem*,QPoint)),
             this, SLOT(showLegendContextMenu(const QwtPlotItem*,QPoint)));
 
     // Settings management configuration
-    this->MSPlot->setObjectName("MegasquirtDataPlot");
-    this->plots.append(this->MSPlot);
+    this->megasquirtDataPlot->setObjectName("MegasquirtDataPlot");
+    this->plots.append(this->megasquirtDataPlot);
 }
 
-void MainWindow::createCPPlotZone(void)
+void MainWindow::createCouplePowerPlotZone(void)
 {
-    this->CPPlot = new DoubleYAxisPlot(
+    this->couplePowerPlot = new DoubleYAxisPlot(
                 "Couple - Puissance - Puissance spécifique", 0.01, this);
-    this->CPPlot->setAxisTitle(Plot::xBottom, tr("Tours par minute (tr/min)"));
-    this->CPPlot->setAxisTitle(Plot::yLeft, tr("Couple (N.m)"));;
-    this->CPPlot->setAxisTitle(Plot::yRight, tr("Puissance (W)"));
+    this->couplePowerPlot->setAxisTitle(Plot::yLeft, tr("Couple (N.m)"));;
+    this->couplePowerPlot->setAxisTitle(Plot::yRight, tr("Puissance (W)"));
+    this->couplePowerPlot->setAxisTitle(Plot::xBottom,
+                                        tr("Tours par minute (tr/min)"));
 
     // Add plot into a main window's layout
-    this->ui->coupleAndPowerHLayout->addWidget(this->CPPlot);
+    this->ui->coupleAndPowerHLayout->addWidget(this->couplePowerPlot);
 
     // Connect plot signals to slots
-    connect(this->CPPlot, SIGNAL(legendChecked(QwtPlotItem*, bool)),
+    connect(this->couplePowerPlot, SIGNAL(legendChecked(QwtPlotItem*, bool)),
             this,  SLOT(setPlotCurveVisibile(QwtPlotItem*, bool)));
-    connect(this->CPPlot, SIGNAL(legendRightClicked(const QwtPlotItem*,QPoint)),
+    connect(this->couplePowerPlot,
+            SIGNAL(legendRightClicked(const QwtPlotItem*,QPoint)),
             this, SLOT(showLegendContextMenu(const QwtPlotItem*,QPoint)));
 
     // Settings management configuration
-    this->CPPlot->setObjectName("CouplePowerPlot");
-    this->plots.append(this->CPPlot);
+    this->couplePowerPlot->setObjectName("CouplePowerPlot");
+    this->plots.append(this->couplePowerPlot);
 }
 
-void MainWindow::createRRPlotZone(void)
+void MainWindow::createReductionRatioPlotZone(void)
 {
-    this->RRPlot = new Plot("Rapport de réduction", this);
-    this->RRPlot->setAxisTitle(Plot::yLeft, "i (rapport de réduction)");
-    this->RRPlot->setAxisTitle(Plot::xBottom,
+    this->reductionRatioPlot = new Plot("Rapport de réduction", this);
+    this->reductionRatioPlot->setAxisTitle(Plot::yLeft,
+                                           "i (rapport de réduction)");
+    this->reductionRatioPlot->setAxisTitle(Plot::xBottom,
                                "Tours par minute du moteur (tr/min)");
 
-    this->ui->reductionRatioHLayout->addWidget(this->RRPlot);
+    this->ui->reductionRatioHLayout->addWidget(this->reductionRatioPlot);
 
     // Connect plot signals to slots
-    connect(this->RRPlot, SIGNAL(legendChecked(QwtPlotItem*, bool)),
+    connect(this->reductionRatioPlot, SIGNAL(legendChecked(QwtPlotItem*, bool)),
             this,  SLOT(setPlotCurveVisibile(QwtPlotItem*, bool)));
-    connect(this->RRPlot, SIGNAL(legendRightClicked(const QwtPlotItem*,QPoint)),
+    connect(this->reductionRatioPlot,
+            SIGNAL(legendRightClicked(const QwtPlotItem*,QPoint)),
             this, SLOT(showLegendContextMenu(const QwtPlotItem*,QPoint)));
 
     // Settings management configuration
-    this->RRPlot->setObjectName("ReductionRatioPlot");
-    this->plots.append(this->RRPlot);
+    this->reductionRatioPlot->setObjectName("ReductionRatioPlot");
+    this->plots.append(this->reductionRatioPlot);
+}
+
+void MainWindow::createDistancePlotZone(void)
+{
+    this->distancePlot = new Plot(tr("Distances"), this);
+    this->distancePlot->setAxisTitle(Plot::yLeft, tr("Distance (m)"));
+    this->distancePlot->setAxisTitle(Plot::xBottom, tr("Temps (s)"));
+    this->ui->distanceHLayout->addWidget(this->distancePlot);
+
+    // Connect plot signals to slots
+    connect(this->distancePlot, SIGNAL(legendChecked(QwtPlotItem*, bool)),
+            this,  SLOT(setPlotCurveVisibile(QwtPlotItem*, bool)));
+    connect(this->distancePlot,
+            SIGNAL(legendRightClicked(const QwtPlotItem*,QPoint)),
+            this, SLOT(showLegendContextMenu(const QwtPlotItem*,QPoint)));
+
+    // Settings management configuration
+    this->distancePlot->setObjectName("DistancePlot");
+    this->plots.append(this->distancePlot);
 }
 
 Plot* MainWindow::currentPlot(void) const
 {
     switch (this->ui->mainTabWidget->currentIndex())
     {
-        case TAB_COUPLE_AND_POWER:
-            return this->CPPlot;
-        case TAB_REDUCTION_RATIO:
-            return this->RRPlot;
-        case TAB_MEGASQUIRT_DATA:
-            return this->MSPlot;
-        default:
-            return NULL;
+    case TAB_BENCH_TEST:
+        switch (this->ui->benchTestTabWidget->currentIndex())
+        {
+            case TAB_COUPLE_AND_POWER:
+                return this->couplePowerPlot;
+            case TAB_REDUCTION_RATIO:
+                return this->reductionRatioPlot;
+            case TAB_DISTANCE:
+                return this->distancePlot;
+            default:
+                return NULL;
+        }
+    case TAB_MEGASQUIRT_DATA:
+        return this->megasquirtDataPlot;
+    default:
+        return NULL;
     }
 }
 
@@ -162,15 +200,18 @@ void MainWindow::updateMenus(void)
                 plot->isLabelPositionVisible());
 
     // Update menu file actions
-    int currentTab = this->ui->mainTabWidget->currentIndex();
+    int currentMainTabWidgetIndex = this->ui->mainTabWidget->currentIndex();
 
-    this->ui->actionImportData->setVisible(currentTab != TAB_MEGASQUIRT_DATA);
-    this->ui->actionDatToCSV->setVisible(currentTab   == TAB_MEGASQUIRT_DATA);
-    this->ui->actionLoadCSV->setVisible(currentTab    == TAB_MEGASQUIRT_DATA);
+    this->ui->actionImportData->setVisible(
+                currentMainTabWidgetIndex == TAB_BENCH_TEST);
+    this->ui->actionDatToCSV->setVisible(
+                currentMainTabWidgetIndex == TAB_MEGASQUIRT_DATA);
+    this->ui->actionLoadCSV->setVisible(
+                currentMainTabWidgetIndex == TAB_MEGASQUIRT_DATA);
 
     // Update menu configure actions
     this->ui->menuConfigure->menuAction()->setVisible(
-                currentTab != TAB_MEGASQUIRT_DATA);
+                currentMainTabWidgetIndex == TAB_BENCH_TEST);
 }
 
 void MainWindow::readSettings(void)
@@ -201,8 +242,9 @@ void MainWindow::readSettings(void)
         this->restoreGeometry(settings.value("geometry").toByteArray());
 
     this->ui->mainTabWidget->setCurrentIndex(
-                settings.value("mainTabCurrentIndex", 0).toInt());
-
+                settings.value("mainTabWidgetCurrentIndex", 0).toInt());
+    this->ui->benchTestTabWidget->setCurrentIndex(
+                settings.value("benchTestTabWidgetCurrentIndex", 0).toInt());
     this->ui->megasquirtDataSplitter->restoreState(
                 settings.value("megasquirtDataSplitter").toByteArray());
 
@@ -230,8 +272,10 @@ void MainWindow::writeSettings(void) const
     settings.beginGroup("MainWindow");
     settings.setValue("isMaximized", this->isMaximized());
     settings.setValue("geometry", this->saveGeometry());
-    settings.setValue("mainTabCurrentIndex",
+    settings.setValue("mainTabWidgetCurrentIndex",
                       this->ui->mainTabWidget->currentIndex());
+    settings.setValue("benchTestTabWidgetCurrentIndex",
+                      this->ui->benchTestTabWidget->currentIndex());
     settings.setValue("megasquirtDataSplitter",
                       this->ui->megasquirtDataSplitter->saveState());
     settings.endGroup();
@@ -398,18 +442,18 @@ void MainWindow::createCoupleAndPowerCurves(const QString& inertieCSVFilename,
     PlotCurve* powerCurve = new PlotCurve(tr("Puissance"), QPen(Qt::darkBlue)); // TODO : ajouter le nom de l'essai (par défaut, le nom du dossier)
     powerCurve->setData(powerSerieData);
     powerCurve->setAxes(Plot::xTop, Plot::yRight);
-    powerCurve->attach(this->CPPlot);
+    powerCurve->attach(this->couplePowerPlot);
     this->setPlotCurveVisibile(powerCurve, true);
 
     // Create couple curve
     QwtPointSeriesData* coupleSerieData = new QwtPointSeriesData(couplePoints);
     PlotCurve* coupleCurve = new PlotCurve(tr("Couple"), QPen(Qt::darkRed)); // TODO : ajouter le nom de l'essai (par défaut, le nom du dossier)
     coupleCurve->setData(coupleSerieData);
-    coupleCurve->attach(this->CPPlot);
+    coupleCurve->attach(this->couplePowerPlot);
     this->setPlotCurveVisibile(coupleCurve, true);
 
     // Zoom on the biggest curve
-    this->CPPlot->zoom(powerCurve);
+    this->couplePowerPlot->zoom(powerCurve);
 }
 
 void MainWindow::createCoupleAndPowerCurves_old(
@@ -510,7 +554,7 @@ void MainWindow::createCoupleAndPowerCurves_old(
     QwtPointSeriesData* coupleSerieData = new QwtPointSeriesData(couplePoints);
     PlotCurve* coupleCurve = new PlotCurve(tr("Couple"), QPen(Qt::darkRed)); // TODO : ajouter le nom de l'essai (par défaut, le nom du dossier)
     coupleCurve->setData(coupleSerieData);
-    coupleCurve->attach(this->CPPlot);
+    coupleCurve->attach(this->couplePowerPlot);
     this->setPlotCurveVisibile(coupleCurve, true);
 
     // Création de la courbe de la puissance
@@ -518,7 +562,7 @@ void MainWindow::createCoupleAndPowerCurves_old(
     PlotCurve* powerCurve = new PlotCurve(tr("Puissance"), QPen(Qt::darkBlue)); // TODO : ajouter le nom de l'essai (par défaut, le nom du dossier)
     powerCurve->setData(powerSerieData);
     powerCurve->setAxes(Plot::xBottom, Plot::yRight);
-    powerCurve->attach(this->CPPlot);
+    powerCurve->attach(this->couplePowerPlot);
     this->setPlotCurveVisibile(powerCurve, true);
 
     qDebug() << "Fin de la création des courbes ...";
@@ -623,7 +667,7 @@ void MainWindow::on_addCurvePushButton_clicked(void)
         curve->setLegendAttribute(QwtPlotCurve::LegendShowLine);
         curve->setPen(QPen(Qt::darkRed, 1));
         curve->setData(serieData);
-        curve->attach(this->MSPlot);
+        curve->attach(this->megasquirtDataPlot);
 
         this->setPlotCurveVisibile(curve, true);
     }
@@ -675,13 +719,6 @@ void MainWindow::on_actionShowLabelPosition_triggered(bool visible)
 void MainWindow::on_actionShowCrossLine_triggered(bool visible)
 {
     this->currentPlot()->setCrossLineVisible(visible);
-}
-
-void MainWindow::on_mainTabWidget_currentChanged(int index)
-{
-    Q_UNUSED(index);
-
-    this->updateMenus();
 }
 
 void MainWindow::on_actionLoadCSV_triggered(void)

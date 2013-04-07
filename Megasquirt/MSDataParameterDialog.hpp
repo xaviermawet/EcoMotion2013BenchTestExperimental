@@ -21,10 +21,16 @@ class MSDataParameterDialog : public QDialog
             QString const& defaultTestName = QString(), QWidget* parent = NULL);
         virtual ~MSDataParameterDialog(void);
 
-        // Getter
+        // Getters
         double  inertia(void) const;
         QString fuelType(void) const;
         QString testName(void) const;
+
+        // Setters
+        void setInertia(double inertia);
+        void setFuelType(QStringList const& fuelTypeList);
+        void addFuelType(QString const& fuelType);
+        void setTestName(QString const& testName);
 
     protected:
 

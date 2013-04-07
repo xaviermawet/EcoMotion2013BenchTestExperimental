@@ -31,3 +31,24 @@ QString MSDataParameterDialog::testName(void) const
 {
     return this->ui->testNameLineEdit->text();
 }
+
+void MSDataParameterDialog::setInertia(double inertia)
+{
+    this->ui->inertieDoubleSpinBox->setValue(inertia);
+}
+
+void MSDataParameterDialog::setFuelType(const QStringList &fuelTypeList)
+{
+    this->ui->fuelTypeLabelComboBox->clear();
+    this->ui->fuelTypeLabelComboBox->addItems(fuelTypeList);
+}
+
+void MSDataParameterDialog::addFuelType(const QString &fuelType)
+{
+    this->ui->fuelTypeLabelComboBox->addItem(fuelType);
+}
+
+void MSDataParameterDialog::setTestName(const QString &testName)
+{
+    this->ui->testNameLineEdit->setText(testName);
+}

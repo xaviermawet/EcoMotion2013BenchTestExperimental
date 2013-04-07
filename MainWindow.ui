@@ -33,32 +33,90 @@
     <item>
      <widget class="QTabWidget" name="mainTabWidget">
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
-      <widget class="QWidget" name="coupleAndPowerTab">
+      <widget class="QWidget" name="benchTestTab">
        <attribute name="title">
-        <string>Couple et Puissane</string>
+        <string>Banc d'essai</string>
        </attribute>
-       <layout class="QHBoxLayout" name="coupleAndPowerHLayout">
+       <layout class="QVBoxLayout" name="verticalLayout">
         <property name="leftMargin">
-         <number>3</number>
+         <number>0</number>
         </property>
         <property name="topMargin">
-         <number>3</number>
+         <number>0</number>
         </property>
         <property name="rightMargin">
-         <number>3</number>
+         <number>0</number>
         </property>
         <property name="bottomMargin">
-         <number>3</number>
+         <number>0</number>
         </property>
+        <item>
+         <widget class="QTabWidget" name="benchTestTabWidget">
+          <property name="currentIndex">
+           <number>1</number>
+          </property>
+          <widget class="QWidget" name="couplePowerTab">
+           <attribute name="title">
+            <string>Couple - Puissance - Puissance spécifique</string>
+           </attribute>
+           <layout class="QHBoxLayout" name="coupleAndPowerHLayout">
+            <property name="leftMargin">
+             <number>2</number>
+            </property>
+            <property name="topMargin">
+             <number>2</number>
+            </property>
+            <property name="rightMargin">
+             <number>2</number>
+            </property>
+            <property name="bottomMargin">
+             <number>2</number>
+            </property>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="reductionRatioTab">
+           <attribute name="title">
+            <string>Rapport de réduction</string>
+           </attribute>
+           <layout class="QHBoxLayout" name="reductionRatioHLayout">
+            <property name="leftMargin">
+             <number>2</number>
+            </property>
+            <property name="topMargin">
+             <number>2</number>
+            </property>
+            <property name="rightMargin">
+             <number>2</number>
+            </property>
+            <property name="bottomMargin">
+             <number>2</number>
+            </property>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="distanceTab">
+           <attribute name="title">
+            <string>Distances</string>
+           </attribute>
+           <layout class="QHBoxLayout" name="distanceHLayout">
+            <property name="leftMargin">
+             <number>2</number>
+            </property>
+            <property name="topMargin">
+             <number>2</number>
+            </property>
+            <property name="rightMargin">
+             <number>2</number>
+            </property>
+            <property name="bottomMargin">
+             <number>2</number>
+            </property>
+           </layout>
+          </widget>
+         </widget>
+        </item>
        </layout>
-      </widget>
-      <widget class="QWidget" name="reductionRatioTab">
-       <attribute name="title">
-        <string>Rapport de réduction</string>
-       </attribute>
-       <layout class="QHBoxLayout" name="reductionRatioHLayout"/>
       </widget>
       <widget class="QWidget" name="megasquirtDataTab">
        <attribute name="title">

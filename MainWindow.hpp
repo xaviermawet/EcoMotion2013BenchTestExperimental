@@ -20,9 +20,12 @@
 #include <qwt_plot_renderer.h>
 #include <qwt_plot_rescaler.h>
 
-#define TAB_COUPLE_AND_POWER 0
-#define TAB_REDUCTION_RATIO  1
-#define TAB_MEGASQUIRT_DATA  2
+
+#define TAB_BENCH_TEST       0
+    #define TAB_COUPLE_AND_POWER 0
+    #define TAB_REDUCTION_RATIO  1
+    #define TAB_DISTANCE         2
+#define TAB_MEGASQUIRT_DATA  1
 
 #define KEY_INERTIE        "Inertie"
 #define KEY_PROTOWHEEL     "ProtoWheel"
@@ -50,11 +53,11 @@ class MainWindow : public QMainWindow
 
         void  centerOnScreen(void);
         void  createPlotLegendContextMenu(void);
-        void  createMSPlotZone(void);
-        void  createCPPlotZone(void);
-        void  createRRPlotZone(void);
+        void  createMegasquirtDataPlotZone(void);
+        void  createCouplePowerPlotZone(void);
+        void  createReductionRatioPlotZone(void);
+        void  createDistancePlotZone(void);
         Plot* currentPlot(void) const;
-        void  updateMenus(void);
         void  readSettings(void);
         void  writeSettings(void) const;
         void  initSettings(void) const;
@@ -76,13 +79,15 @@ class MainWindow : public QMainWindow
         void on_actionShowGrid_triggered(bool visible);
         void on_actionShowLabelPosition_triggered(bool visible);
         void on_actionShowCrossLine_triggered(bool visible);
-        void on_mainTabWidget_currentChanged(int index);
         void on_actionLoadCSV_triggered(void);
         void on_actionDatToCSV_triggered(void);
         void on_actionConfigureMegasquirtFileName_triggered(void);
         void on_actionExportToPDF_triggered(void);
 
-        // Personal slots - Legend actions management
+        // Personal slots
+        void  updateMenus(void);
+
+        // Legend actions management
         void eraseCurve(void);
         void centerOnCurve(void);
         void changeCurveColor(void);
@@ -99,14 +104,13 @@ class MainWindow : public QMainWindow
         PlotCurve* curveAssociatedToLegendItem;
 
         // Megasquirt data plots
-        Plot*      MSPlot;
+        Plot*      megasquirtDataPlot;
         QCSVParser MSPlotParser;
 
-        // Couple - Power plot
-        DoubleYAxisPlot* CPPlot;
-
-        // Reduction ratio
-        Plot* RRPlot;
+        // Bench test plots
+        DoubleYAxisPlot* couplePowerPlot;
+        Plot* reductionRatioPlot;
+        Plot* distancePlot;
 
         // List of all Plots
         PlotList plots;
