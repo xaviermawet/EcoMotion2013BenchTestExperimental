@@ -66,6 +66,11 @@ class MainWindow : public QMainWindow
         void checkFolderContent(QDir const& MSDir) const;
         void createCoupleAndPowerCurves(QString const& inertieCSVFilename,
                                         QString const& msCSVFilename);
+
+        void leastSqrRegression(const QVector<QPointF> &points,
+                                QString const& baseName,
+                                QwtPlot::Axis xAxis, QwtPlot::Axis yAxis);
+
         void createCoupleAndPowerCurves_old(QString const& megasquirtCSVFilename);
 
     private slots:

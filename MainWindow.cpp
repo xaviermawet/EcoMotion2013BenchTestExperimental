@@ -459,6 +459,97 @@ void MainWindow::createCoupleAndPowerCurves(const QString& inertieCSVFilename,
 
     // Zoom on the biggest curve
     this->couplePowerPlot->zoom(powerCurve);
+
+    // Détermination de l'équation correspondant le plus à l'approximation polynomiales
+//    QVector<QPointF> points;
+//    points.append(QPointF(0, 36));
+//    points.append(QPointF(20, 35.2));
+//    points.append(QPointF(40, 33.2));
+//    points.append(QPointF(60, 30.1));
+//    points.append(QPointF(80, 25.8));
+//    points.append(QPointF(100, 20.8));
+    this->leastSqrRegression(powerPoints, powerCurve->title().text(),
+                             Plot::xTop, Plot::yRight);
+    this->leastSqrRegression(couplePoints, coupleCurve->title().text(),
+                             Plot::xBottom, Plot::yLeft);
+}
+
+void MainWindow::leastSqrRegression(const QVector<QPointF> &points,
+                                    QString const& baseName,
+                                    QwtPlot::Axis xAxis, QwtPlot::Axis yAxis)
+{
+   if (points.count() == 0)
+   {
+       qDebug() << "Aucune données à traiter";
+       return;
+   }
+
+   // double  = 8  octets = 64  bits
+   // decimal = 16 octets = 128 bits
+
+   double SUMx4(0);  // sum of x^4
+   double SUMx3(0);  // sum of x³
+   double SUMx2(0);  // sum of x²
+   double SUMx(0);   // sum of x
+   double SUMx2y(0); // sum of x²*y
+   double SUMxy(0);  // sum of x*y
+   double SUMy(0);   // sum of y
+
+   double a(0);
+   double b(0);
+   double c(0);
+
+   // y = ax² + bx + c
+
+   foreach (QPointF point, points)
+   {
+       if (point.y() < 0.0)
+           continue;
+       SUMx4  += qPow(point.x(), 4);
+       SUMx3  += qPow(point.x(), 3);
+       SUMx2  += qPow(point.x(), 2);
+       SUMx   += point.x();
+       SUMx2y += qPow(point.x(), 2) * point.y();
+       SUMxy  += point.x() * point.y();
+       SUMy   += point.y();
+   }
+
+   qDebug() << "x4 = " << SUMx4;
+   qDebug() << "x3 = " << SUMx3;
+   qDebug() << "x2 = " << SUMx2;
+   qDebug() << "x = " << SUMx;
+   qDebug() << "x²*y = " << SUMx2y;
+   qDebug() << "x*y = " << SUMxy;
+   qDebug() << "y = " << SUMy;
+
+   a = ((points.count()*SUMx2y-SUMx2*SUMy)*(points.count()*SUMx2-qPow(SUMx, 2))-(points.count()*SUMxy-SUMx*SUMy)*(points.count()*SUMx3-SUMx2*SUMx))
+           /
+   ((points.count()*SUMx4-qPow(SUMx2, 2))*(points.count()*SUMx2-qPow(SUMx, 2))-qPow(SUMx2*SUMx-points.count()*SUMx3, 2));
+
+   qDebug() << "a = " << a;
+
+   b = (a*(SUMx2*SUMx-points.count()*SUMx3)+points.count()*SUMxy-SUMx*SUMy)/(points.count()*SUMx2-qPow(SUMx, 2));
+
+   qDebug() << "b = " << b;
+
+   c = (-a*SUMx2-b*SUMx+SUMy)/points.count();
+
+   qDebug() << "c = " << c;
+
+   QVector<QPointF> approxiPoints;
+   foreach (QPointF point, points)
+   {
+       // y = a*x² + b*x + c
+       approxiPoints.append(QPointF(point.x(), a*qPow(point.x(), 2) + b*point.x() + c));
+   }
+
+   // Création de la courbe
+   QwtPointSeriesData* approxiSerieData = new QwtPointSeriesData(approxiPoints);
+   PlotCurve* approxiCurve = new PlotCurve(tr("approxi ") + baseName, QPen(Qt::darkMagenta)); // TODO : ajouter le nom de l'essai (par défaut, le nom du dossier)
+   approxiCurve->setAxes(xAxis, yAxis);
+   approxiCurve->setData(approxiSerieData);
+   approxiCurve->attach(this->couplePowerPlot);
+   this->setPlotCurveVisibile(approxiCurve, true);
 }
 
 void MainWindow::createCoupleAndPowerCurves_old(
