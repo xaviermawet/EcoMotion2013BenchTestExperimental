@@ -7,6 +7,8 @@
     #include <QtGui>
 #endif
 
+#include "../Utils/QException.hpp"
+
 namespace Ui {
 class MSDataParameterDialog;
 }
@@ -17,24 +19,40 @@ class MSDataParameterDialog : public QDialog
     
     public:
 
-        explicit MSDataParameterDialog(
-            QString const& defaultTestName = QString(), QWidget* parent = NULL);
+        explicit MSDataParameterDialog(QWidget* parent = NULL);
+        explicit MSDataParameterDialog(QString const& defaultTestName,
+                                       QWidget* parent = NULL);
         virtual ~MSDataParameterDialog(void);
 
         // Getters
         double  inertia(void) const;
-        QString fuelType(void) const;
+        QString fuelName(void) const;
+        double  fuelDensity(void) const;
         QString testName(void) const;
 
         // Setters
         void setInertia(double inertia);
-        void setFuelType(QStringList const& fuelTypeList);
-        void addFuelType(QString const& fuelType);
         void setTestName(QString const& testName);
+        void addFuel(QString const& name, double density);
+
+    protected:
+
+        void readSettings(void);
+        void writeSettings(void) const;
+
+    private slots:
+
+        void on_addFuelPushButton_clicked(void);
+        void on_deleteFuelPushButton_clicked(void);
+        void on_fuelTypeComboBox_currentIndexChanged(QString const& fuel);
+        void on_buttonBox_accepted(void);
+        void on_fuelDensityDoubleSpinBox_editingFinished(void);
 
     protected:
 
         Ui::MSDataParameterDialog* ui;
+
+        QMap<QString, double> _fuels; // fuel name - fuel density (g/cm³)
 };
 
 #endif /* __MSDATAPARAMETERDIALOG_HPP__ */

@@ -5,7 +5,7 @@ MainWindow::MainWindow(QWidget* parent) :
     QMainWindow(parent), ui(new Ui::MainWindow),
     legendContextMenu(NULL), curveAssociatedToLegendItem(NULL),
     megasquirtDataPlot(NULL), MSPlotParser(), couplePowerPlot(NULL),
-    reductionRatioPlot(NULL)
+    reductionRatioPlot(NULL), distancePlot(NULL)
 {
     // Display Configuration
     QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
@@ -421,6 +421,11 @@ void MainWindow::createCoupleAndPowerCurves(const QString& inertieCSVFilename,
      * ---------------------------------------------------------------------- */
 
         power = couple * angularSpeed_b;
+
+    /* ---------------------------------------------------------------------- *
+     *                   Calcul de la masse de carburant                      *
+     * ---------------------------------------------------------------------- */
+
 
     /* ---------------------------------------------------------------------- *
      *               ωx = (π * Nx) / 30  <=> Nx = (30 * ωx) / π               *

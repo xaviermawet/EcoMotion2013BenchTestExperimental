@@ -9,6 +9,8 @@
 
 #include "QException.hpp"
 
+#define DEFAULT_BEHAVIOR QString::KeepEmptyParts
+
 // TYPE DEFINITIONS
 typedef QVector<QString> QCSVRow;
 typedef QVector<QString> QCSVColumn;
@@ -21,18 +23,16 @@ class QCSVParser
         QCSVParser(void);
         explicit QCSVParser(const QString& filename,
                             const QChar& separator = ',',
-                            QString::SplitBehavior behavior =
-                            QString::KeepEmptyParts);
+                            QString::SplitBehavior behavior = DEFAULT_BEHAVIOR);
         explicit QCSVParser(QFile& file,
                             const QChar& separator = ',',
-                            QString::SplitBehavior behavior =
-                            QString::KeepEmptyParts);
+                            QString::SplitBehavior behavior = DEFAULT_BEHAVIOR);
         ~QCSVParser(void);
 
         void parse(const QString& filename, const QChar& separator = ',',
-                   QString::SplitBehavior behavior = QString::KeepEmptyParts);
+                   QString::SplitBehavior behavior = DEFAULT_BEHAVIOR);
         void parse(QFile& file, const QChar& separator = ',',
-                   QString::SplitBehavior behavior = QString::KeepEmptyParts);
+                   QString::SplitBehavior behavior = DEFAULT_BEHAVIOR);
         void save(void) const;
 
         int rowCount(void) const;

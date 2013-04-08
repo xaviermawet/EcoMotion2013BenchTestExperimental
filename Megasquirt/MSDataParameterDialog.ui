@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>583</width>
-    <height>127</height>
+    <width>600</width>
+    <height>156</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,16 +15,13 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <layout class="QGridLayout" name="gridLayout">
+    <layout class="QGridLayout" name="mainGridLayout">
      <item row="0" column="0">
       <widget class="QLabel" name="testNameLabel">
        <property name="text">
         <string>Nom de l'essai :</string>
        </property>
       </widget>
-     </item>
-     <item row="0" column="1">
-      <widget class="QLineEdit" name="testNameLineEdit"/>
      </item>
      <item row="1" column="0">
       <widget class="QLabel" name="inertieLabel">
@@ -33,8 +30,28 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="1">
+     <item row="2" column="0">
+      <widget class="QLabel" name="fuelTypeLabelLabel">
+       <property name="text">
+        <string>Type de carburant :</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1" colspan="2">
+      <widget class="QPushButton" name="addFuelPushButton">
+       <property name="text">
+        <string>Ajouter un type de carburant</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1" colspan="4">
+      <widget class="QLineEdit" name="testNameLineEdit"/>
+     </item>
+     <item row="1" column="1" colspan="4">
       <widget class="QDoubleSpinBox" name="inertieDoubleSpinBox">
+       <property name="accelerated">
+        <bool>true</bool>
+       </property>
        <property name="suffix">
         <string> kg.m²</string>
        </property>
@@ -52,34 +69,48 @@
        </property>
       </widget>
      </item>
-     <item row="2" column="0">
-      <widget class="QLabel" name="fuelTypeLabelLabel">
+     <item row="3" column="3" colspan="2">
+      <widget class="QPushButton" name="deleteFuelPushButton">
        <property name="text">
-        <string>Type de carburant :</string>
+        <string>Supprimer le type de carburant courant</string>
        </property>
       </widget>
      </item>
-     <item row="2" column="1">
-      <widget class="QComboBox" name="fuelTypeLabelComboBox">
-       <item>
-        <property name="text">
-         <string>Essence</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Méthanol</string>
-        </property>
-       </item>
+     <item row="2" column="1" colspan="2">
+      <widget class="QComboBox" name="fuelTypeComboBox"/>
+     </item>
+     <item row="2" column="3" colspan="2">
+      <widget class="QDoubleSpinBox" name="fuelDensityDoubleSpinBox">
+       <property name="accelerated">
+        <bool>true</bool>
+       </property>
+       <property name="prefix">
+        <string>Masse volumique </string>
+       </property>
+       <property name="suffix">
+        <string> g/cm³</string>
+       </property>
+       <property name="decimals">
+        <number>3</number>
+       </property>
+       <property name="minimum">
+        <double>0.001000000000000</double>
+       </property>
+       <property name="maximum">
+        <double>1000.000000000000000</double>
+       </property>
+       <property name="singleStep">
+        <double>0.010000000000000</double>
+       </property>
+       <property name="value">
+        <double>0.001000000000000</double>
+       </property>
       </widget>
      </item>
     </layout>
    </item>
    <item>
     <widget class="QDialogButtonBox" name="buttonBox">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
      <property name="standardButtons">
       <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
      </property>
@@ -91,33 +122,17 @@
  <connections>
   <connection>
    <sender>buttonBox</sender>
-   <signal>accepted()</signal>
-   <receiver>MSDataParameterDialog</receiver>
-   <slot>accept()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>418</x>
-     <y>344</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>157</x>
-     <y>274</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>buttonBox</sender>
    <signal>rejected()</signal>
    <receiver>MSDataParameterDialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>486</x>
-     <y>350</y>
+     <x>819</x>
+     <y>146</y>
     </hint>
     <hint type="destinationlabel">
-     <x>286</x>
-     <y>274</y>
+     <x>58</x>
+     <y>155</y>
     </hint>
    </hints>
   </connection>

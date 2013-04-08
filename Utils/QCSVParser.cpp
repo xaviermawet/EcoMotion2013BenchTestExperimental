@@ -1,7 +1,7 @@
 #include "QCSVParser.hpp"
 
 QCSVParser::QCSVParser() :
-    _fileName(), _separator(), _behavior(QString::KeepEmptyParts)
+    _fileName(), _separator(), _behavior(DEFAULT_BEHAVIOR)
 {
 
 }
@@ -161,7 +161,7 @@ void QCSVParser::reset(void)
 {
     this->_fileName  = QString();
     this->_separator = QChar();
-    this->_behavior  = QString::KeepEmptyParts; // Default value
+    this->_behavior  = DEFAULT_BEHAVIOR;
 
     // Clear the DB
     this->_content.clear();
