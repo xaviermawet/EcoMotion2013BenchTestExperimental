@@ -79,9 +79,12 @@ void MainWindow::createPlotLegendContextMenu(void)
                                        this, SLOT(centerOnCurve()));
     this->legendContextMenu->addAction(tr("Changer la couleur"),
                                        this, SLOT(changeCurveColor()));
+//    this->legendContextMenu->addAction(
+//                tr("Ajouter une courbe de tendance polynomiale"),
+//                this, SLOT(createPolynomialTrendline()));
     this->legendContextMenu->addAction(
                 tr("Ajouter une courbe de tendance polynomiale"),
-                this, SLOT(createPolynomialTrendline()));
+                this, SLOT(createPolynomialTrendline2()));
 }
 
 void MainWindow::createMegasquirtDataPlotZone(void)
@@ -966,6 +969,55 @@ void MainWindow::createPolynomialTrendline(void)
 
     // Création de la courbe
     QwtPointSeriesData* trendlineSeriesData = new QwtPointSeriesData(trendlinePoints);
+    PlotCurve* trendlineCurve = new PlotCurve(
+                this->curveAssociatedToLegendItem->title().text() +
+                tr(" Poly(") + QString::number(degree) + ")", QPen("lightskyblue"));
+    trendlineCurve->setAxes(this->curveAssociatedToLegendItem->xAxis(),
+                            this->curveAssociatedToLegendItem->yAxis());
+    trendlineCurve->setData(trendlineSeriesData);
+    trendlineCurve->attach(this->curveAssociatedToLegendItem->plot());
+    this->setPlotCurveVisibile(trendlineCurve, true);
+}
+
+void MainWindow::createPolynomialTrendline2(void)
+{
+    // if no curve associated to the legend item. This shouldn't happen!
+    if (this->curveAssociatedToLegendItem == NULL)
+        return;
+
+    bool ok(false);
+    int degree = QInputDialog::getInt(
+                this, tr("Courbe de tendance polynomiale"),
+                tr("Ordre de complexité ?"), 2, 2, 100, 1, &ok);
+
+    if (!ok) // User canceled
+        return;
+
+    // Récupération de la série des points de la courbe
+    QwtPointSeriesData* curveSeriesData =
+            (QwtPointSeriesData*)this->curveAssociatedToLegendItem->data();
+    if (!curveSeriesData)
+        return;
+
+    // Récupération de la liste des points de la courbe
+    QVector<QPointF> curvePoints(curveSeriesData->samples());
+
+    // Calcul de tous les coefficients de l'équation
+    QVector<double> coefficients(polynomialfit(curvePoints, degree));
+
+    // Création de la liste des points de la courbe de tendance
+    for(int i(0); i < curvePoints.count(); ++i)
+    {
+        // Calcul de la nouvelle valeur de y
+        double y(0);
+        for(int j(0); j < coefficients.count(); ++j)
+            y += coefficients.at(j) * qPow(curvePoints.at(i).x(), j);
+
+        curvePoints[i].setY(y);
+    }
+
+    // Création de la courbe
+    QwtPointSeriesData* trendlineSeriesData = new QwtPointSeriesData(curvePoints);
     PlotCurve* trendlineCurve = new PlotCurve(
                 this->curveAssociatedToLegendItem->title().text() +
                 tr(" Poly(") + QString::number(degree) + ")", QPen("lightskyblue"));

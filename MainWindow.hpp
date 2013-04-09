@@ -100,6 +100,7 @@ class MainWindow : public QMainWindow
         void centerOnCurve(void);
         void changeCurveColor(void);
         void createPolynomialTrendline(void);
+        void createPolynomialTrendline2(void);
         void setPlotCurveVisibile(QwtPlotItem* item, bool visible);
         void showLegendContextMenu(QwtPlotItem const* item, QPoint const& pos);
 

@@ -11,6 +11,10 @@
     #include <QtGui>
 #endif
 
+// C version
 bool polynomialfit(int obs, int degree, double *dx, double *dy, double *store); /* n, p */
+
+// C++ - Qt version
+QVector<double> polynomialfit(QVector<QPointF> const& points, int degree);
 
 #endif /* __POLIFITGSL_H__ */
