@@ -16,10 +16,10 @@
 #include "Megasquirt/MSFileConverterDialog.hpp"
 #include "Megasquirt/MSFileParameterDialog.hpp"
 #include "Megasquirt/MSDataParameterDialog.hpp"
+#include "polifitgsl.hpp"
 #include <qwt_legend_item.h>
 #include <qwt_plot_renderer.h>
 #include <qwt_plot_rescaler.h>
-
 
 #define TAB_BENCH_TEST       0
     #define TAB_COUPLE_AND_POWER 0
@@ -73,6 +73,9 @@ class MainWindow : public QMainWindow
 
         void createCoupleAndPowerCurves_old(QString const& megasquirtCSVFilename);
 
+        // Polynomial fit
+
+
     private slots:
 
         // Autoconnect
@@ -96,6 +99,7 @@ class MainWindow : public QMainWindow
         void eraseCurve(void);
         void centerOnCurve(void);
         void changeCurveColor(void);
+        void createPolynomialTrendline(void);
         void setPlotCurveVisibile(QwtPlotItem* item, bool visible);
         void showLegendContextMenu(QwtPlotItem const* item, QPoint const& pos);
 

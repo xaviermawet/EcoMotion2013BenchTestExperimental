@@ -7,6 +7,8 @@
 QT       += core gui
 #LIBS += -L/usr/local/lib -lqwt
 CONFIG += qwt
+LIBS += /usr/lib/libgsl.so
+LIBS += /usr/lib/libgslcblas.so
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -27,7 +29,8 @@ SOURCES += main.cpp\
     Megasquirt/MSFileParameterDialog.cpp \
     Plot/PlotCurve.cpp \
     Plot/PlotMagnifier.cpp \
-    Plot/DoubleYAxisPlot.cpp
+    Plot/DoubleYAxisPlot.cpp \
+    polifitgsl.cpp
 
 HEADERS  += MainWindow.hpp \
     Plot/Plot.hpp \
@@ -41,7 +44,8 @@ HEADERS  += MainWindow.hpp \
     Megasquirt/MSFileParameterDialog.hpp \
     Plot/PlotCurve.hpp \
     Plot/PlotMagnifier.hpp \
-    Plot/DoubleYAxisPlot.hpp
+    Plot/DoubleYAxisPlot.hpp \
+    polifitgsl.hpp
 
 FORMS    += MainWindow.ui \
     Megasquirt/MSFileConverterDialog.ui \

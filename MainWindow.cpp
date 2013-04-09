@@ -79,6 +79,9 @@ void MainWindow::createPlotLegendContextMenu(void)
                                        this, SLOT(centerOnCurve()));
     this->legendContextMenu->addAction(tr("Changer la couleur"),
                                        this, SLOT(changeCurveColor()));
+    this->legendContextMenu->addAction(
+                tr("Ajouter une courbe de tendance polynomiale"),
+                this, SLOT(createPolynomialTrendline()));
 }
 
 void MainWindow::createMegasquirtDataPlotZone(void)
@@ -349,7 +352,7 @@ void MainWindow::createCoupleAndPowerCurves(const QString& inertieCSVFilename,
                          QObject::tr(" ne contient pas assez de valeurs"));
 
     // Create couple and power curves
-    const double PI = 3.141592653589793;
+    const double PI = 3.14159265358979323846;
     const double Jdelta = 0.22; // FIXME : demander à l'utilisateur de rentrer la valeur
 
     double angularSpeed_a, angularSpeed_b;
@@ -459,19 +462,6 @@ void MainWindow::createCoupleAndPowerCurves(const QString& inertieCSVFilename,
 
     // Zoom on the biggest curve
     this->couplePowerPlot->zoom(powerCurve);
-
-    // Détermination de l'équation correspondant le plus à l'approximation polynomiales
-//    QVector<QPointF> points;
-//    points.append(QPointF(0, 36));
-//    points.append(QPointF(20, 35.2));
-//    points.append(QPointF(40, 33.2));
-//    points.append(QPointF(60, 30.1));
-//    points.append(QPointF(80, 25.8));
-//    points.append(QPointF(100, 20.8));
-    this->leastSqrRegression(powerPoints, powerCurve->title().text(),
-                             Plot::xTop, Plot::yRight);
-    this->leastSqrRegression(couplePoints, coupleCurve->title().text(),
-                             Plot::xBottom, Plot::yLeft);
 }
 
 void MainWindow::leastSqrRegression(const QVector<QPointF> &points,
@@ -503,8 +493,8 @@ void MainWindow::leastSqrRegression(const QVector<QPointF> &points,
 
    foreach (QPointF point, points)
    {
-       if (point.y() < 0.0)
-           continue;
+//       if (point.y() < 0.0)
+//           continue;
        SUMx4  += qPow(point.x(), 4);
        SUMx3  += qPow(point.x(), 3);
        SUMx2  += qPow(point.x(), 2);
@@ -926,6 +916,64 @@ void MainWindow::changeCurveColor(void)
     // If the user cancels the dialog, an invalid color is returned
     if (newColor.isValid())
         this->curveAssociatedToLegendItem->setPen(QPen(newColor));
+}
+
+void MainWindow::createPolynomialTrendline(void)
+{
+    // if no curve associated to the legend item. This shouldn't happen!
+    if (this->curveAssociatedToLegendItem == NULL)
+        return;
+
+    bool ok(false);
+    int degree = QInputDialog::getInt(
+                this, tr("Courbe de tendance polynomiale"),
+                tr("Ordre de complexité ?"), 2, 2, 100, 1, &ok);
+
+    if (!ok) // User canceled
+        return;
+
+    // Récupération de la liste des points de la courbe
+    QwtSeriesData<QPointF>* serie = this->curveAssociatedToLegendItem->data();
+    if (!serie)
+        return;
+
+    int size(serie->size());
+    double x[size];
+    double y[size];
+    double coefficient[degree];
+
+    // Récupération des coordonnées
+    for(int i(0); i < size; ++i)
+    {
+        x[i] = serie->sample(i).x();
+        y[i] = serie->sample(i).y();
+    }
+
+    // Recherche de tous les coefficients de l'équation
+    polynomialfit(size, degree, x, y, coefficient);
+
+    // Creation de la liste des points de la courbe
+    QVector<QPointF> trendlinePoints;
+    for(int i(0); i < size; ++i)
+    {
+        // Calcule les nouvelles valeurs de y
+        double y(0);
+        for(int j(0); j < degree; ++j)
+            y += coefficient[j] * qPow(x[i], j);
+
+        trendlinePoints.append(QPointF(x[i], y));
+    }
+
+    // Création de la courbe
+    QwtPointSeriesData* trendlineSeriesData = new QwtPointSeriesData(trendlinePoints);
+    PlotCurve* trendlineCurve = new PlotCurve(
+                this->curveAssociatedToLegendItem->title().text() +
+                tr(" Poly(") + QString::number(degree) + ")", QPen("lightskyblue"));
+    trendlineCurve->setAxes(this->curveAssociatedToLegendItem->xAxis(),
+                            this->curveAssociatedToLegendItem->yAxis());
+    trendlineCurve->setData(trendlineSeriesData);
+    trendlineCurve->attach(this->curveAssociatedToLegendItem->plot());
+    this->setPlotCurveVisibile(trendlineCurve, true);
 }
 
 void MainWindow::setPlotCurveVisibile(QwtPlotItem* item, bool visible)
