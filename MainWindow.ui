@@ -14,8 +14,8 @@
    <string>EcoMotion 2013 - Banc d'essai</string>
   </property>
   <property name="windowIcon">
-   <iconset>
-    <normaloff>:/Icons/Resources/Icons/Charts-Line-icon.png</normaloff>:/Icons/Resources/Icons/Charts-Line-icon.png</iconset>
+   <iconset resource="Resources.qrc">
+    <normaloff>:/Icons/chartsLine</normaloff>:/Icons/chartsLine</iconset>
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QVBoxLayout" name="mainVerticalLayout">

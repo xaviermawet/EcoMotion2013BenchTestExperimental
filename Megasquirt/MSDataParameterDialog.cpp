@@ -25,6 +25,8 @@ MSDataParameterDialog::MSDataParameterDialog(const QString& defaultTestName,
 
 MSDataParameterDialog::~MSDataParameterDialog(void)
 {
+    qDebug() << "Destruction de la fenetre de paramétrisation de l'importation";
+
     delete this->ui;
 }
 

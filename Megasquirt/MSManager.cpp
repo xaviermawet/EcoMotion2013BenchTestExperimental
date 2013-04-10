@@ -161,6 +161,11 @@ void MSManager::datToCSV(const QString& datFile, const QString& CSVFile,
     // Bytes order is QDataStream::BigEndian by default
     QDataStream in(&fileDAT);
 
+    // Remove oldest megasquirt csv file if exists
+    QFile msCSVFile(CSVFile);
+    if (msCSVFile.exists())
+        msCSVFile.remove();
+
     QCSVParser parser(CSVFile, ';');
     QCSVRow row;
 

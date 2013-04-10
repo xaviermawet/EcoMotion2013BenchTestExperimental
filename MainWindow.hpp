@@ -65,9 +65,10 @@ class MainWindow : public QMainWindow
         void  initSettings(void) const;
 
         // Megasquirt management methods
-        void checkFolderContent(QDir const& MSDir) const;
-        void createCoupleAndPowerCurves(QString const& inertieCSVFilename,
-                                        QString const& msCSVFilename);
+        QDir getMegasquirtDataFolder(void);
+        void getTimesFromCSV(QVector<double>& timeValues,
+                             QString const& csvFilePath) const;
+        void createCoupleAndPowerCurves(QVector<double> const& inertieTimes);
 
     private slots:
 
@@ -114,6 +115,7 @@ class MainWindow : public QMainWindow
         DoubleYAxisPlot* coupleSpecificPowerPlot;
         Plot* reductionRatioPlot;
         Plot* distancePlot;
+        QCSVParser benchParser;
 
         // List of all Plots
         PlotList plots;

@@ -49,7 +49,8 @@ void QCSVParser::parse(QFile &file, const QChar &separator,
      * style line terminators ("\r\n") into C++-style terminators ("\n")
      */
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
-        throw QException(QObject::tr("Impossible d'ouvrir le fichier"));
+        throw QException(QObject::tr("Impossible d'ouvrir le fichier ")
+                         + file.fileName());
 
     // Open succed
     this->_fileName  = file.fileName();
@@ -118,7 +119,7 @@ QCSVColumn& QCSVParser::column(int index)
 
     this->_column.clear();
 
-    for (int i(1); i < this->rowCount(); ++i) // don't take the header
+    for (int i(1); i < this->rowCount(); ++i) // skeep the header
         this->_column.push_back(this->_content[i][index]);
 
     return this->_column;

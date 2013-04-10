@@ -5,7 +5,8 @@ MainWindow::MainWindow(QWidget* parent) :
     QMainWindow(parent), ui(new Ui::MainWindow),
     legendContextMenu(NULL), curveAssociatedToLegendItem(NULL),
     megasquirtDataPlot(NULL), MSPlotParser(), couplePowerPlot(NULL),
-    coupleSpecificPowerPlot(NULL), reductionRatioPlot(NULL), distancePlot(NULL)
+    coupleSpecificPowerPlot(NULL), reductionRatioPlot(NULL),
+    distancePlot(NULL), benchParser()
 {
     // Display Configuration
     QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
@@ -341,10 +342,15 @@ void MainWindow::initSettings(void) const
     settings.endGroup();
 }
 
-void MainWindow::checkFolderContent(const QDir &MSDir) const
+QDir MainWindow::getMegasquirtDataFolder(void)
 {
-    if (!MSDir.exists())
-        throw QException(tr("Le dossier n'existe pas"));
+    // Get dir path
+    QString dirPath = QFileDialog::getExistingDirectory(
+                      this, tr("Sélectionnez le dossier contenant "
+                      "les données du Megasquirt"), QDir::homePath());
+
+    if (dirPath.isEmpty()) // User canceled
+        throw QException(tr("Aucun dossier sélectionné"));
 
     // Get all file names from settings
     QSettings settings;
@@ -358,36 +364,43 @@ void MainWindow::checkFolderContent(const QDir &MSDir) const
     settings.endGroup();
 
     // Check if the folder content all the files
+    QDir MSDir(dirPath);
     foreach (QString filename, fileNames)
         if(!MSDir.exists(filename))
             throw QException(tr("Fichier ") + filename + tr(" inexistant"));
+
+    return MSDir; // Is a valid folder
 }
 
-void MainWindow::createCoupleAndPowerCurves(const QString& inertieCSVFilename,
-                                            const QString& msCSVFilename)
+void MainWindow::getTimesFromCSV(QVector<double>& timeValues,
+                                 QString const& csvFilePath) const
 {
-    // Open inertie file that contains time values
-    QFile inertieFile(inertieCSVFilename);
-    if (!inertieFile.open(QIODevice::ReadOnly | QIODevice::Text))
+    QFile file(csvFilePath);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
         throw QException(QObject::tr("Impossible d'ouvrir le fichier ")
-                         + inertieCSVFilename);
+                         + csvFilePath);
 
     // Read the file line-by-line and covert time value into seconds
-    QList<double> inertieTimes;
-    while(!inertieFile.atEnd())
-        inertieTimes.append(QString(inertieFile.readLine()).toDouble() / 1000000);
-    inertieFile.close();
+    while(!file.atEnd())
+        timeValues.append(QString(file.readLine()).toDouble() / 1000000);
+    file.close();
 
-    // Remove wrong values (first ones)
-    for (int i(0); i < 6; ++i)
-        inertieTimes.pop_front();
-
-    // We need at least 3 values of time to calculate the couple
-    if (inertieTimes.count() < 3)
-        throw QException(QObject::tr("Le fichier ") + inertieCSVFilename +
+    if (timeValues.count() < 3)
+        throw QException(QObject::tr("Le fichier ") + csvFilePath +
                          QObject::tr(" ne contient pas assez de valeurs"));
 
-    // Create couple and power curves
+    // Remove wrong values (first ones)
+    for (int i(0); i < 3; ++i)
+        timeValues.pop_front();
+
+    // We need at least 3 values of time
+    if (timeValues.count() < 3)
+        throw QException(QObject::tr("Le fichier ") + csvFilePath +
+                         QObject::tr(" ne contient pas assez de valeurs"));
+}
+
+void MainWindow::createCoupleAndPowerCurves(QVector<double> const& inertieTimes)
+{
     const double PI = 3.14159265358979323846;
     const double Jdelta = 0.22; // FIXME : demander à l'utilisateur de rentrer la valeur
 
@@ -474,11 +487,11 @@ void MainWindow::createCoupleAndPowerCurves(const QString& inertieCSVFilename,
      * N = tours par minute == RPM (tours/minute)                             *
      * ---------------------------------------------------------------------- */
 
-            double rpm_b = (30 * angularSpeed_b) / PI;
+        double rpm_b = (30 * angularSpeed_b) / PI;
 
-            // create curves coordinates
-            powerPoints.append(QPointF(rpm_b, power));
-            couplePoints.append(QPointF(rpm_b, couple));
+        // create curves coordinates
+        powerPoints.append(QPointF(rpm_b, power));
+        couplePoints.append(QPointF(rpm_b, couple));
     }
 
     // Create power curve
@@ -502,57 +515,70 @@ void MainWindow::createCoupleAndPowerCurves(const QString& inertieCSVFilename,
 
 void MainWindow::on_actionImportData_triggered(void)
 {
-    QString dirPath = QFileDialog::getExistingDirectory(
-                      this, tr("Sélectionnez le dossier contenant "
-                      "les données du Megasquirt"), QDir::homePath());
-
-    if (dirPath.isEmpty())
-        return;
-
-    QSettings settings;
-    settings.beginGroup("files");
-
     try
     {
-        // Check the folder content
-        QDir MSDir(dirPath);
-        this->checkFolderContent(MSDir);
+        // Check if the folder contents all necessary data files
+        QDir MSDir = getMegasquirtDataFolder();
 
         // Set import parameters
         MSDataParameterDialog importParamDial(MSDir.dirName(), this);
         if (importParamDial.exec() == QDialog::Rejected)
             return;
 
-        // Remove oldest megasquirt csv file if exists
-        QString msCSVFilePath = MSDir.filePath(
-                    settings.value(KEY_MEGASQUIRT_CSV).toString());
-        QFile msCSVFile(msCSVFilePath);
-        if (msCSVFile.exists())
-            msCSVFile.remove();
+        // Get all file paths
+        QSettings settings;
+        settings.beginGroup("files");
 
-        // Generate csv file by extracting needed data from dat file
+        QString msCSVFilePath      = MSDir.filePath(
+                    settings.value(KEY_MEGASQUIRT_CSV).toString());
+        QString msDatFilePath      = MSDir.filePath(
+                    settings.value(KEY_MEGASQUIRT_DAT).toString());
+        QString inertieFilePath    = MSDir.filePath(
+                    settings.value(KEY_INERTIE).toString());
+        QString protoWheelFilePath = MSDir.filePath(
+                    settings.value(KEY_PROTOWHEEL).toString());
+
+        settings.endGroup();
+
+    /* ---------------------------------------------------------------------- *
+     *                           Get inertie times                            *
+     * ---------------------------------------------------------------------- */
+        QVector<double> inertieTimes;
+        this->getTimesFromCSV(inertieTimes, inertieFilePath);
+
+    /* ---------------------------------------------------------------------- *
+     *                         Get proto wheel times                          *
+     * ---------------------------------------------------------------------- */
+//        QVector<double> protoWheelTimes;
+//        this->getTimesFromCSV(protoWheelTimes, protoWheelFilePath);
+
+//        qDebug() << "Nombre de données proto wheel = " << protoWheelTimes.count();
+
+    /* ---------------------------------------------------------------------- *
+     *       Generate csv file by extracting needed data from dat file        *
+     *                    and read data from csv file                         *
+     * ---------------------------------------------------------------------- */
         QStringList megasquirtParameters;
         megasquirtParameters << "pulseWidth1" << "rpm" << "batteryVoltage";
 
         MSManager megasquirtManager;
-        megasquirtManager.datToCSV
-                (
-                  MSDir.filePath(settings.value(KEY_MEGASQUIRT_DAT).toString()),
-                  msCSVFilePath,
-                  megasquirtParameters
-                );
+        megasquirtManager.datToCSV(msDatFilePath, msCSVFilePath,
+                                   megasquirtParameters);
 
-        // Create couple and power curves
-        QString inertieFilePath = MSDir.filePath(
-                    settings.value(KEY_INERTIE).toString());
-        this->createCoupleAndPowerCurves(inertieFilePath, msCSVFilePath);
+        this->benchParser.parse(msCSVFilePath, ';', QString::SkipEmptyParts);
+
+    /* ---------------------------------------------------------------------- *
+     *                             Create curves                              *
+     * ---------------------------------------------------------------------- */
+        this->createCoupleAndPowerCurves(inertieTimes);
     }
     catch(QException const& ex)
     {
         QMessageBox::warning(this, tr("Importation annulée"), ex.what());
     }
 
-    settings.endGroup();
+    // Free the megasquirt data from memory
+    this->benchParser.reset();
 }
 
 void MainWindow::on_actionQuit_triggered(void)
