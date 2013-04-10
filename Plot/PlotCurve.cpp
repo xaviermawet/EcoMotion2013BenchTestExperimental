@@ -11,6 +11,6 @@ PlotCurve::PlotCurve(const QwtText &title, const QPen &pen) :
 {
     this->setPen(pen);
     this->setRenderHint(QwtPlotItem::RenderAntialiased);
-    this->setItemAttribute(QwtPlotItem::Legend, true); // true default value
-    this->setLegendAttribute(QwtPlotCurve::LegendShowLine);
+    this->setItemAttribute(QwtPlotItem::Legend); // true default value
+    //this->setLegendAttribute(LegendShowLine);
 }

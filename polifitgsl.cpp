@@ -1,5 +1,6 @@
 #include "polifitgsl.hpp"
 
+// C version
 bool polynomialfit(int obs, int degree, double *dx, double *dy, double *store) /* n, p */
 {
     gsl_multifit_linear_workspace *ws;
@@ -42,6 +43,7 @@ bool polynomialfit(int obs, int degree, double *dx, double *dy, double *store) /
           to know if the fit is "good" */
 }
 
+// C++ - Qt version
 QVector<double> polynomialfit(QVector<QPointF> const& points, int degree)
 {
     gsl_multifit_linear_workspace *ws;

@@ -54,3 +54,6 @@ FORMS    += MainWindow.ui \
 
 RESOURCES += \
     Resources.qrc
+
+OTHER_FILES += \
+    BackUp.txt

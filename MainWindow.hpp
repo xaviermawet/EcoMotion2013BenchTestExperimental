@@ -22,9 +22,10 @@
 #include <qwt_plot_rescaler.h>
 
 #define TAB_BENCH_TEST       0
-    #define TAB_COUPLE_AND_POWER 0
-    #define TAB_REDUCTION_RATIO  1
-    #define TAB_DISTANCE         2
+    #define TAB_COUPLE_AND_POWER          0
+    #define TAB_COUPLE_AND_SPECIFIC_POWER 1
+    #define TAB_REDUCTION_RATIO           2
+    #define TAB_DISTANCE                  3
 #define TAB_MEGASQUIRT_DATA  1
 
 #define KEY_INERTIE        "Inertie"
@@ -55,6 +56,7 @@ class MainWindow : public QMainWindow
         void  createPlotLegendContextMenu(void);
         void  createMegasquirtDataPlotZone(void);
         void  createCouplePowerPlotZone(void);
+        void  createCoupleSpecificPowerPlotZone(void);
         void  createReductionRatioPlotZone(void);
         void  createDistancePlotZone(void);
         Plot* currentPlot(void) const;
@@ -66,12 +68,6 @@ class MainWindow : public QMainWindow
         void checkFolderContent(QDir const& MSDir) const;
         void createCoupleAndPowerCurves(QString const& inertieCSVFilename,
                                         QString const& msCSVFilename);
-
-        void leastSqrRegression(const QVector<QPointF> &points,
-                                QString const& baseName,
-                                QwtPlot::Axis xAxis, QwtPlot::Axis yAxis);
-
-        void createCoupleAndPowerCurves_old(QString const& megasquirtCSVFilename);
 
         // Polynomial fit
 
@@ -100,7 +96,6 @@ class MainWindow : public QMainWindow
         void centerOnCurve(void);
         void changeCurveColor(void);
         void createPolynomialTrendline(void);
-        void createPolynomialTrendline2(void);
         void setPlotCurveVisibile(QwtPlotItem* item, bool visible);
         void showLegendContextMenu(QwtPlotItem const* item, QPoint const& pos);
 
@@ -119,6 +114,7 @@ class MainWindow : public QMainWindow
 
         // Bench test plots
         DoubleYAxisPlot* couplePowerPlot;
+        DoubleYAxisPlot* coupleSpecificPowerPlot;
         Plot* reductionRatioPlot;
         Plot* distancePlot;
 

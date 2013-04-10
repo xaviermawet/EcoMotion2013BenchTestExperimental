@@ -8,5 +8,15 @@
         <file>Resources/Icons/less.png</file>
         <file>Resources/Icons/checkmark.png</file>
         <file>Resources/Icons/redClose.png</file>
+        <file alias="chartsLine">Resources/Icons/Charts-Line-icon.png</file>
+        <file alias="pdfFile">Resources/Icons/File-Types-Pdf-icon.png</file>
+        <file alias="focusOn">Resources/Icons/Image-Edition-Tools-Collapse-icon.png</file>
+        <file alias="tendLine">Resources/Icons/Image-Edition-Tools-Line-icon.png</file>
+        <file alias="grid">Resources/Icons/Timeline-List-Grid-Grid-icon.png</file>
+        <file alias="erase">Resources/Icons/Editing-Erase-icon.png</file>
+        <file alias="color">Resources/Icons/Text-Formatting-Bg-color-icon.png</file>
+        <file alias="up">Resources/Icons/Arrows-Up-icon.png</file>
+        <file alias="down">Resources/Icons/Arrows-Down-icon.png</file>
+        <file alias="mouse">Resources/Icons/Computer-Hardware-Mouse-icon.png</file>
     </qresource>
 </RCC>

@@ -13,6 +13,10 @@
   <property name="windowTitle">
    <string>EcoMotion 2013 - Banc d'essai</string>
   </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>:/Icons/Resources/Icons/Charts-Line-icon.png</normaloff>:/Icons/Resources/Icons/Charts-Line-icon.png</iconset>
+  </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QVBoxLayout" name="mainVerticalLayout">
     <property name="spacing">
@@ -55,13 +59,32 @@
         <item>
          <widget class="QTabWidget" name="benchTestTabWidget">
           <property name="currentIndex">
-           <number>1</number>
+           <number>0</number>
           </property>
           <widget class="QWidget" name="couplePowerTab">
            <attribute name="title">
-            <string>Couple - Puissance - Puissance spécifique</string>
+            <string>Couple - Puissance</string>
            </attribute>
            <layout class="QHBoxLayout" name="coupleAndPowerHLayout">
+            <property name="leftMargin">
+             <number>2</number>
+            </property>
+            <property name="topMargin">
+             <number>2</number>
+            </property>
+            <property name="rightMargin">
+             <number>2</number>
+            </property>
+            <property name="bottomMargin">
+             <number>2</number>
+            </property>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="coupleSpecificPowerTab">
+           <attribute name="title">
+            <string>Couple - Puissance Spécifique</string>
+           </attribute>
+           <layout class="QHBoxLayout" name="coupleAndSpecificPowerHLayout">
             <property name="leftMargin">
              <number>2</number>
             </property>
@@ -268,6 +291,10 @@
    <property name="checkable">
     <bool>true</bool>
    </property>
+   <property name="icon">
+    <iconset resource="Resources.qrc">
+     <normaloff>:/Icons/grid</normaloff>:/Icons/grid</iconset>
+   </property>
    <property name="text">
     <string>Afficher la &amp;grille</string>
    </property>
@@ -293,6 +320,10 @@
    </property>
   </action>
   <action name="actionIncreaseAccuracy">
+   <property name="icon">
+    <iconset resource="Resources.qrc">
+     <normaloff>:/Icons/up</normaloff>:/Icons/up</iconset>
+   </property>
    <property name="text">
     <string>&amp;Augmenter la précision</string>
    </property>
@@ -304,6 +335,10 @@
    </property>
   </action>
   <action name="actionReduceAccuracy">
+   <property name="icon">
+    <iconset resource="Resources.qrc">
+     <normaloff>:/Icons/down</normaloff>:/Icons/down</iconset>
+   </property>
    <property name="text">
     <string>&amp;Diminuer la précision</string>
    </property>
@@ -314,6 +349,10 @@
   <action name="actionShowLabelPosition">
    <property name="checkable">
     <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="Resources.qrc">
+     <normaloff>:/Icons/mouse</normaloff>:/Icons/mouse</iconset>
    </property>
    <property name="text">
     <string>Afficher un &amp;label indiquant la position de la souris</string>
@@ -358,6 +397,10 @@
    </property>
   </action>
   <action name="actionExportToPDF">
+   <property name="icon">
+    <iconset resource="Resources.qrc">
+     <normaloff>:/Icons/pdfFile</normaloff>:/Icons/pdfFile</iconset>
+   </property>
    <property name="text">
     <string>Exporter au format &amp;PDF</string>
    </property>

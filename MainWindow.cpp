@@ -5,7 +5,7 @@ MainWindow::MainWindow(QWidget* parent) :
     QMainWindow(parent), ui(new Ui::MainWindow),
     legendContextMenu(NULL), curveAssociatedToLegendItem(NULL),
     megasquirtDataPlot(NULL), MSPlotParser(), couplePowerPlot(NULL),
-    reductionRatioPlot(NULL), distancePlot(NULL)
+    coupleSpecificPowerPlot(NULL), reductionRatioPlot(NULL), distancePlot(NULL)
 {
     // Display Configuration
     QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
@@ -21,6 +21,7 @@ MainWindow::MainWindow(QWidget* parent) :
     // Plots configuration
     this->createPlotLegendContextMenu();
     this->createCouplePowerPlotZone();
+    this->createCoupleSpecificPowerPlotZone();
     this->createReductionRatioPlotZone();
     this->createMegasquirtDataPlotZone();
     this->createDistancePlotZone();
@@ -73,18 +74,19 @@ void MainWindow::createPlotLegendContextMenu(void)
 {
     // Legend actions
     this->legendContextMenu = new QMenu(this);
-    this->legendContextMenu->addAction(tr("Effacer"),
-                                       this, SLOT(eraseCurve()));
-    this->legendContextMenu->addAction(tr("Centrer sur"),
-                                       this, SLOT(centerOnCurve()));
-    this->legendContextMenu->addAction(tr("Changer la couleur"),
-                                       this, SLOT(changeCurveColor()));
-//    this->legendContextMenu->addAction(
-//                tr("Ajouter une courbe de tendance polynomiale"),
-//                this, SLOT(createPolynomialTrendline()));
     this->legendContextMenu->addAction(
-                tr("Ajouter une courbe de tendance polynomiale"),
-                this, SLOT(createPolynomialTrendline2()));
+                QIcon(":/Icons/erase"), tr("Effacer"),this,
+                SLOT(eraseCurve()));
+    this->legendContextMenu->addAction(
+                QIcon(":/Icons/focusOn"), tr("Centrer sur"), this,
+                SLOT(centerOnCurve()));
+    this->legendContextMenu->addAction(
+                QIcon(":/Icons/color"), tr("Changer la couleur"), this,
+                SLOT(changeCurveColor()));
+    this->legendContextMenu->addAction(
+                QIcon(":/Icons/tendLine"),
+                tr("Ajouter une courbe de tendance polynomiale"), this,
+                SLOT(createPolynomialTrendline()));
 }
 
 void MainWindow::createMegasquirtDataPlotZone(void)
@@ -108,11 +110,11 @@ void MainWindow::createMegasquirtDataPlotZone(void)
 void MainWindow::createCouplePowerPlotZone(void)
 {
     this->couplePowerPlot = new DoubleYAxisPlot(
-                "Couple - Puissance - Puissance spécifique", 0.01, this);
+                "Couple - Puissance", 0.01, this);
     this->couplePowerPlot->setAxisTitle(Plot::yLeft, tr("Couple (N.m)"));;
     this->couplePowerPlot->setAxisTitle(Plot::yRight, tr("Puissance (W)"));
-    this->couplePowerPlot->setAxisTitle(Plot::xBottom,
-                                        tr("Tours par minute (tr/min)"));
+    this->couplePowerPlot->setAxisTitle(
+                Plot::xBottom, tr("Tours par minute (tr/min)"));
 
     // Add plot into a main window's layout
     this->ui->coupleAndPowerHLayout->addWidget(this->couplePowerPlot);
@@ -127,6 +129,34 @@ void MainWindow::createCouplePowerPlotZone(void)
     // Settings management configuration
     this->couplePowerPlot->setObjectName("CouplePowerPlot");
     this->plots.append(this->couplePowerPlot);
+}
+
+void MainWindow::createCoupleSpecificPowerPlotZone(void)
+{
+    this->coupleSpecificPowerPlot = new DoubleYAxisPlot(
+                "Couple - Puissance spécifique", 2, this);
+    this->coupleSpecificPowerPlot->setAxisTitle(
+                Plot::yLeft,tr("Couple (N.m)"));;
+    this->coupleSpecificPowerPlot->setAxisTitle(
+                Plot::yRight, tr("Puissance Spécifique (l/kwh)"));
+    this->coupleSpecificPowerPlot->setAxisTitle(
+                Plot::xBottom, tr("Tours par minute (tr/min)"));
+
+    // Add plot into a main window's layout
+    this->ui->coupleAndSpecificPowerHLayout->addWidget(
+                this->coupleSpecificPowerPlot);
+
+    // Connect plot signals to slots
+    connect(this->coupleSpecificPowerPlot,
+            SIGNAL(legendChecked(QwtPlotItem*, bool)),
+            this,  SLOT(setPlotCurveVisibile(QwtPlotItem*, bool)));
+    connect(this->coupleSpecificPowerPlot,
+            SIGNAL(legendRightClicked(const QwtPlotItem*,QPoint)),
+            this, SLOT(showLegendContextMenu(const QwtPlotItem*,QPoint)));
+
+    // Settings management configuration
+    this->coupleSpecificPowerPlot->setObjectName("CoupleSpecificPowerPlot");
+    this->plots.append(this->coupleSpecificPowerPlot);
 }
 
 void MainWindow::createReductionRatioPlotZone(void)
@@ -179,6 +209,8 @@ Plot* MainWindow::currentPlot(void) const
         {
             case TAB_COUPLE_AND_POWER:
                 return this->couplePowerPlot;
+            case TAB_COUPLE_AND_SPECIFIC_POWER:
+                return this->coupleSpecificPowerPlot;
             case TAB_REDUCTION_RATIO:
                 return this->reductionRatioPlot;
             case TAB_DISTANCE:
@@ -467,196 +499,6 @@ void MainWindow::createCoupleAndPowerCurves(const QString& inertieCSVFilename,
     this->couplePowerPlot->zoom(powerCurve);
 }
 
-void MainWindow::leastSqrRegression(const QVector<QPointF> &points,
-                                    QString const& baseName,
-                                    QwtPlot::Axis xAxis, QwtPlot::Axis yAxis)
-{
-   if (points.count() == 0)
-   {
-       qDebug() << "Aucune données à traiter";
-       return;
-   }
-
-   // double  = 8  octets = 64  bits
-   // decimal = 16 octets = 128 bits
-
-   double SUMx4(0);  // sum of x^4
-   double SUMx3(0);  // sum of x³
-   double SUMx2(0);  // sum of x²
-   double SUMx(0);   // sum of x
-   double SUMx2y(0); // sum of x²*y
-   double SUMxy(0);  // sum of x*y
-   double SUMy(0);   // sum of y
-
-   double a(0);
-   double b(0);
-   double c(0);
-
-   // y = ax² + bx + c
-
-   foreach (QPointF point, points)
-   {
-//       if (point.y() < 0.0)
-//           continue;
-       SUMx4  += qPow(point.x(), 4);
-       SUMx3  += qPow(point.x(), 3);
-       SUMx2  += qPow(point.x(), 2);
-       SUMx   += point.x();
-       SUMx2y += qPow(point.x(), 2) * point.y();
-       SUMxy  += point.x() * point.y();
-       SUMy   += point.y();
-   }
-
-   qDebug() << "x4 = " << SUMx4;
-   qDebug() << "x3 = " << SUMx3;
-   qDebug() << "x2 = " << SUMx2;
-   qDebug() << "x = " << SUMx;
-   qDebug() << "x²*y = " << SUMx2y;
-   qDebug() << "x*y = " << SUMxy;
-   qDebug() << "y = " << SUMy;
-
-   a = ((points.count()*SUMx2y-SUMx2*SUMy)*(points.count()*SUMx2-qPow(SUMx, 2))-(points.count()*SUMxy-SUMx*SUMy)*(points.count()*SUMx3-SUMx2*SUMx))
-           /
-   ((points.count()*SUMx4-qPow(SUMx2, 2))*(points.count()*SUMx2-qPow(SUMx, 2))-qPow(SUMx2*SUMx-points.count()*SUMx3, 2));
-
-   qDebug() << "a = " << a;
-
-   b = (a*(SUMx2*SUMx-points.count()*SUMx3)+points.count()*SUMxy-SUMx*SUMy)/(points.count()*SUMx2-qPow(SUMx, 2));
-
-   qDebug() << "b = " << b;
-
-   c = (-a*SUMx2-b*SUMx+SUMy)/points.count();
-
-   qDebug() << "c = " << c;
-
-   QVector<QPointF> approxiPoints;
-   foreach (QPointF point, points)
-   {
-       // y = a*x² + b*x + c
-       approxiPoints.append(QPointF(point.x(), a*qPow(point.x(), 2) + b*point.x() + c));
-   }
-
-   // Création de la courbe
-   QwtPointSeriesData* approxiSerieData = new QwtPointSeriesData(approxiPoints);
-   PlotCurve* approxiCurve = new PlotCurve(tr("approxi ") + baseName, QPen(Qt::darkMagenta)); // TODO : ajouter le nom de l'essai (par défaut, le nom du dossier)
-   approxiCurve->setAxes(xAxis, yAxis);
-   approxiCurve->setData(approxiSerieData);
-   approxiCurve->attach(this->couplePowerPlot);
-   this->setPlotCurveVisibile(approxiCurve, true);
-}
-
-void MainWindow::createCoupleAndPowerCurves_old(
-        QString const& megasquirtCSVFilename)
-{
-    QCSVParser MSFile(megasquirtCSVFilename, ';', QString::KeepEmptyParts);
-    QCSVColumn times = MSFile["times"];
-    QCSVColumn rpm   = MSFile["rpm"];
-
-    QVector<QPointF> couplePoints;
-    QVector<QPointF> powerPoints;
-
-    double w1, w2, wIntermediate;
-    double accAngulaire;
-    double couple, puissance;
-    const double PI = 3.141592653589793;
-    const double Jdelta = 0.22; // FIXME : demander à l'utilisateur de rentrer la valeur
-
-    int lastDataIndice(0); // Used for futur data filtering.
-
-    w2 = (PI * rpm.at(0).toDouble()) / 30;
-
-    for (int i(1); i < times.count(); ++i)
-    {
-        w1 = w2;
-
-    /* ---------------------------------------------------------------------- *
-     *                           ωx = (π * Nx) / 30                           *
-     * ---------------------------------------------------------------------- *
-     * ωx = Vitesse angulaire à l'instant x (rad/s)                           *
-     * Π  = Pi, constante qui vaut 3.141592653589793...                       *
-     * Nx = tours par minute à l'instant x == RPM (tours/minute)              *
-     * ---------------------------------------------------------------------- */
-
-        w2 = (PI * rpm.at(i).toDouble()) / 30;
-
-        qDebug() << "w1 = " << w1;
-        qDebug() << "w2 = " << w2;
-
-    /* ---------------------------------------------------------------------- *
-     *                        α = (ω2 - ω1) / (t2 - t1)                       *
-     * ---------------------------------------------------------------------- *
-     * α  = Accélération angulaire (rad/s²)                                   *
-     * ωx = Vitesse angulaire à l'instant x (rad/s)                           *
-     * tx = temps x (s)                                                       *
-     * ---------------------------------------------------------------------- */
-
-        accAngulaire =                    (w2 - w1)
-                                              /
-     ((times.at(i).toDouble() - times.at(lastDataIndice).toDouble()) / 1000000);
-        // times values are microseconds
-
-        qDebug() << "t2 = " << times.at(i).toDouble() << " microsecondes";
-        qDebug() << "t1 = " << times.at(lastDataIndice).toDouble() << " microsecondes";
-        qDebug() << "Δt (t2 - t1) = " << ((times.at(i).toDouble() - times.at(lastDataIndice).toDouble()) / 1000000);
-        qDebug() << "α = " << accAngulaire;
-
-    /* ---------------------------------------------------------------------- *
-     *                              C = JΔ * α                                *
-     * ---------------------------------------------------------------------- *
-     * C  = Couple (N.m)                                                      *
-     * JΔ = moment d'inertie (kg.m²)                                          *
-     * α  = Accélération angulaire (rad/s²)                                   *
-     * ---------------------------------------------------------------------- */
-
-        couple = Jdelta * accAngulaire;
-
-        // Ajout du point à la liste des points de la courbe du couple
-        couplePoints.append(QPointF(rpm.at(i).toDouble(), couple));
-        qDebug() << "couple (rpm, couple) = " << couplePoints.last();
-
-    /* ---------------------------------------------------------------------- *
-     *                        P = C * ((ω1 + ω2) / 2)                         *
-     * ---------------------------------------------------------------------- *
-     * P  = Puissance (Watts)                                                 *
-     * ωx = Vitesse angulaire à l'instant x (rad/s)                           *
-     * ---------------------------------------------------------------------- */
-
-        wIntermediate = (w1 + w2) / 2;
-        qDebug() << "(w1 + w2) / 2 = " << wIntermediate;
-
-        puissance = couple * wIntermediate;
-
-    /* ---------------------------------------------------------------------- *
-     *               ωx = (π * Nx) / 30  <=> Nx = (30 * ωx) / π               *
-     * ---------------------------------------------------------------------- *
-     * ωx = Vitesse angulaire à l'instant x (rad/s)                           *
-     * Π  = Pi, constante qui vaut 3.141592653589793...                       *
-     * Nx = tours par minute à l'instant x == RPM (tours/minute)              *
-     * ---------------------------------------------------------------------- */
-        powerPoints.append(QPointF((30 * wIntermediate) / PI, puissance));
-        qDebug() << "puissance (rpm, puissance) = " << powerPoints.last();
-
-        lastDataIndice = i;
-    }
-
-    // Création de la courbe du couple
-    QwtPointSeriesData* coupleSerieData = new QwtPointSeriesData(couplePoints);
-    PlotCurve* coupleCurve = new PlotCurve(tr("Couple"), QPen(Qt::darkRed)); // TODO : ajouter le nom de l'essai (par défaut, le nom du dossier)
-    coupleCurve->setData(coupleSerieData);
-    coupleCurve->attach(this->couplePowerPlot);
-    this->setPlotCurveVisibile(coupleCurve, true);
-
-    // Création de la courbe de la puissance
-    QwtPointSeriesData* powerSerieData = new QwtPointSeriesData(powerPoints);
-    PlotCurve* powerCurve = new PlotCurve(tr("Puissance"), QPen(Qt::darkBlue)); // TODO : ajouter le nom de l'essai (par défaut, le nom du dossier)
-    powerCurve->setData(powerSerieData);
-    powerCurve->setAxes(Plot::xBottom, Plot::yRight);
-    powerCurve->attach(this->couplePowerPlot);
-    this->setPlotCurveVisibile(powerCurve, true);
-
-    qDebug() << "Fin de la création des courbes ...";
-}
-
 void MainWindow::on_actionImportData_triggered(void)
 {
     QString dirPath = QFileDialog::getExistingDirectory(
@@ -750,11 +592,7 @@ void MainWindow::on_addCurvePushButton_clicked(void)
         QwtPointSeriesData* serieData = new QwtPointSeriesData(vect);
 
         // Create a new curves
-        QwtPlotCurve* curve = new QwtPlotCurve(curveName);
-        curve->setRenderHint(QwtPlotItem::RenderAntialiased);
-        curve->setItemAttribute(QwtPlotItem::Legend);
-        curve->setLegendAttribute(QwtPlotCurve::LegendShowLine);
-        curve->setPen(QPen(Qt::darkRed, 1));
+        PlotCurve* curve = new PlotCurve(curveName, QPen(Qt::darkRed, 1));
         curve->setData(serieData);
         curve->attach(this->megasquirtDataPlot);
 
@@ -808,6 +646,9 @@ void MainWindow::on_actionShowLabelPosition_triggered(bool visible)
 void MainWindow::on_actionShowCrossLine_triggered(bool visible)
 {
     this->currentPlot()->setCrossLineVisible(visible);
+    this->updateMenus(); // Because two menu actions must been (un)checked
+
+    this->ui->actionShowLabelPosition->setEnabled(!visible);
 }
 
 void MainWindow::on_actionLoadCSV_triggered(void)
@@ -851,6 +692,9 @@ void MainWindow::on_actionDatToCSV_triggered(void)
                     this, tr("Selectionné le fichier de données du Megasquirt"),
                     QDir::homePath(), tr("Fichier de données (*.dat)"));
 
+        if (datFileName.isEmpty()) // User canceled
+            return;
+
         MSFileConverterDialog dialog(datFileName, this);
         dialog.exec();
     }
@@ -872,8 +716,8 @@ void MainWindow::on_actionExportToPDF_triggered(void)
                 this, tr("Sauvegarder le graphique"), QDir::homePath(),
                 tr("Portable Document Format (*.pdf)"));
 
-    if (pdfFile.isNull() || pdfFile.isEmpty())
-        return; // User cancel the previous dialog
+    if (pdfFile.isNull() || pdfFile.isEmpty()) // User canceled
+        return;
 
     QwtPlotRenderer renderer;
     renderer.setDiscardFlag(QwtPlotRenderer::DiscardBackground);
@@ -935,64 +779,6 @@ void MainWindow::createPolynomialTrendline(void)
     if (!ok) // User canceled
         return;
 
-    // Récupération de la liste des points de la courbe
-    QwtSeriesData<QPointF>* serie = this->curveAssociatedToLegendItem->data();
-    if (!serie)
-        return;
-
-    int size(serie->size());
-    double x[size];
-    double y[size];
-    double coefficient[degree];
-
-    // Récupération des coordonnées
-    for(int i(0); i < size; ++i)
-    {
-        x[i] = serie->sample(i).x();
-        y[i] = serie->sample(i).y();
-    }
-
-    // Recherche de tous les coefficients de l'équation
-    polynomialfit(size, degree, x, y, coefficient);
-
-    // Creation de la liste des points de la courbe
-    QVector<QPointF> trendlinePoints;
-    for(int i(0); i < size; ++i)
-    {
-        // Calcule les nouvelles valeurs de y
-        double y(0);
-        for(int j(0); j < degree; ++j)
-            y += coefficient[j] * qPow(x[i], j);
-
-        trendlinePoints.append(QPointF(x[i], y));
-    }
-
-    // Création de la courbe
-    QwtPointSeriesData* trendlineSeriesData = new QwtPointSeriesData(trendlinePoints);
-    PlotCurve* trendlineCurve = new PlotCurve(
-                this->curveAssociatedToLegendItem->title().text() +
-                tr(" Poly(") + QString::number(degree) + ")", QPen("lightskyblue"));
-    trendlineCurve->setAxes(this->curveAssociatedToLegendItem->xAxis(),
-                            this->curveAssociatedToLegendItem->yAxis());
-    trendlineCurve->setData(trendlineSeriesData);
-    trendlineCurve->attach(this->curveAssociatedToLegendItem->plot());
-    this->setPlotCurveVisibile(trendlineCurve, true);
-}
-
-void MainWindow::createPolynomialTrendline2(void)
-{
-    // if no curve associated to the legend item. This shouldn't happen!
-    if (this->curveAssociatedToLegendItem == NULL)
-        return;
-
-    bool ok(false);
-    int degree = QInputDialog::getInt(
-                this, tr("Courbe de tendance polynomiale"),
-                tr("Ordre de complexité ?"), 2, 2, 100, 1, &ok);
-
-    if (!ok) // User canceled
-        return;
-
     // Récupération de la série des points de la courbe
     QwtPointSeriesData* curveSeriesData =
             (QwtPointSeriesData*)this->curveAssociatedToLegendItem->data();
@@ -1020,7 +806,8 @@ void MainWindow::createPolynomialTrendline2(void)
     QwtPointSeriesData* trendlineSeriesData = new QwtPointSeriesData(curvePoints);
     PlotCurve* trendlineCurve = new PlotCurve(
                 this->curveAssociatedToLegendItem->title().text() +
-                tr(" Poly(") + QString::number(degree) + ")", QPen("lightskyblue"));
+                tr(" Poly(") + QString::number(degree) + ")",
+                this->curveAssociatedToLegendItem->pen());
     trendlineCurve->setAxes(this->curveAssociatedToLegendItem->xAxis(),
                             this->curveAssociatedToLegendItem->yAxis());
     trendlineCurve->setData(trendlineSeriesData);
