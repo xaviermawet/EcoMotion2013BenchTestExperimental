@@ -502,15 +502,21 @@ void MainWindow::createCoupleAndPowerCurves(QVector<double> const& inertieTimes)
     powerCurve->attach(this->couplePowerPlot);
     this->setPlotCurveVisibile(powerCurve, true);
 
-    // Create couple curve
-    QwtPointSeriesData* coupleSerieData = new QwtPointSeriesData(couplePoints);
-    PlotCurve* coupleCurve = new PlotCurve(tr("Couple"), QPen(Qt::darkRed)); // TODO : ajouter le nom de l'essai (par défaut, le nom du dossier)
-    coupleCurve->setData(coupleSerieData);
-    coupleCurve->attach(this->couplePowerPlot);
-    this->setPlotCurveVisibile(coupleCurve, true);
-
-    // Zoom on the biggest curve
+    // Create couple curve for couplePowerPlot
+    QwtPointSeriesData* coupleSerieData1 = new QwtPointSeriesData(couplePoints);
+    PlotCurve* coupleCurve1 = new PlotCurve(tr("Couple"), QPen(Qt::darkRed)); // TODO : ajouter le nom de l'essai (par défaut, le nom du dossier)
+    coupleCurve1->setData(coupleSerieData1);
+    coupleCurve1->attach(this->couplePowerPlot);
+    this->setPlotCurveVisibile(coupleCurve1, true);
     this->couplePowerPlot->zoom(powerCurve);
+
+    // Create couple curve for coupleSpecificPowerPlot
+    QwtPointSeriesData* coupleSerieData2 = new QwtPointSeriesData(couplePoints);
+    PlotCurve* coupleCurve2 = new PlotCurve(tr("Couple"), QPen(Qt::darkRed)); // TODO : ajouter le nom de l'essai (par défaut, le nom du dossier)
+    coupleCurve2->setData(coupleSerieData2);
+    coupleCurve2->attach(this->coupleSpecificPowerPlot);
+    this->setPlotCurveVisibile(coupleCurve2, true);
+    this->coupleSpecificPowerPlot->zoom(coupleCurve2);
 }
 
 void MainWindow::on_actionImportData_triggered(void)
