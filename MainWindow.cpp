@@ -236,6 +236,7 @@ void MainWindow::updateMenus(void)
     this->ui->actionShowCrossLine->setChecked(plot->isCrossLineVisible());
     this->ui->actionShowLabelPosition->setChecked(
                 plot->isLabelPositionVisible());
+    this->ui->actionShowLabelPosition->setEnabled(!plot->isCrossLineVisible());
 
     // Update menu file actions
     int currentMainTabWidgetIndex = this->ui->mainTabWidget->currentIndex();
@@ -647,8 +648,6 @@ void MainWindow::on_actionShowCrossLine_triggered(bool visible)
 {
     this->currentPlot()->setCrossLineVisible(visible);
     this->updateMenus(); // Because two menu actions must been (un)checked
-
-    this->ui->actionShowLabelPosition->setEnabled(!visible);
 }
 
 void MainWindow::on_actionLoadCSV_triggered(void)

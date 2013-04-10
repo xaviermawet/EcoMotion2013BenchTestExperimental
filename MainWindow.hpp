@@ -69,9 +69,6 @@ class MainWindow : public QMainWindow
         void createCoupleAndPowerCurves(QString const& inertieCSVFilename,
                                         QString const& msCSVFilename);
 
-        // Polynomial fit
-
-
     private slots:
 
         // Autoconnect
