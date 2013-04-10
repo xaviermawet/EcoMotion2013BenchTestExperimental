@@ -407,10 +407,15 @@ void MainWindow::createCoupleAndPowerCurves(QVector<double> const& inertieTimes)
     double angularSpeed_a, angularSpeed_b;
     double ta_average, tb_average;
     double angularAcceleration;
-    double couple, power;
+    double couple, power, specificPower;
+
+    int indiceMS(0);
 
     QVector<QPointF> powerPoints;
     QVector<QPointF> couplePoints;
+    QVector<QPointF> specificPowerPoints;
+
+    QVector<QPointF> reductionRatioPoints;
 
     /* ---------------------------------------------------------------------- *
      *                           ωa = 2π / (t2 - t1)                          *
@@ -475,9 +480,43 @@ void MainWindow::createCoupleAndPowerCurves(QVector<double> const& inertieTimes)
         power = couple * angularSpeed_b;
 
     /* ---------------------------------------------------------------------- *
-     *                   Calcul de la masse de carburant                      *
+     *                   Calcul de la Puissance spécifique                    *
      * ---------------------------------------------------------------------- */
 
+        /* Récupère l'indice de la ligne de données MS correspondant au temps
+         * juste inférieur à t3 */
+        while(indiceMS + 1 < this->benchParser.rowCount()
+              && this->benchParser.row(indiceMS + 1).at(0).toDouble() / 1000000
+                 < inertieTimes.at(i))
+            ++indiceMS;
+
+        qDebug() << "indice Megasquirt = " << indiceMS;
+        qDebug() << "temps inertie (s)          = " << inertieTimes.at(i);
+        qDebug() << "temps MS correspondant (s) = " << this->benchParser.row(indiceMS).at(0).toDouble() / 1000000;
+
+    /* ---------------------------------------------------------------------- *
+     * Temps d'injection = PW1 - (deadTime + (voltCorr *(13,2 - battVolt)))   *
+     * ---------------------------------------------------------------------- */
+
+        double pw       = this->benchParser.row(indiceMS).at(1).toDouble(); // ms
+        double battVolt = this->benchParser.row(indiceMS).at(3).toDouble(); // v
+        double tempsInjection = pw - (1.011 + (0.115 *(13.2 - battVolt)));  // ms
+
+        qDebug() << "pw (ms)      = " << pw;
+        qDebug() << "battVolt (v) = " << battVolt;
+        qDebug() << "temps d'injection (ms) = " << tempsInjection;
+
+    /* ---------------------------------------------------------------------- *
+     *       Puissance spécifique = (3600000 * quantité injectée)             *
+     *                                         /                              *
+     *                            (4 * π * couple * 1000)                     *
+     * ---------------------------------------------------------------------- */
+        // 30 / 60000 == débit // TODO le demander à l'utilisateur
+        double quantiteInjectee = (30.0 / 60000) * tempsInjection;
+        qDebug() << "Quantité injectée = " << quantiteInjectee;
+
+        specificPower = (3600000 * quantiteInjectee) / (4 * PI * couple * 1000);
+        qDebug() << "puissance specifique = " << specificPower;
 
     /* ---------------------------------------------------------------------- *
      *               ωx = (π * Nx) / 30  <=> Nx = (30 * ωx) / π               *
@@ -492,6 +531,10 @@ void MainWindow::createCoupleAndPowerCurves(QVector<double> const& inertieTimes)
         // create curves coordinates
         powerPoints.append(QPointF(rpm_b, power));
         couplePoints.append(QPointF(rpm_b, couple));
+        specificPowerPoints.append(QPointF(rpm_b, specificPower));
+
+        reductionRatioPoints.append(
+            QPointF(rpm_b, benchParser.row(indiceMS).at(1).toDouble() / rpm_b));
     }
 
     // Create power curve
@@ -501,6 +544,16 @@ void MainWindow::createCoupleAndPowerCurves(QVector<double> const& inertieTimes)
     powerCurve->setAxes(Plot::xTop, Plot::yRight);
     powerCurve->attach(this->couplePowerPlot);
     this->setPlotCurveVisibile(powerCurve, true);
+
+    // Create specificPower curve
+    QwtPointSeriesData* specificPowerSerieData =
+            new QwtPointSeriesData(specificPowerPoints);
+    PlotCurve* specificPowerCurve = new PlotCurve(tr("Puissance spécifique"),
+                                                  QPen(Qt::darkBlue)); // TODO : ajouter le nom de l'essai (par défaut, le nom du dossier)
+    specificPowerCurve->setData(specificPowerSerieData);
+    specificPowerCurve->setAxes(Plot::xTop, Plot::yRight);
+    specificPowerCurve->attach(this->coupleSpecificPowerPlot);
+    this->setPlotCurveVisibile(specificPowerCurve, true);
 
     // Create couple curve for couplePowerPlot
     QwtPointSeriesData* coupleSerieData1 = new QwtPointSeriesData(couplePoints);
@@ -517,6 +570,14 @@ void MainWindow::createCoupleAndPowerCurves(QVector<double> const& inertieTimes)
     coupleCurve2->attach(this->coupleSpecificPowerPlot);
     this->setPlotCurveVisibile(coupleCurve2, true);
     this->coupleSpecificPowerPlot->zoom(coupleCurve2);
+
+    // Create couple curve for coupleSpecificPowerPlot
+    QwtPointSeriesData* reductionRatioSerieData2 = new QwtPointSeriesData(reductionRatioPoints);
+    PlotCurve* reductionRatioCurve = new PlotCurve(tr("i"), QPen(Qt::darkRed)); // TODO : ajouter le nom de l'essai (par défaut, le nom du dossier)
+    reductionRatioCurve->setData(reductionRatioSerieData2);
+    reductionRatioCurve->attach(this->reductionRatioPlot);
+    this->setPlotCurveVisibile(reductionRatioCurve, true);
+    this->reductionRatioPlot->zoom(reductionRatioCurve);
 }
 
 void MainWindow::on_actionImportData_triggered(void)
