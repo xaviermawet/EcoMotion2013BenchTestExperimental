@@ -30,9 +30,34 @@ MSDataParameterDialog::~MSDataParameterDialog(void)
     delete this->ui;
 }
 
+QString MSDataParameterDialog::testName(void) const
+{
+    return this->ui->testNameLineEdit->text();
+}
+
 double MSDataParameterDialog::inertia(void) const
 {
     return this->ui->inertieDoubleSpinBox->value();
+}
+
+double MSDataParameterDialog::rollerPerimeter(void) const
+{
+    return this->ui->rollerPerimeterDoubleSpinBox->value();
+}
+
+double MSDataParameterDialog::deadTime(void) const
+{
+    return this->ui->deadTimeDoubleSpinBox->value();
+}
+
+double MSDataParameterDialog::voltageCorrection(void) const
+{
+    return this->ui->voltageCorrectionDoubleSpinBox->value();
+}
+
+double MSDataParameterDialog::protoWheelPerimeter(void) const
+{
+    return this->ui->protoWheelPerimeterDoubleSpinBox->value();
 }
 
 QString MSDataParameterDialog::fuelName(void) const
@@ -45,10 +70,9 @@ double MSDataParameterDialog::fuelDensity(void) const
     //return this->_fuels.value(this->fuelName());
     return this->ui->fuelDensityDoubleSpinBox->value();
 }
-
-QString MSDataParameterDialog::testName(void) const
+void MSDataParameterDialog::setTestName(const QString &testName)
 {
-    return this->ui->testNameLineEdit->text();
+    this->ui->testNameLineEdit->setText(testName);
 }
 
 void MSDataParameterDialog::setInertia(double inertia)
@@ -56,9 +80,24 @@ void MSDataParameterDialog::setInertia(double inertia)
     this->ui->inertieDoubleSpinBox->setValue(inertia);
 }
 
-void MSDataParameterDialog::setTestName(const QString &testName)
+void MSDataParameterDialog::setRollerPerimeter(double perimeter)
 {
-    this->ui->testNameLineEdit->setText(testName);
+    this->ui->rollerPerimeterDoubleSpinBox->setValue(perimeter);
+}
+
+void MSDataParameterDialog::setDeadTime(double deadTime)
+{
+    this->ui->deadTimeDoubleSpinBox->setValue(deadTime);
+}
+
+void MSDataParameterDialog::setVoltageCorrection(double voltageCorrection)
+{
+    this->ui->voltageCorrectionDoubleSpinBox->setValue(voltageCorrection);
+}
+
+void MSDataParameterDialog::setProtoWheelPerimeter(double protoWheelPerimeter)
+{
+    this->ui->protoWheelPerimeterDoubleSpinBox->setValue(protoWheelPerimeter);
 }
 
 /* If there is already an item with this fuel,
@@ -74,8 +113,13 @@ void MSDataParameterDialog::readSettings(void)
 
     settings.beginGroup("MSDataParameterDialog");
 
-    this->ui->inertieDoubleSpinBox->setValue(
-                settings.value("inertia", 0.0).toDouble());
+    this->setInertia(settings.value("inertia", 0.0).toDouble());
+    this->setRollerPerimeter(settings.value("rollerPerimeter", 0.0).toDouble());
+    this->setDeadTime(settings.value("deadTime", 0.0).toDouble());
+    this->setVoltageCorrection(
+                settings.value("voltageCorrection", 0.0).toDouble());
+    this->setProtoWheelPerimeter(
+                settings.value("protoWheelPerimeter", 0.0).toDouble());
 
     // Restore fuel list
     settings.beginGroup("fuel");
@@ -96,9 +140,13 @@ void MSDataParameterDialog::writeSettings(void) const
     qDebug() << "Sauvegarde des paramètres d'importation des données Megasquirt";
 
     QSettings settings;
-
     settings.beginGroup("MSDataParameterDialog");
+
     settings.setValue("inertia", this->inertia());
+    settings.setValue("rollerPerimeter", this->rollerPerimeter());
+    settings.setValue("deadTime", this->deadTime());
+    settings.setValue("voltageCorrection", this->voltageCorrection());
+    settings.setValue("protoWheelPerimeter", this->protoWheelPerimeter());
 
         // Save fuel list
         settings.beginGroup("fuel");
@@ -154,8 +202,8 @@ void MSDataParameterDialog::on_addFuelPushButton_clicked(void)
      * ---------------------------------------------------------------------- */
     fuelDensity = QInputDialog::getDouble
                   (
-                    this, tr("Ajout d'un carburant"), tr("Masse volumique de ") +
-                    fuelName + " (g/cm³)",
+                    this, tr("Ajout d'un carburant"), tr("Masse volumique de ")
+                    + fuelName + " (g/l)",
                     this->ui->fuelDensityDoubleSpinBox->minimum(),
                     this->ui->fuelDensityDoubleSpinBox->minimum(),
                     this->ui->fuelDensityDoubleSpinBox->maximum(),
@@ -192,6 +240,19 @@ void MSDataParameterDialog::on_buttonBox_accepted(void)
     {
         if (this->inertia() <= 0.0)
             throw QException(tr("L'inertie doit etre supérieure à 0"));
+
+        if (this->rollerPerimeter() <= 0.0)
+            throw QException(tr("Le périmètre du rouleau doit etre supérieur à 0"));
+
+        if (this->deadTime() <= 0.0)
+            throw QException(tr("Le deadTime doit etre supérieur à 0"));
+
+        if (this->voltageCorrection() <= 0.0)
+            throw QException(tr("Le voltage correction doit etre supérieur à 0"));
+
+        if (this->protoWheelPerimeter() <= 0.0)
+            throw QException(tr("Le périmètre de la roue du prototype doit "
+                                "etre supérieure à 0"));
 
         if (this->fuelName().isEmpty())
             throw QException(tr("Vous devez choisir un type de carburant"));

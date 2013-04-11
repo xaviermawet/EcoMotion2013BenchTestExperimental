@@ -6,16 +6,20 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>600</width>
-    <height>156</height>
+    <width>638</width>
+    <height>395</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Paramétrer l'importation des données</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="../Resources.qrc">
+    <normaloff>:/Icons/Resources/Icons/download.png</normaloff>:/Icons/Resources/Icons/download.png</iconset>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <layout class="QGridLayout" name="mainGridLayout">
+    <layout class="QGridLayout" name="gridLayout">
      <item row="0" column="0">
       <widget class="QLabel" name="testNameLabel">
        <property name="text">
@@ -23,91 +27,216 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="inertieLabel">
-       <property name="text">
-        <string>Inertie :</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="0">
-      <widget class="QLabel" name="fuelTypeLabelLabel">
-       <property name="text">
-        <string>Type de carburant :</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="1" colspan="2">
-      <widget class="QPushButton" name="addFuelPushButton">
-       <property name="text">
-        <string>Ajouter un type de carburant</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1" colspan="4">
+     <item row="0" column="1">
       <widget class="QLineEdit" name="testNameLineEdit"/>
      </item>
-     <item row="1" column="1" colspan="4">
-      <widget class="QDoubleSpinBox" name="inertieDoubleSpinBox">
-       <property name="accelerated">
-        <bool>true</bool>
-       </property>
-       <property name="suffix">
-        <string> kg.m²</string>
-       </property>
-       <property name="decimals">
-        <number>3</number>
-       </property>
-       <property name="maximum">
-        <double>100.000000000000000</double>
-       </property>
-       <property name="singleStep">
-        <double>0.010000000000000</double>
-       </property>
-       <property name="value">
-        <double>0.220000000000000</double>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="3" colspan="2">
-      <widget class="QPushButton" name="deleteFuelPushButton">
-       <property name="text">
-        <string>Supprimer le type de carburant courant</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="1" colspan="2">
-      <widget class="QComboBox" name="fuelTypeComboBox"/>
-     </item>
-     <item row="2" column="3" colspan="2">
-      <widget class="QDoubleSpinBox" name="fuelDensityDoubleSpinBox">
-       <property name="accelerated">
-        <bool>true</bool>
-       </property>
-       <property name="prefix">
-        <string>Masse volumique </string>
-       </property>
-       <property name="suffix">
-        <string> g/cm³</string>
-       </property>
-       <property name="decimals">
-        <number>3</number>
-       </property>
-       <property name="minimum">
-        <double>0.001000000000000</double>
-       </property>
-       <property name="maximum">
-        <double>1000.000000000000000</double>
-       </property>
-       <property name="singleStep">
-        <double>0.010000000000000</double>
-       </property>
-       <property name="value">
-        <double>0.001000000000000</double>
-       </property>
-      </widget>
-     </item>
     </layout>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="benchGroupBox">
+     <property name="title">
+      <string>Paramètres du banc d'essai</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_4">
+      <item row="0" column="0" rowspan="2">
+       <widget class="QLabel" name="inertieLabel">
+        <property name="text">
+         <string>Inertie :</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QDoubleSpinBox" name="inertieDoubleSpinBox">
+        <property name="accelerated">
+         <bool>true</bool>
+        </property>
+        <property name="suffix">
+         <string> kg.m²</string>
+        </property>
+        <property name="decimals">
+         <number>3</number>
+        </property>
+        <property name="maximum">
+         <double>100.000000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>0.010000000000000</double>
+        </property>
+        <property name="value">
+         <double>0.220000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1" rowspan="2">
+       <widget class="QDoubleSpinBox" name="rollerPerimeterDoubleSpinBox">
+        <property name="accelerated">
+         <bool>true</bool>
+        </property>
+        <property name="suffix">
+         <string> cm</string>
+        </property>
+        <property name="decimals">
+         <number>3</number>
+        </property>
+        <property name="maximum">
+         <double>1000.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="rollerPerimeterLabel">
+        <property name="text">
+         <string>Périmètre du rouleau :</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="megasquirtGroupBox">
+     <property name="title">
+      <string>Paramètres Megasquirt</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_3">
+      <item row="1" column="0">
+       <widget class="QLabel" name="voltageCorrectionLabel">
+        <property name="text">
+         <string>Voltage correction (à 13,2v) :</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="deadTimeLabel">
+        <property name="text">
+         <string>Dead time (à 13,2v) :</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QDoubleSpinBox" name="voltageCorrectionDoubleSpinBox">
+        <property name="accelerated">
+         <bool>true</bool>
+        </property>
+        <property name="suffix">
+         <string> ms/v</string>
+        </property>
+        <property name="decimals">
+         <number>3</number>
+        </property>
+        <property name="maximum">
+         <double>1000.000000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>0.010000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QDoubleSpinBox" name="deadTimeDoubleSpinBox">
+        <property name="accelerated">
+         <bool>true</bool>
+        </property>
+        <property name="suffix">
+         <string> ms</string>
+        </property>
+        <property name="decimals">
+         <number>3</number>
+        </property>
+        <property name="maximum">
+         <double>1000.000000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>0.010000000000000</double>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="prototypeGroupBox">
+     <property name="title">
+      <string>Paramètres prototype</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="0" column="0">
+       <widget class="QLabel" name="protoWheelPerimeterLabel">
+        <property name="text">
+         <string>Périmètre de la roue :</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1" colspan="2">
+       <widget class="QDoubleSpinBox" name="protoWheelPerimeterDoubleSpinBox">
+        <property name="accelerated">
+         <bool>true</bool>
+        </property>
+        <property name="suffix">
+         <string> cm</string>
+        </property>
+        <property name="decimals">
+         <number>3</number>
+        </property>
+        <property name="maximum">
+         <double>1000.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="fuelTypeLabelLabel">
+        <property name="text">
+         <string>Type de carburant :</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QComboBox" name="fuelTypeComboBox"/>
+      </item>
+      <item row="1" column="2">
+       <widget class="QDoubleSpinBox" name="fuelDensityDoubleSpinBox">
+        <property name="accelerated">
+         <bool>true</bool>
+        </property>
+        <property name="prefix">
+         <string>Masse volumique </string>
+        </property>
+        <property name="suffix">
+         <string> g/l</string>
+        </property>
+        <property name="decimals">
+         <number>3</number>
+        </property>
+        <property name="minimum">
+         <double>0.001000000000000</double>
+        </property>
+        <property name="maximum">
+         <double>1000.000000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>0.010000000000000</double>
+        </property>
+        <property name="value">
+         <double>0.001000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QPushButton" name="addFuelPushButton">
+        <property name="text">
+         <string>Ajouter un type de carburant</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="2">
+       <widget class="QPushButton" name="deleteFuelPushButton">
+        <property name="text">
+         <string>Supprimer le type de carburant courant</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
    </item>
    <item>
     <widget class="QDialogButtonBox" name="buttonBox">
@@ -118,7 +247,9 @@
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="../Resources.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>buttonBox</sender>

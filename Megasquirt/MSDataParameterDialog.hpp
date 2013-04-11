@@ -25,14 +25,22 @@ class MSDataParameterDialog : public QDialog
         virtual ~MSDataParameterDialog(void);
 
         // Getters
+        QString testName(void) const;
         double  inertia(void) const;
+        double  rollerPerimeter(void) const;
+        double  deadTime(void) const;
+        double  voltageCorrection(void) const;
+        double  protoWheelPerimeter(void) const;
         QString fuelName(void) const;
         double  fuelDensity(void) const;
-        QString testName(void) const;
 
         // Setters
-        void setInertia(double inertia);
         void setTestName(QString const& testName);
+        void setInertia(double inertia);
+        void setRollerPerimeter(double perimeter);
+        void setDeadTime(double deadTime);
+        void setVoltageCorrection(double voltageCorrection);
+        void setProtoWheelPerimeter(double protoWheelPerimeter);
         void addFuel(QString const& name, double density);
 
     protected:
@@ -52,7 +60,7 @@ class MSDataParameterDialog : public QDialog
 
         Ui::MSDataParameterDialog* ui;
 
-        QMap<QString, double> _fuels; // fuel name - fuel density (g/cm³)
+        QMap<QString, double> _fuels; // fuel name - fuel density (g/l)
 };
 
 #endif /* __MSDATAPARAMETERDIALOG_HPP__ */
