@@ -1,20 +1,19 @@
 #ifndef __DOUBLEYAXISPLOT_HPP__
 #define __DOUBLEYAXISPLOT_HPP__
 
-#include "Plot.hpp"
-#include "Zoomer.hpp"
+#include "AbstractDoubleAxisPlot.hpp"
 #include <qwt_plot_rescaler.h>
 
-class DoubleYAxisPlot : public Plot
+class DoubleYAxisPlot : public AbstractDoubleAxisPlot
 {
     Q_OBJECT
 
     public:
 
-        explicit DoubleYAxisPlot(QString const& title, double aspectRatio,
-                                 QWidget* parent = NULL);
-        explicit DoubleYAxisPlot(QwtText const& title, double aspectRatio,
-                                 QWidget* parent = NULL);
+        explicit DoubleYAxisPlot(
+            QString const& title, double aspectRatio, QWidget* parent = NULL);
+        explicit DoubleYAxisPlot(
+            QwtText const& title, double aspectRatio, QWidget* parent = NULL);
 
         virtual ~DoubleYAxisPlot(void);
 
@@ -23,7 +22,6 @@ class DoubleYAxisPlot : public Plot
     protected:
 
         double  _ratio;
-        Zoomer* _yRightZoomer;
         QwtPlotRescaler* _yRescaler;
 };
 
