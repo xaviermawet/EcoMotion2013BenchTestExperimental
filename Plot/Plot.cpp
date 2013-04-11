@@ -7,8 +7,9 @@ Plot::Plot(const QString& title, QWidget* parent) :
 }
 
 Plot::Plot(const QwtText& title, QWidget* parent) :
-    QwtPlot(title, parent), _legend(NULL), _grid(NULL), _crossLine(NULL),
-    _panner(NULL), _xBottomYLeftZoomer(NULL), _magnifier(NULL)
+    QwtPlot(title, parent), _legend(NULL), _grid(NULL),
+    _crossLine(NULL), _panner(NULL), _xBottomYLeftZoomer(NULL),
+    _magnifier(NULL), _labelWasVisible(false)
 {
     this->setAutoReplot(false);
 

@@ -111,7 +111,7 @@ void MainWindow::createMegasquirtDataPlotZone(void)
 void MainWindow::createCouplePowerPlotZone(void)
 {
     this->couplePowerPlot = new DoubleYAxisPlot(
-                "Couple - Puissance", 0.01, this);
+                tr("Couple - Puissance"), 0.01, this);
     this->couplePowerPlot->setAxisTitle(Plot::yLeft, tr("Couple (N.m)"));;
     this->couplePowerPlot->setAxisTitle(Plot::yRight, tr("Puissance (W)"));
     this->couplePowerPlot->setAxisTitle(
