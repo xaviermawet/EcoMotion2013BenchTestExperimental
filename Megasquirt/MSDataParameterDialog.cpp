@@ -60,6 +60,11 @@ double MSDataParameterDialog::protoWheelPerimeter(void) const
     return this->ui->protoWheelPerimeterDoubleSpinBox->value();
 }
 
+double MSDataParameterDialog::injectorVolumetricFlowRate(void) const
+{
+    return this->ui->injectorVolumetricFlowRateDoubleSpinBox->value();
+}
+
 QString MSDataParameterDialog::fuelName(void) const
 {
     return this->ui->fuelTypeComboBox->currentText();
@@ -100,6 +105,13 @@ void MSDataParameterDialog::setProtoWheelPerimeter(double protoWheelPerimeter)
     this->ui->protoWheelPerimeterDoubleSpinBox->setValue(protoWheelPerimeter);
 }
 
+void MSDataParameterDialog::setInjectorVolumetricFlowRate(
+        double volumetricFlowRate)
+{
+    this->ui->injectorVolumetricFlowRateDoubleSpinBox->setValue(
+                volumetricFlowRate);
+}
+
 /* If there is already an item with this fuel,
  * that item's density is replaced by the new value */
 void MSDataParameterDialog::addFuel(const QString &name, double density)
@@ -120,6 +132,8 @@ void MSDataParameterDialog::readSettings(void)
                 settings.value("voltageCorrection", 0.0).toDouble());
     this->setProtoWheelPerimeter(
                 settings.value("protoWheelPerimeter", 0.0).toDouble());
+    this->setInjectorVolumetricFlowRate(
+                settings.value("injectorVolumetricFlowRate", 0.0).toDouble());
 
     // Restore fuel list
     settings.beginGroup("fuel");
@@ -147,6 +161,8 @@ void MSDataParameterDialog::writeSettings(void) const
     settings.setValue("deadTime", this->deadTime());
     settings.setValue("voltageCorrection", this->voltageCorrection());
     settings.setValue("protoWheelPerimeter", this->protoWheelPerimeter());
+    settings.setValue("injectorVolumetricFlowRate",
+                      this->injectorVolumetricFlowRate());
 
         // Save fuel list
         settings.beginGroup("fuel");
@@ -251,8 +267,10 @@ void MSDataParameterDialog::on_buttonBox_accepted(void)
             throw QException(tr("Le voltage correction doit etre supérieur à 0"));
 
         if (this->protoWheelPerimeter() <= 0.0)
-            throw QException(tr("Le périmètre de la roue du prototype doit "
-                                "etre supérieure à 0"));
+            throw QException(tr("Le périmètre de la roue du prototype doit etre supérieure à 0"));
+
+        if (this->injectorVolumetricFlowRate() <= 0)
+            throw QException(tr("Le débit de l'injecteur doit etre supérieur à 0"));
 
         if (this->fuelName().isEmpty())
             throw QException(tr("Vous devez choisir un type de carburant"));

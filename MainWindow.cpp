@@ -399,10 +399,15 @@ void MainWindow::getTimesFromCSV(QVector<double>& timeValues,
                          QObject::tr(" ne contient pas assez de valeurs"));
 }
 
-void MainWindow::createCoupleAndPowerCurves(QVector<double> const& inertieTimes)
+void MainWindow::createCoupleAndPowerCurves(QVector<double> const& inertieTimes,
+                                            MSDataParameterDialog const& param)
 {
-    const double PI = 3.14159265358979323846;
-    const double Jdelta = 0.22; // FIXME : demander à l'utilisateur de rentrer la valeur
+    // Constants
+    const double PI       = 3.14159265358979323846;
+    const double Jdelta   = param.inertia();
+    const double deadTime = param.deadTime();
+    const double voltCorr = param.voltageCorrection();
+    const double injectorFlowRate = param.injectorVolumetricFlowRate() / 60000;
 
     double angularSpeed_a, angularSpeed_b;
     double ta_average, tb_average;
@@ -414,7 +419,6 @@ void MainWindow::createCoupleAndPowerCurves(QVector<double> const& inertieTimes)
     QVector<QPointF> powerPoints;
     QVector<QPointF> couplePoints;
     QVector<QPointF> specificPowerPoints;
-
     QVector<QPointF> reductionRatioPoints;
 
     /* ---------------------------------------------------------------------- *
@@ -500,7 +504,7 @@ void MainWindow::createCoupleAndPowerCurves(QVector<double> const& inertieTimes)
 
         double pw       = this->benchParser.row(indiceMS).at(1).toDouble(); // ms
         double battVolt = this->benchParser.row(indiceMS).at(3).toDouble(); // v
-        double tempsInjection = pw - (1.011 + (0.115 *(13.2 - battVolt)));  // ms
+        double tempsInjection = pw - (deadTime + (voltCorr *(13.2 - battVolt)));  // ms
 
         qDebug() << "pw (ms)      = " << pw;
         qDebug() << "battVolt (v) = " << battVolt;
@@ -511,8 +515,7 @@ void MainWindow::createCoupleAndPowerCurves(QVector<double> const& inertieTimes)
      *                                         /                              *
      *                            (4 * π * couple * 1000)                     *
      * ---------------------------------------------------------------------- */
-        // 30 / 60000 == débit // TODO le demander à l'utilisateur
-        double quantiteInjectee = (30.0 / 60000) * tempsInjection;
+        double quantiteInjectee = injectorFlowRate * tempsInjection;
         qDebug() << "Quantité injectée = " << quantiteInjectee;
 
         specificPower = (3600000 * quantiteInjectee) / (4 * PI * couple * 1000);
@@ -539,7 +542,8 @@ void MainWindow::createCoupleAndPowerCurves(QVector<double> const& inertieTimes)
 
     // Create power curve
     QwtPointSeriesData* powerSerieData = new QwtPointSeriesData(powerPoints);
-    PlotCurve* powerCurve = new PlotCurve(tr("Puissance"), QPen(Qt::darkBlue)); // TODO : ajouter le nom de l'essai (par défaut, le nom du dossier)
+    PlotCurve* powerCurve = new PlotCurve(
+                tr("Puissance ") + param.testName(), QPen(Qt::darkBlue));
     powerCurve->setData(powerSerieData);
     powerCurve->setAxes(Plot::xTop, Plot::yRight);
     powerCurve->attach(this->couplePowerPlot);
@@ -548,8 +552,8 @@ void MainWindow::createCoupleAndPowerCurves(QVector<double> const& inertieTimes)
     // Create specificPower curve
     QwtPointSeriesData* specificPowerSerieData =
             new QwtPointSeriesData(specificPowerPoints);
-    PlotCurve* specificPowerCurve = new PlotCurve(tr("Puissance spécifique"),
-                                                  QPen(Qt::darkBlue)); // TODO : ajouter le nom de l'essai (par défaut, le nom du dossier)
+    PlotCurve* specificPowerCurve = new PlotCurve(
+              tr("Puissance spécifique ") + param.testName(),QPen(Qt::darkBlue));
     specificPowerCurve->setData(specificPowerSerieData);
     specificPowerCurve->setAxes(Plot::xTop, Plot::yRight);
     specificPowerCurve->attach(this->coupleSpecificPowerPlot);
@@ -557,7 +561,8 @@ void MainWindow::createCoupleAndPowerCurves(QVector<double> const& inertieTimes)
 
     // Create couple curve for couplePowerPlot
     QwtPointSeriesData* coupleSerieData1 = new QwtPointSeriesData(couplePoints);
-    PlotCurve* coupleCurve1 = new PlotCurve(tr("Couple"), QPen(Qt::darkRed)); // TODO : ajouter le nom de l'essai (par défaut, le nom du dossier)
+    PlotCurve* coupleCurve1 = new PlotCurve(
+                tr("Couple ") + param.testName(), QPen(Qt::darkRed));
     coupleCurve1->setData(coupleSerieData1);
     coupleCurve1->attach(this->couplePowerPlot);
     this->setPlotCurveVisibile(coupleCurve1, true);
@@ -565,7 +570,8 @@ void MainWindow::createCoupleAndPowerCurves(QVector<double> const& inertieTimes)
 
     // Create couple curve for coupleSpecificPowerPlot
     QwtPointSeriesData* coupleSerieData2 = new QwtPointSeriesData(couplePoints);
-    PlotCurve* coupleCurve2 = new PlotCurve(tr("Couple"), QPen(Qt::darkRed)); // TODO : ajouter le nom de l'essai (par défaut, le nom du dossier)
+    PlotCurve* coupleCurve2 = new PlotCurve(
+                tr("Couple ") + param.testName(), QPen(Qt::darkRed));
     coupleCurve2->setData(coupleSerieData2);
     coupleCurve2->attach(this->coupleSpecificPowerPlot);
     this->setPlotCurveVisibile(coupleCurve2, true);
@@ -573,7 +579,8 @@ void MainWindow::createCoupleAndPowerCurves(QVector<double> const& inertieTimes)
 
     // Create couple curve for coupleSpecificPowerPlot
     QwtPointSeriesData* reductionRatioSerieData2 = new QwtPointSeriesData(reductionRatioPoints);
-    PlotCurve* reductionRatioCurve = new PlotCurve(tr("i"), QPen(Qt::darkRed)); // TODO : ajouter le nom de l'essai (par défaut, le nom du dossier)
+    PlotCurve* reductionRatioCurve = new PlotCurve(
+                tr("i ") + param.testName(), QPen(Qt::darkRed));
     reductionRatioCurve->setData(reductionRatioSerieData2);
     reductionRatioCurve->attach(this->reductionRatioPlot);
     this->setPlotCurveVisibile(reductionRatioCurve, true);
@@ -637,7 +644,7 @@ void MainWindow::on_actionImportData_triggered(void)
     /* ---------------------------------------------------------------------- *
      *                             Create curves                              *
      * ---------------------------------------------------------------------- */
-        this->createCoupleAndPowerCurves(inertieTimes);
+        this->createCoupleAndPowerCurves(inertieTimes, importParamDial);
     }
     catch(QException const& ex)
     {

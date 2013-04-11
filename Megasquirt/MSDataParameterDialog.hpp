@@ -31,6 +31,7 @@ class MSDataParameterDialog : public QDialog
         double  deadTime(void) const;
         double  voltageCorrection(void) const;
         double  protoWheelPerimeter(void) const;
+        double  injectorVolumetricFlowRate(void) const;
         QString fuelName(void) const;
         double  fuelDensity(void) const;
 
@@ -41,6 +42,7 @@ class MSDataParameterDialog : public QDialog
         void setDeadTime(double deadTime);
         void setVoltageCorrection(double voltageCorrection);
         void setProtoWheelPerimeter(double protoWheelPerimeter);
+        void setInjectorVolumetricFlowRate(double volumetricFlowRate);
         void addFuel(QString const& name, double density);
 
     protected:

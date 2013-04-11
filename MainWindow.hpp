@@ -68,7 +68,8 @@ class MainWindow : public QMainWindow
         QDir getMegasquirtDataFolder(void);
         void getTimesFromCSV(QVector<double>& timeValues,
                              QString const& csvFilePath) const;
-        void createCoupleAndPowerCurves(QVector<double> const& inertieTimes);
+        void createCoupleAndPowerCurves(QVector<double> const& inertieTimes,
+                                        MSDataParameterDialog const& param);
 
     private slots:
 
