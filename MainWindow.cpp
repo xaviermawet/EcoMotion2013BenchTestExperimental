@@ -537,7 +537,7 @@ void MainWindow::createCoupleAndPowerCurves(QVector<double> const& inertieTimes,
         specificPowerPoints.append(QPointF(rpm_b, specificPower));
 
         reductionRatioPoints.append(
-            QPointF(rpm_b, benchParser.row(indiceMS).at(1).toDouble() / rpm_b));
+            QPointF(rpm_b, benchParser.row(indiceMS).at(2).toDouble() / rpm_b));
     }
 
     // Create power curve
