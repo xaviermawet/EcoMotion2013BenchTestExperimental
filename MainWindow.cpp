@@ -162,11 +162,14 @@ void MainWindow::createCoupleSpecificPowerPlotZone(void)
 
 void MainWindow::createReductionRatioPlotZone(void)
 {
-    this->reductionRatioPlot = new Plot("Rapport de réduction", this);
-    this->reductionRatioPlot->setAxisTitle(Plot::yLeft,
-                                           "i (rapport de réduction)");
-    this->reductionRatioPlot->setAxisTitle(Plot::xBottom,
-                               "Tours par minute du moteur (tr/min)");
+    this->reductionRatioPlot = new DoubleXAxisPlot(
+                tr("Rapport de réduction"), 2, this);
+    this->reductionRatioPlot->setAxisTitle(
+                Plot::yLeft, tr("i (rapport de réduction)"));
+    this->reductionRatioPlot->setAxisTitle(
+                Plot::xBottom, tr("Tours par minute du moteur (tr/min)"));
+    this->reductionRatioPlot->setAxisTitle(
+                Plot::xTop, tr("Tours par minute du rouleau (tr/min)"));
 
     this->ui->reductionRatioHLayout->addWidget(this->reductionRatioPlot);
 
@@ -419,7 +422,8 @@ void MainWindow::createCoupleAndPowerCurves(QVector<double> const& inertieTimes,
     QVector<QPointF> powerPoints;
     QVector<QPointF> couplePoints;
     QVector<QPointF> specificPowerPoints;
-    QVector<QPointF> reductionRatioPoints;
+    QVector<QPointF> reductionRatioPoints1;
+    QVector<QPointF> reductionRatioPoints2;
 
     /* ---------------------------------------------------------------------- *
      *                           ωa = 2π / (t2 - t1)                          *
@@ -536,8 +540,13 @@ void MainWindow::createCoupleAndPowerCurves(QVector<double> const& inertieTimes,
         couplePoints.append(QPointF(rpm_b, couple));
         specificPowerPoints.append(QPointF(rpm_b, specificPower));
 
-        reductionRatioPoints.append(
-            QPointF(rpm_b, benchParser.row(indiceMS).at(2).toDouble() / rpm_b));
+        reductionRatioPoints1.append(
+                   QPointF(rpm_b,
+                           benchParser.row(indiceMS).at(2).toDouble() / rpm_b));
+        reductionRatioPoints2.append(
+                   QPointF(benchParser.row(indiceMS).at(2).toDouble(),
+                           benchParser.row(indiceMS).at(2).toDouble() / rpm_b));
+
     }
 
     // Create power curve
@@ -577,14 +586,24 @@ void MainWindow::createCoupleAndPowerCurves(QVector<double> const& inertieTimes,
     this->setPlotCurveVisibile(coupleCurve2, true);
     this->coupleSpecificPowerPlot->zoom(coupleCurve2);
 
-    // Create couple curve for coupleSpecificPowerPlot
-    QwtPointSeriesData* reductionRatioSerieData2 = new QwtPointSeriesData(reductionRatioPoints);
-    PlotCurve* reductionRatioCurve = new PlotCurve(
-                tr("i ") + param.testName(), QPen(Qt::darkRed));
-    reductionRatioCurve->setData(reductionRatioSerieData2);
-    reductionRatioCurve->attach(this->reductionRatioPlot);
-    this->setPlotCurveVisibile(reductionRatioCurve, true);
-    this->reductionRatioPlot->zoom(reductionRatioCurve);
+    // Create reduction ratio curve for reductionRatioPlot
+    QwtPointSeriesData* reductionRatioSerieData1 = new QwtPointSeriesData(reductionRatioPoints1);
+    PlotCurve* reductionRatioCurve1 = new PlotCurve(
+                tr("i rouleau ") + param.testName(), QPen(Qt::darkBlue));
+    reductionRatioCurve1->setData(reductionRatioSerieData1);
+    reductionRatioCurve1->setAxes(Plot::xTop, Plot::yLeft);
+    reductionRatioCurve1->attach(this->reductionRatioPlot);
+    this->setPlotCurveVisibile(reductionRatioCurve1, true);
+    this->reductionRatioPlot->zoom(reductionRatioCurve1);
+
+    // Create reduction ratio curve for reductionRatioPlot
+    QwtPointSeriesData* reductionRatioSerieData2 = new QwtPointSeriesData(reductionRatioPoints2);
+    PlotCurve* reductionRatioCurve2 = new PlotCurve(
+                tr("i moteur ") + param.testName(), QPen(Qt::darkRed));
+    reductionRatioCurve2->setData(reductionRatioSerieData2);
+    reductionRatioCurve2->attach(this->reductionRatioPlot);
+    this->setPlotCurveVisibile(reductionRatioCurve2, true);
+    this->reductionRatioPlot->zoom(reductionRatioCurve2);
 }
 
 void MainWindow::on_actionImportData_triggered(void)

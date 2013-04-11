@@ -8,7 +8,7 @@ Plot::Plot(const QString& title, QWidget* parent) :
 
 Plot::Plot(const QwtText& title, QWidget* parent) :
     QwtPlot(title, parent), _legend(NULL), _grid(NULL), _crossLine(NULL),
-    _panner(NULL), _yLeftZoomer(NULL), _magnifier(NULL)
+    _panner(NULL), _xBottomYLeftZoomer(NULL), _magnifier(NULL)
 {
     this->setAutoReplot(false);
 
@@ -55,13 +55,13 @@ Plot::Plot(const QwtText& title, QWidget* parent) :
      * Ctrl + Righ button        : zoom out to full size                      *
      * Mouse wheel or Ctrl + +/- : zoom in/out by 1                           *
      * ---------------------------------------------------------------------- */
-    this->_yLeftZoomer = new Zoomer(this->canvas());
+    this->_xBottomYLeftZoomer = new Zoomer(this->canvas());
 
     // Display coordinates at mouse position every time
-    this->_yLeftZoomer->setTrackerMode(QwtPicker::AlwaysOn);
+    this->_xBottomYLeftZoomer->setTrackerMode(QwtPicker::AlwaysOn);
 
     // Allow to zoom with left button by dragging a rect
-    this->_yLeftZoomer->setRubberBand(QwtPicker::RectRubberBand);
+    this->_xBottomYLeftZoomer->setRubberBand(QwtPicker::RectRubberBand);
 
 
     // Manage zoom with the mouse wheel and keyborad
@@ -86,7 +86,7 @@ Plot::~Plot(void)
     delete this->_grid;
     delete this->_crossLine;
     delete this->_panner;
-    delete this->_yLeftZoomer;
+    delete this->_xBottomYLeftZoomer;
     delete this->_magnifier;
 
     qDebug() << "Plot (" << this->objectName() << ") fin destructeur";
@@ -95,7 +95,7 @@ Plot::~Plot(void)
 void Plot::zoom(const QRectF& zoomRectF)
 {
     this->_magnifier->restoreScale();
-    this->_yLeftZoomer->zoom(zoomRectF);
+    this->_xBottomYLeftZoomer->zoom(zoomRectF);
 }
 
 void Plot::zoom(const QwtPlotItem* item)
@@ -117,7 +117,7 @@ bool Plot::isCrossLineVisible(void) const
 
 bool Plot::isLabelPositionVisible(void) const
 {
-    return this->_yLeftZoomer->trackerMode() == QwtPlotPicker::AlwaysOn;
+    return this->_xBottomYLeftZoomer->trackerMode() == QwtPlotPicker::AlwaysOn;
 }
 
 QwtPlotGrid* Plot::grid(void) const
@@ -132,7 +132,7 @@ QwtPlotMarker* Plot::crossLine(void) const
 
 Zoomer* Plot::zoomer(void) const
 {
-    return this->_yLeftZoomer;
+    return this->_xBottomYLeftZoomer;
 }
 
 void Plot::setGridVisible(bool visible)
@@ -147,7 +147,7 @@ void Plot::setCrossLineVisible(bool visible)
     {
         // Change cross line visibility
         this->_crossLine->attach(this);
-        connect(this->_yLeftZoomer, SIGNAL(mousePosChanged(QPointF)),
+        connect(this->_xBottomYLeftZoomer, SIGNAL(mousePosChanged(QPointF)),
                 this, SLOT(updateCrossLinePosition(QPointF)));
 
         // Save the previous label visibility
@@ -158,7 +158,7 @@ void Plot::setCrossLineVisible(bool visible)
     {
         // Change cross line visibility
         this->_crossLine->detach();
-        disconnect(this->_yLeftZoomer, SIGNAL(mousePosChanged(QPointF)),
+        disconnect(this->_xBottomYLeftZoomer, SIGNAL(mousePosChanged(QPointF)),
                    this, SLOT(updateCrossLinePosition(QPointF)));
 
         // Restore the previous label visibility
@@ -172,14 +172,14 @@ void Plot::setLabelPositionVisible(bool visible)
 {
     if (visible)
     {
-        this->_yLeftZoomer->setTrackerMode(QwtPicker::AlwaysOn);
+        this->_xBottomYLeftZoomer->setTrackerMode(QwtPicker::AlwaysOn);
     }
     else
     {
         if (this->isCrossLineVisible())
             return;
 
-        this->_yLeftZoomer->setTrackerMode(QwtPicker::AlwaysOff);
+        this->_xBottomYLeftZoomer->setTrackerMode(QwtPicker::AlwaysOff);
     }
 
     this->replot();

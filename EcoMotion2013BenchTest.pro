@@ -30,7 +30,9 @@ SOURCES += main.cpp\
     Plot/PlotCurve.cpp \
     Plot/PlotMagnifier.cpp \
     Plot/DoubleYAxisPlot.cpp \
-    polifitgsl.cpp
+    polifitgsl.cpp \
+    Plot/AbstractDoubleAxisPlot.cpp \
+    Plot/DoubleXAxisPlot.cpp
 
 HEADERS  += MainWindow.hpp \
     Plot/Plot.hpp \
@@ -45,7 +47,9 @@ HEADERS  += MainWindow.hpp \
     Plot/PlotCurve.hpp \
     Plot/PlotMagnifier.hpp \
     Plot/DoubleYAxisPlot.hpp \
-    polifitgsl.hpp
+    polifitgsl.hpp \
+    Plot/AbstractDoubleAxisPlot.hpp \
+    Plot/DoubleXAxisPlot.hpp
 
 FORMS    += MainWindow.ui \
     Megasquirt/MSFileConverterDialog.ui \

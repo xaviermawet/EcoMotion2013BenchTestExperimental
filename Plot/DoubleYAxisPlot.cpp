@@ -51,7 +51,7 @@ void DoubleYAxisPlot::zoom(const QwtPlotItem* item)
 
     if (item->yAxis() == yLeft)
     {
-        this->_yLeftZoomer->zoom(rect);
+        this->_xBottomYLeftZoomer->zoom(rect);
 
         topLeft.setY(topLeft.y() / this->_ratio);
         bottomRight.setY(bottomRight.y() / this->_ratio);
@@ -63,7 +63,7 @@ void DoubleYAxisPlot::zoom(const QwtPlotItem* item)
 
         topLeft.setY(topLeft.y() * this->_ratio);
         bottomRight.setY(bottomRight.y() * this->_ratio);
-        this->_yLeftZoomer->zoom(QRectF(topLeft, bottomRight));
+        this->_xBottomYLeftZoomer->zoom(QRectF(topLeft, bottomRight));
     }
 
     //this->_magnifier->restoreScale();

@@ -9,6 +9,8 @@
 
 #include "Plot/Plot.hpp"
 #include "Plot/DoubleYAxisPlot.hpp"
+#include "Plot/AbstractDoubleAxisPlot.hpp"
+#include "Plot/DoubleXAxisPlot.hpp"
 #include "Plot/PlotCurve.hpp"
 #include "Utils/QException.hpp"
 #include "Utils/QCSVParser.hpp"
@@ -114,7 +116,7 @@ class MainWindow : public QMainWindow
         // Bench test plots
         DoubleYAxisPlot* couplePowerPlot;
         DoubleYAxisPlot* coupleSpecificPowerPlot;
-        Plot* reductionRatioPlot;
+        DoubleXAxisPlot* reductionRatioPlot;
         Plot* distancePlot;
         QCSVParser benchParser;
 

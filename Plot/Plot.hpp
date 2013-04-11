@@ -56,7 +56,7 @@ class Plot : public QwtPlot
         QwtPlotGrid*   _grid;
         QwtPlotMarker* _crossLine;
         QwtPlotPanner* _panner;
-        Zoomer*        _yLeftZoomer;
+        Zoomer*        _xBottomYLeftZoomer;
         PlotMagnifier* _magnifier;
 
         bool           _labelWasVisible;
