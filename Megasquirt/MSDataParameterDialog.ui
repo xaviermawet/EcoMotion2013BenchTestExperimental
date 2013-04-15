@@ -19,11 +19,11 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QGroupBox" name="groupBox">
+    <widget class="QGroupBox" name="mainParametersGroupBox">
      <property name="title">
       <string>Paramètres généraux</string>
      </property>
-     <layout class="QGridLayout" name="gridLayout">
+     <layout class="QGridLayout" name="mainParametersGridLayout">
       <item row="0" column="0">
        <widget class="QLabel" name="testNameLabel">
         <property name="text">
@@ -35,7 +35,7 @@
        <widget class="QLineEdit" name="testNameLineEdit"/>
       </item>
       <item row="1" column="1">
-       <widget class="QCheckBox" name="checkBox">
+       <widget class="QCheckBox" name="testPerformedWithPrototypeCheckBox">
         <property name="text">
          <string>L'essai est réalisé avec le prototype sur le banc</string>
         </property>
@@ -49,7 +49,7 @@
      <property name="title">
       <string>Paramètres du banc d'essai</string>
      </property>
-     <layout class="QGridLayout" name="gridLayout_4">
+     <layout class="QGridLayout" name="benchGridLayout">
       <item row="0" column="0">
        <widget class="QLabel" name="inertieLabel">
         <property name="text">
@@ -80,14 +80,14 @@
        </widget>
       </item>
       <item row="1" column="0">
-       <widget class="QLabel" name="rollerPerimeterLabel">
+       <widget class="QLabel" name="benchWheelPerimeterLabel">
         <property name="text">
          <string>Périmètre du rouleau :</string>
         </property>
        </widget>
       </item>
       <item row="1" column="1">
-       <widget class="QDoubleSpinBox" name="rollerPerimeterDoubleSpinBox">
+       <widget class="QDoubleSpinBox" name="benchWheelPerimeterDoubleSpinBox">
         <property name="accelerated">
          <bool>true</bool>
         </property>
@@ -103,14 +103,14 @@
        </widget>
       </item>
       <item row="2" column="0">
-       <widget class="QLabel" name="label">
+       <widget class="QLabel" name="benchWheelGearTeethLabel">
         <property name="text">
          <string>Nombre de dents du pignon du rouleau :</string>
         </property>
        </widget>
       </item>
       <item row="2" column="1">
-       <widget class="QSpinBox" name="spinBox"/>
+       <widget class="QSpinBox" name="benchWheelGearTeethSpinBox"/>
       </item>
      </layout>
     </widget>
@@ -120,7 +120,7 @@
      <property name="title">
       <string>Paramètres moteur - Megasquirt</string>
      </property>
-     <layout class="QGridLayout" name="gridLayout_2">
+     <layout class="QGridLayout" name="megasquirtGridLayout">
       <item row="0" column="0">
        <widget class="QLabel" name="deadTimeLabel">
         <property name="text">
@@ -197,14 +197,14 @@
        </widget>
       </item>
       <item row="3" column="0">
-       <widget class="QLabel" name="label_2">
+       <widget class="QLabel" name="engineGearTeethLabel">
         <property name="text">
          <string>Nombre de dents du pignion moteur :</string>
         </property>
        </widget>
       </item>
       <item row="3" column="1" colspan="2">
-       <widget class="QSpinBox" name="spinBox_3"/>
+       <widget class="QSpinBox" name="engineGearTeethSpinBox"/>
       </item>
       <item row="4" column="0">
        <widget class="QLabel" name="fuelTypeLabelLabel">
@@ -266,7 +266,7 @@
      <property name="title">
       <string>Paramètres prototype</string>
      </property>
-     <layout class="QGridLayout" name="gridLayout_3">
+     <layout class="QGridLayout" name="prototypeGridLayout">
       <item row="0" column="0">
        <widget class="QLabel" name="protoWheelPerimeterLabel">
         <property name="text">
@@ -291,14 +291,14 @@
        </widget>
       </item>
       <item row="1" column="0">
-       <widget class="QLabel" name="label_3">
+       <widget class="QLabel" name="protoWheelGearTeethLabel">
         <property name="text">
          <string>Nombre de dents du pignon de la roue :</string>
         </property>
        </widget>
       </item>
       <item row="1" column="1">
-       <widget class="QSpinBox" name="spinBox_2"/>
+       <widget class="QSpinBox" name="protoWheelGearTeethSpinBox"/>
       </item>
      </layout>
     </widget>

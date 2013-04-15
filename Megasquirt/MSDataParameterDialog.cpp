@@ -40,9 +40,9 @@ double MSDataParameterDialog::inertia(void) const
     return this->ui->inertieDoubleSpinBox->value();
 }
 
-double MSDataParameterDialog::rollerPerimeter(void) const
+double MSDataParameterDialog::benchWheelPerimeter(void) const
 {
-    return this->ui->rollerPerimeterDoubleSpinBox->value();
+    return this->ui->benchWheelPerimeterDoubleSpinBox->value();
 }
 
 double MSDataParameterDialog::deadTime(void) const
@@ -75,6 +75,27 @@ double MSDataParameterDialog::fuelDensity(void) const
     //return this->_fuels.value(this->fuelName());
     return this->ui->fuelDensityDoubleSpinBox->value();
 }
+
+int MSDataParameterDialog::engineGearTeeth(void) const
+{
+    return this->ui->engineGearTeethSpinBox->value();
+}
+
+int MSDataParameterDialog::benchWheelGearTeeth(void) const
+{
+    return this->ui->benchWheelGearTeethSpinBox->value();
+}
+
+int MSDataParameterDialog::protoWheelGearTeeth(void) const
+{
+    return this->ui->protoWheelGearTeethSpinBox->value();
+}
+
+bool MSDataParameterDialog::isTestPerformedWithPrototype(void) const
+{
+    return this->ui->testPerformedWithPrototypeCheckBox->isChecked();
+}
+
 void MSDataParameterDialog::setTestName(const QString &testName)
 {
     this->ui->testNameLineEdit->setText(testName);
@@ -85,9 +106,9 @@ void MSDataParameterDialog::setInertia(double inertia)
     this->ui->inertieDoubleSpinBox->setValue(inertia);
 }
 
-void MSDataParameterDialog::setRollerPerimeter(double perimeter)
+void MSDataParameterDialog::setbenchWheelPerimeter(double perimeter)
 {
-    this->ui->rollerPerimeterDoubleSpinBox->setValue(perimeter);
+    this->ui->benchWheelPerimeterDoubleSpinBox->setValue(perimeter);
 }
 
 void MSDataParameterDialog::setDeadTime(double deadTime)
@@ -119,21 +140,54 @@ void MSDataParameterDialog::addFuel(const QString &name, double density)
     this->_fuels.insert(name, density);
 }
 
+void MSDataParameterDialog::setEngineGearTeeth(int teeth)
+{
+    this->ui->engineGearTeethSpinBox->setValue(teeth);
+}
+
+void MSDataParameterDialog::setBenchWheelGearTeeth(int teeth)
+{
+    this->ui->benchWheelGearTeethSpinBox->setValue(teeth);
+}
+
+void MSDataParameterDialog::setProtoWheelGearTeeth(int teeth)
+{
+    this->ui->protoWheelGearTeethSpinBox->setValue(teeth);
+}
+
+void MSDataParameterDialog::setTestPerformedWithPrototype(
+        bool performedWithPrototype)
+{
+    this->ui->testPerformedWithPrototypeCheckBox->setChecked(
+                performedWithPrototype);
+}
+
 void MSDataParameterDialog::readSettings(void)
 {
     QSettings settings;
 
     settings.beginGroup("MSDataParameterDialog");
 
-    this->setInertia(settings.value("inertia", 0.0).toDouble());
-    this->setRollerPerimeter(settings.value("rollerPerimeter", 0.0).toDouble());
-    this->setDeadTime(settings.value("deadTime", 0.0).toDouble());
+    this->setTestPerformedWithPrototype(
+                settings.value("testPerformedWithPrototype", true).toDouble());
+    this->setInertia(
+                settings.value("inertia", 0.0).toDouble());
+    this->setbenchWheelPerimeter(
+                settings.value("benchWheelPerimeter", 0.0).toDouble());
+    this->setBenchWheelGearTeeth(
+                settings.value("BenchWheelGearTeeth", 0).toInt());
+    this->setDeadTime(
+                settings.value("deadTime", 0.0).toDouble());
     this->setVoltageCorrection(
                 settings.value("voltageCorrection", 0.0).toDouble());
-    this->setProtoWheelPerimeter(
-                settings.value("protoWheelPerimeter", 0.0).toDouble());
     this->setInjectorVolumetricFlowRate(
                 settings.value("injectorVolumetricFlowRate", 0.0).toDouble());
+    this->setEngineGearTeeth(
+                settings.value("engineGearTeeth", 0).toInt());
+    this->setProtoWheelPerimeter(
+                settings.value("protoWheelPerimeter", 0.0).toDouble());
+    this->setProtoWheelGearTeeth(
+                settings.value("protoWheelGearTeeth", 0).toInt());
 
     // Restore fuel list
     settings.beginGroup("fuel");
@@ -156,13 +210,18 @@ void MSDataParameterDialog::writeSettings(void) const
     QSettings settings;
     settings.beginGroup("MSDataParameterDialog");
 
+    settings.setValue("testPerformedWithPrototype",
+                      this->isTestPerformedWithPrototype());
     settings.setValue("inertia", this->inertia());
-    settings.setValue("rollerPerimeter", this->rollerPerimeter());
+    settings.setValue("benchWheelPerimeter", this->benchWheelPerimeter());
+    settings.setValue("BenchWheelGearTeeth", this->benchWheelGearTeeth());
     settings.setValue("deadTime", this->deadTime());
     settings.setValue("voltageCorrection", this->voltageCorrection());
-    settings.setValue("protoWheelPerimeter", this->protoWheelPerimeter());
     settings.setValue("injectorVolumetricFlowRate",
                       this->injectorVolumetricFlowRate());
+    settings.setValue("engineGearTeeth", this->engineGearTeeth());
+    settings.setValue("protoWheelPerimeter", this->protoWheelPerimeter());
+    settings.setValue("protoWheelGearTeeth", this->protoWheelGearTeeth());
 
         // Save fuel list
         settings.beginGroup("fuel");
@@ -257,7 +316,7 @@ void MSDataParameterDialog::on_buttonBox_accepted(void)
         if (this->inertia() <= 0.0)
             throw QException(tr("L'inertie doit etre supérieure à 0"));
 
-        if (this->rollerPerimeter() <= 0.0)
+        if (this->benchWheelPerimeter() <= 0.0)
             throw QException(tr("Le périmètre du rouleau doit etre supérieur à 0"));
 
         if (this->deadTime() <= 0.0)
