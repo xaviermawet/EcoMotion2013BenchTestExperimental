@@ -6,7 +6,7 @@ MainWindow::MainWindow(QWidget* parent) :
     legendContextMenu(NULL), curveAssociatedToLegendItem(NULL),
     megasquirtDataPlot(NULL), MSPlotParser(), couplePowerPlot(NULL),
     coupleSpecificPowerPlot(NULL), reductionRatioPlot(NULL),
-    distancePlot(NULL), benchParser()
+    wheelSlippagePlot(NULL), benchParser()
 {
     // Display Configuration
     QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
@@ -25,7 +25,7 @@ MainWindow::MainWindow(QWidget* parent) :
     this->createCoupleSpecificPowerPlotZone();
     this->createReductionRatioPlotZone();
     this->createMegasquirtDataPlotZone();
-    this->createDistancePlotZone();
+    this->createWheelSlippagePlotZone();
 
     // Settings configuration
     QCoreApplication::setOrganizationName("EcoMotion");
@@ -112,10 +112,12 @@ void MainWindow::createCouplePowerPlotZone(void)
 {
     this->couplePowerPlot = new DoubleYAxisPlot(
                 tr("Couple - Puissance"), 0.01, this);
-    this->couplePowerPlot->setAxisTitle(Plot::yLeft, tr("Couple (N.m)"));;
-    this->couplePowerPlot->setAxisTitle(Plot::yRight, tr("Puissance (W)"));
     this->couplePowerPlot->setAxisTitle(
-                Plot::xBottom, tr("Tours par minute (tr/min)"));
+                Plot::yLeft, tr("Couple du moteur (N.m)"));;
+    this->couplePowerPlot->setAxisTitle(
+                Plot::yRight, tr("Puissance du moteur (W)"));
+    this->couplePowerPlot->setAxisTitle(
+                Plot::xBottom, tr("Tours par minute du rouleau (tr/min)"));
 
     // Add plot into a main window's layout
     this->ui->coupleAndPowerHLayout->addWidget(this->couplePowerPlot);
@@ -137,11 +139,11 @@ void MainWindow::createCoupleSpecificPowerPlotZone(void)
     this->coupleSpecificPowerPlot = new DoubleYAxisPlot(
                 "Couple - Puissance spécifique", 2, this);
     this->coupleSpecificPowerPlot->setAxisTitle(
-                Plot::yLeft,tr("Couple (N.m)"));;
+                Plot::yLeft,tr("Couple du moteur (N.m)"));;
     this->coupleSpecificPowerPlot->setAxisTitle(
-                Plot::yRight, tr("Puissance Spécifique (l/kwh)"));
+                Plot::yRight, tr("Puissance Spécifique du moteur (l/kwh)"));
     this->coupleSpecificPowerPlot->setAxisTitle(
-                Plot::xBottom, tr("Tours par minute (tr/min)"));
+                Plot::xBottom, tr("Tours par minute du rouleau (tr/min)"));
 
     // Add plot into a main window's layout
     this->ui->coupleAndSpecificPowerHLayout->addWidget(
@@ -185,23 +187,26 @@ void MainWindow::createReductionRatioPlotZone(void)
     this->plots.append(this->reductionRatioPlot);
 }
 
-void MainWindow::createDistancePlotZone(void)
+void MainWindow::createWheelSlippagePlotZone(void)
 {
-    this->distancePlot = new Plot(tr("Distances"), this);
-    this->distancePlot->setAxisTitle(Plot::yLeft, tr("Distance (m)"));
-    this->distancePlot->setAxisTitle(Plot::xBottom, tr("Temps (s)"));
-    this->ui->wheelSlippageHLayout->addWidget(this->distancePlot);
+    this->wheelSlippagePlot = new Plot(
+                tr("Glissement de la roue du prototype"), this);
+    this->wheelSlippagePlot->setAxisTitle(
+                Plot::yLeft, tr("Glissement"));
+    this->wheelSlippagePlot->setAxisTitle(
+                Plot::xBottom, tr("Tours par minute du rouleau (tr/min)"));
+    this->ui->wheelSlippageHLayout->addWidget(this->wheelSlippagePlot);
 
     // Connect plot signals to slots
-    connect(this->distancePlot, SIGNAL(legendChecked(QwtPlotItem*, bool)),
+    connect(this->wheelSlippagePlot, SIGNAL(legendChecked(QwtPlotItem*, bool)),
             this,  SLOT(setPlotCurveVisibile(QwtPlotItem*, bool)));
-    connect(this->distancePlot,
+    connect(this->wheelSlippagePlot,
             SIGNAL(legendRightClicked(const QwtPlotItem*,QPoint)),
             this, SLOT(showLegendContextMenu(const QwtPlotItem*,QPoint)));
 
     // Settings management configuration
-    this->distancePlot->setObjectName("DistancePlot");
-    this->plots.append(this->distancePlot);
+    this->wheelSlippagePlot->setObjectName("WheelSlippagePlot");
+    this->plots.append(this->wheelSlippagePlot);
 }
 
 Plot* MainWindow::currentPlot(void) const
@@ -217,8 +222,8 @@ Plot* MainWindow::currentPlot(void) const
                 return this->coupleSpecificPowerPlot;
             case TAB_REDUCTION_RATIO:
                 return this->reductionRatioPlot;
-            case TAB_DISTANCE:
-                return this->distancePlot;
+            case TAB_WHEEL_SLIPPAGE:
+                return this->wheelSlippagePlot;
             default:
                 return NULL;
         }

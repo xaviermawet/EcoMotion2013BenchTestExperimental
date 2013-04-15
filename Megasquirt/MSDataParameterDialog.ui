@@ -110,7 +110,11 @@
        </widget>
       </item>
       <item row="2" column="1">
-       <widget class="QSpinBox" name="benchWheelGearTeethSpinBox"/>
+       <widget class="QSpinBox" name="benchWheelGearTeethSpinBox">
+        <property name="maximum">
+         <number>1000</number>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>
@@ -204,7 +208,11 @@
        </widget>
       </item>
       <item row="3" column="1" colspan="2">
-       <widget class="QSpinBox" name="engineGearTeethSpinBox"/>
+       <widget class="QSpinBox" name="engineGearTeethSpinBox">
+        <property name="maximum">
+         <number>1000</number>
+        </property>
+       </widget>
       </item>
       <item row="4" column="0">
        <widget class="QLabel" name="fuelTypeLabelLabel">
@@ -298,7 +306,11 @@
        </widget>
       </item>
       <item row="1" column="1">
-       <widget class="QSpinBox" name="protoWheelGearTeethSpinBox"/>
+       <widget class="QSpinBox" name="protoWheelGearTeethSpinBox">
+        <property name="maximum">
+         <number>1000</number>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>

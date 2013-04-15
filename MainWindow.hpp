@@ -27,7 +27,7 @@
     #define TAB_COUPLE_AND_POWER          0
     #define TAB_COUPLE_AND_SPECIFIC_POWER 1
     #define TAB_REDUCTION_RATIO           2
-    #define TAB_DISTANCE                  3
+    #define TAB_WHEEL_SLIPPAGE            3
 #define TAB_MEGASQUIRT_DATA  1
 
 #define KEY_INERTIE        "Inertie"
@@ -60,7 +60,7 @@ class MainWindow : public QMainWindow
         void  createCouplePowerPlotZone(void);
         void  createCoupleSpecificPowerPlotZone(void);
         void  createReductionRatioPlotZone(void);
-        void  createDistancePlotZone(void);
+        void  createWheelSlippagePlotZone(void);
         Plot* currentPlot(void) const;
         void  readSettings(void);
         void  writeSettings(void) const;
@@ -72,6 +72,8 @@ class MainWindow : public QMainWindow
                              QString const& csvFilePath) const;
         void createCoupleAndPowerCurves(QVector<double> const& inertieTimes,
                                         MSDataParameterDialog const& param);
+        void createWheelSlippageCurve(QVector<double> const& inertieTimes,
+                                      QVector<double> const& protoWheelTimes);
 
     private slots:
 
@@ -117,7 +119,7 @@ class MainWindow : public QMainWindow
         DoubleYAxisPlot* couplePowerPlot;
         DoubleYAxisPlot* coupleSpecificPowerPlot;
         DoubleXAxisPlot* reductionRatioPlot;
-        Plot* distancePlot;
+        Plot* wheelSlippagePlot;
         QCSVParser benchParser;
 
         // List of all Plots
