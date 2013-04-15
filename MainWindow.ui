@@ -59,7 +59,7 @@
         <item>
          <widget class="QTabWidget" name="benchTestTabWidget">
           <property name="currentIndex">
-           <number>0</number>
+           <number>3</number>
           </property>
           <widget class="QWidget" name="couplePowerTab">
            <attribute name="title">
@@ -118,11 +118,11 @@
             </property>
            </layout>
           </widget>
-          <widget class="QWidget" name="distanceTab">
+          <widget class="QWidget" name="wheelSlippageTab">
            <attribute name="title">
-            <string>Distances</string>
+            <string>Glissement</string>
            </attribute>
-           <layout class="QHBoxLayout" name="distanceHLayout">
+           <layout class="QHBoxLayout" name="wheelSlippageHLayout">
             <property name="leftMargin">
              <number>2</number>
             </property>

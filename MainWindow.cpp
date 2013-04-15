@@ -190,7 +190,7 @@ void MainWindow::createDistancePlotZone(void)
     this->distancePlot = new Plot(tr("Distances"), this);
     this->distancePlot->setAxisTitle(Plot::yLeft, tr("Distance (m)"));
     this->distancePlot->setAxisTitle(Plot::xBottom, tr("Temps (s)"));
-    this->ui->distanceHLayout->addWidget(this->distancePlot);
+    this->ui->wheelSlippageHLayout->addWidget(this->distancePlot);
 
     // Connect plot signals to slots
     connect(this->distancePlot, SIGNAL(legendChecked(QwtPlotItem*, bool)),
