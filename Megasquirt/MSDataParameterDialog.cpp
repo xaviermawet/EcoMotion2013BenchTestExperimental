@@ -169,7 +169,7 @@ void MSDataParameterDialog::readSettings(void)
     settings.beginGroup("MSDataParameterDialog");
 
     this->setTestPerformedWithPrototype(
-                settings.value("testPerformedWithPrototype", true).toDouble());
+                settings.value("testPerformedWithPrototype", true).toBool());
     this->setInertia(
                 settings.value("inertia", 0.0).toDouble());
     this->setbenchWheelPerimeter(

@@ -417,10 +417,11 @@ void MainWindow::createCoupleAndPowerCurves(QVector<double> const& inertieTimes,
     const double voltCorr = param.voltageCorrection();
     const double injectorFlowRate = param.injectorVolumetricFlowRate() / 60000;
 
-    double angularSpeed_a, angularSpeed_b;
-    double ta_average, tb_average;
-    double angularAcceleration;
-    double couple, power, specificPower;
+    double angularSpeed_a(0), angularSpeed_b(0);
+    double ta_average(0), tb_average(0);
+    double angularAcceleration(0);
+    double couple(0), power(0), specificPower(0);
+    double teethRatio(0);
 
     int indiceMS(0);
 
@@ -429,6 +430,17 @@ void MainWindow::createCoupleAndPowerCurves(QVector<double> const& inertieTimes,
     QVector<QPointF> specificPowerPoints;
     QVector<QPointF> reductionRatioPoints1;
     QVector<QPointF> reductionRatioPoints2;
+
+    // Check the teeth ratio
+    if (param.isTestPerformedWithPrototype())
+        teethRatio =
+                ((double)param.engineGearTeeth() / param.protoWheelGearTeeth())
+                * (param.protoWheelPerimeter() / param.benchWheelPerimeter());
+    else
+        teethRatio = (double)param.engineGearTeeth()
+                / param.benchWheelGearTeeth();
+
+    qDebug() << "teethRatio = " << teethRatio;
 
     /* ---------------------------------------------------------------------- *
      *                           ωa = 2π / (t2 - t1)                          *
@@ -481,7 +493,7 @@ void MainWindow::createCoupleAndPowerCurves(QVector<double> const& inertieTimes,
      * α  = Accélération angulaire (rad/s²)                                   *
      * ---------------------------------------------------------------------- */
 
-        couple = Jdelta * angularAcceleration;
+        couple = (Jdelta * angularAcceleration) * teethRatio;
 
     /* ---------------------------------------------------------------------- *
      *                               P = C * ωb                               *
