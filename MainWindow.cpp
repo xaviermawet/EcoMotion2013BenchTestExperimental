@@ -623,6 +623,97 @@ void MainWindow::createCoupleAndPowerCurves(QVector<double> const& inertieTimes,
     this->reductionRatioPlot->zoom(reductionRatioCurve2);
 }
 
+void MainWindow::createWheelSlippageCurve(
+        const QVector<double> &inertieTimes,
+        const QVector<double> &protoWheelTimes,
+        const MSDataParameterDialog &param)
+{
+    qDebug() << "Nombre de données inertie : " << inertieTimes.count();
+    qDebug() << "Nombre de données proto   : " << protoWheelTimes.count();
+
+    int indiceInertie_t1(0);
+    int indiceInertie_t2(0);
+    int indiceProto(0); // indice pour t2
+    int nbInertieLaps(0);
+
+    const double PI(3.14159265358979323846);
+    double angularSpeedProtoWheel(0);
+    double angularSpeedBenchWheel(0);
+    double glissement(0);
+
+    QVector<QPointF> wheelSlippagePoints;
+
+    // Trouver le premier indice pour les temps inertie
+    for(indiceInertie_t2; indiceInertie_t2 < inertieTimes.count() &&
+        inertieTimes.at(indiceInertie_t2) < protoWheelTimes.at(indiceProto);
+        ++indiceInertie_t2);
+
+    for(indiceProto = 1; indiceProto < protoWheelTimes.count(); ++indiceProto)
+    {
+        indiceInertie_t1 = indiceInertie_t2;
+
+        for(nbInertieLaps = 0; indiceInertie_t2 < inertieTimes.count() &&
+            inertieTimes.at(indiceInertie_t2) < protoWheelTimes.at(indiceProto);
+            ++indiceInertie_t2, ++nbInertieLaps);
+
+        qDebug() << "------------------------------------------------------";
+        qDebug() << "Proto t1 = " << protoWheelTimes.at(indiceProto - 1);
+        qDebug() << "Proto t2 = " << protoWheelTimes.at(indiceProto);
+        qDebug() << "inertie t1 = " << inertieTimes.at(indiceInertie_t1);
+        qDebug() << "inertie t2 = " << inertieTimes.at(indiceInertie_t2);
+        qDebug() << "Nb tours   = " << nbInertieLaps;
+
+
+    /* ---------------------------------------------------------------------- *
+     *                            ω = 2π / (t2 - t1)                          *
+     * ---------------------------------------------------------------------- *
+     * ω  = Vitesse angulaire (rad/s)                                         *
+     * Π  = Pi, constante qui vaut 3.141592653589793...                       *
+     * tx = temps à l'instant x (s) ave t2 > t1                               *
+     * ---------------------------------------------------------------------- */
+
+        angularSpeedProtoWheel =      (2 * PI)
+                                         /
+        (protoWheelTimes.at(indiceProto) - protoWheelTimes.at(indiceProto - 1));
+
+
+        angularSpeedBenchWheel = ((2 * PI) * nbInertieLaps)
+                                           /
+        (inertieTimes.at(indiceInertie_t2) - inertieTimes.at(indiceInertie_t1));
+
+
+    /* ---------------------------------------------------------------------- *
+     *                      Circonference roue * ω roue                       *
+     *     Glissement =                 /                                     *
+     *                   Circonference rouleau * ω rouleau                    *
+     * ---------------------------------------------------------------------- */
+
+        glissement = (param.protoWheelPerimeter() * angularSpeedProtoWheel)
+                                                  /
+                     (param.benchWheelPerimeter() * angularSpeedBenchWheel);
+
+    /* ---------------------------------------------------------------------- *
+     *               ωx = (π * Nx) / 30  <=> Nx = (30 * ωx) / π               *
+     * ---------------------------------------------------------------------- *
+     * ω = Vitesse angulaire (rad/s)                                          *
+     * Π = Pi, constante qui vaut 3.141592653589793...                        *
+     * N = tours par minute == RPM (tours/minute)                             *
+     * ---------------------------------------------------------------------- */
+
+        wheelSlippagePoints.append(
+                    QPointF((30 * angularSpeedBenchWheel) / PI, glissement));
+    }
+
+    // Create wheel slippage curve
+    QwtPointSeriesData* serieData = new QwtPointSeriesData(wheelSlippagePoints);
+    PlotCurve* curve = new PlotCurve(
+                tr("Glissement ") + param.testName(), QPen(Qt::darkBlue));
+    curve->setData(serieData);
+    curve->attach(this->wheelSlippagePlot);
+    this->setPlotCurveVisibile(curve, true);
+    this->wheelSlippagePlot->zoom(curve);
+}
+
 void MainWindow::on_actionImportData_triggered(void)
 {
     try
@@ -659,10 +750,8 @@ void MainWindow::on_actionImportData_triggered(void)
     /* ---------------------------------------------------------------------- *
      *                         Get proto wheel times                          *
      * ---------------------------------------------------------------------- */
-//        QVector<double> protoWheelTimes;
-//        this->getTimesFromCSV(protoWheelTimes, protoWheelFilePath);
-
-//        qDebug() << "Nombre de données proto wheel = " << protoWheelTimes.count();
+        QVector<double> protoWheelTimes;
+        this->getTimesFromCSV(protoWheelTimes, protoWheelFilePath);
 
     /* ---------------------------------------------------------------------- *
      *       Generate csv file by extracting needed data from dat file        *
@@ -681,6 +770,8 @@ void MainWindow::on_actionImportData_triggered(void)
      *                             Create curves                              *
      * ---------------------------------------------------------------------- */
         this->createCoupleAndPowerCurves(inertieTimes, importParamDial);
+        this->createWheelSlippageCurve(
+                    inertieTimes, protoWheelTimes, importParamDial);
     }
     catch(QException const& ex)
     {

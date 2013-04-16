@@ -73,7 +73,8 @@ class MainWindow : public QMainWindow
         void createCoupleAndPowerCurves(QVector<double> const& inertieTimes,
                                         MSDataParameterDialog const& param);
         void createWheelSlippageCurve(QVector<double> const& inertieTimes,
-                                      QVector<double> const& protoWheelTimes);
+                                      QVector<double> const& protoWheelTimes,
+                                      MSDataParameterDialog const& param);
 
     private slots:
 
