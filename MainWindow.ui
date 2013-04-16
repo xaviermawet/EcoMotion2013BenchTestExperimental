@@ -59,7 +59,7 @@
         <item>
          <widget class="QTabWidget" name="benchTestTabWidget">
           <property name="currentIndex">
-           <number>3</number>
+           <number>1</number>
           </property>
           <widget class="QWidget" name="couplePowerTab">
            <attribute name="title">
@@ -80,11 +80,30 @@
             </property>
            </layout>
           </widget>
-          <widget class="QWidget" name="coupleSpecificPowerTab">
+          <widget class="QWidget" name="coupleSpecificPowerBenchWheelTab">
            <attribute name="title">
-            <string>Couple - Puissance Spécifique</string>
+            <string>Couple - Puissance Spécifique (rouleau)</string>
            </attribute>
-           <layout class="QHBoxLayout" name="coupleAndSpecificPowerHLayout">
+           <layout class="QHBoxLayout" name="coupleSpecificPowerBenchWheelHLayout">
+            <property name="leftMargin">
+             <number>2</number>
+            </property>
+            <property name="topMargin">
+             <number>2</number>
+            </property>
+            <property name="rightMargin">
+             <number>2</number>
+            </property>
+            <property name="bottomMargin">
+             <number>2</number>
+            </property>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="coupleSpecificPowerEngineTab">
+           <attribute name="title">
+            <string>Couple - Puissance Spécifique (moteur)</string>
+           </attribute>
+           <layout class="QHBoxLayout" name="coupleSpecificPowerEngineHLayout">
             <property name="leftMargin">
              <number>2</number>
             </property>

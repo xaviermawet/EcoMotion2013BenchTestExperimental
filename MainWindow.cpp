@@ -5,8 +5,8 @@ MainWindow::MainWindow(QWidget* parent) :
     QMainWindow(parent), ui(new Ui::MainWindow),
     legendContextMenu(NULL), curveAssociatedToLegendItem(NULL),
     megasquirtDataPlot(NULL), MSPlotParser(), couplePowerPlot(NULL),
-    coupleSpecificPowerPlot(NULL), reductionRatioPlot(NULL),
-    wheelSlippagePlot(NULL), benchParser()
+    coupleSpecificPowerBenchWheelPlot(NULL), coupleSpecificPowerEnginePlot(NULL),
+    reductionRatioPlot(NULL), wheelSlippagePlot(NULL), benchParser()
 {
     // Display Configuration
     QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
@@ -22,7 +22,8 @@ MainWindow::MainWindow(QWidget* parent) :
     // Plots configuration
     this->createPlotLegendContextMenu();
     this->createCouplePowerPlotZone();
-    this->createCoupleSpecificPowerPlotZone();
+    this->createCoupleSpecificPowerBenchWheelPlotZone();
+    this->createCoupleSpecificPowerEnginePlotZone();
     this->createReductionRatioPlotZone();
     this->createMegasquirtDataPlotZone();
     this->createWheelSlippagePlotZone();
@@ -134,32 +135,62 @@ void MainWindow::createCouplePowerPlotZone(void)
     this->plots.append(this->couplePowerPlot);
 }
 
-void MainWindow::createCoupleSpecificPowerPlotZone(void)
+void MainWindow::createCoupleSpecificPowerBenchWheelPlotZone(void)
 {
-    this->coupleSpecificPowerPlot = new DoubleYAxisPlot(
+    this->coupleSpecificPowerBenchWheelPlot = new DoubleYAxisPlot(
                 "Couple - Puissance spécifique", 2, this);
-    this->coupleSpecificPowerPlot->setAxisTitle(
+    this->coupleSpecificPowerBenchWheelPlot->setAxisTitle(
                 Plot::yLeft,tr("Couple du moteur (N.m)"));;
-    this->coupleSpecificPowerPlot->setAxisTitle(
+    this->coupleSpecificPowerBenchWheelPlot->setAxisTitle(
                 Plot::yRight, tr("Puissance Spécifique du moteur (l/kwh)"));
-    this->coupleSpecificPowerPlot->setAxisTitle(
+    this->coupleSpecificPowerBenchWheelPlot->setAxisTitle(
                 Plot::xBottom, tr("Tours par minute du rouleau (tr/min)"));
 
     // Add plot into a main window's layout
-    this->ui->coupleAndSpecificPowerHLayout->addWidget(
-                this->coupleSpecificPowerPlot);
+    this->ui->coupleSpecificPowerBenchWheelHLayout->addWidget(
+                this->coupleSpecificPowerBenchWheelPlot);
 
     // Connect plot signals to slots
-    connect(this->coupleSpecificPowerPlot,
+    connect(this->coupleSpecificPowerBenchWheelPlot,
             SIGNAL(legendChecked(QwtPlotItem*, bool)),
             this,  SLOT(setPlotCurveVisibile(QwtPlotItem*, bool)));
-    connect(this->coupleSpecificPowerPlot,
+    connect(this->coupleSpecificPowerBenchWheelPlot,
             SIGNAL(legendRightClicked(const QwtPlotItem*,QPoint)),
             this, SLOT(showLegendContextMenu(const QwtPlotItem*,QPoint)));
 
     // Settings management configuration
-    this->coupleSpecificPowerPlot->setObjectName("CoupleSpecificPowerPlot");
-    this->plots.append(this->coupleSpecificPowerPlot);
+    this->coupleSpecificPowerBenchWheelPlot->setObjectName(
+                "CoupleSpecificPowerBenchWheelPlot");
+    this->plots.append(this->coupleSpecificPowerBenchWheelPlot);
+}
+
+void MainWindow::createCoupleSpecificPowerEnginePlotZone(void)
+{
+    this->coupleSpecificPowerEnginePlot = new DoubleYAxisPlot(
+                "Couple - Puissance spécifique", 2, this);
+    this->coupleSpecificPowerEnginePlot->setAxisTitle(
+                Plot::yLeft,tr("Couple du moteur (N.m)"));;
+    this->coupleSpecificPowerEnginePlot->setAxisTitle(
+                Plot::yRight, tr("Puissance Spécifique du moteur (l/kwh)"));
+    this->coupleSpecificPowerEnginePlot->setAxisTitle(
+                Plot::xBottom, tr("Tours par minute du moteur (tr/min)"));
+
+    // Add plot into a main window's layout
+    this->ui->coupleSpecificPowerEngineHLayout->addWidget(
+                this->coupleSpecificPowerEnginePlot);
+
+    // Connect plot signals to slots
+    connect(this->coupleSpecificPowerEnginePlot,
+            SIGNAL(legendChecked(QwtPlotItem*, bool)),
+            this,  SLOT(setPlotCurveVisibile(QwtPlotItem*, bool)));
+    connect(this->coupleSpecificPowerEnginePlot,
+            SIGNAL(legendRightClicked(const QwtPlotItem*,QPoint)),
+            this, SLOT(showLegendContextMenu(const QwtPlotItem*,QPoint)));
+
+    // Settings management configuration
+    this->coupleSpecificPowerEnginePlot->setObjectName(
+                "CoupleSpecificPowerEnginePlot");
+    this->plots.append(this->coupleSpecificPowerEnginePlot);
 }
 
 void MainWindow::createReductionRatioPlotZone(void)
@@ -218,8 +249,10 @@ Plot* MainWindow::currentPlot(void) const
         {
             case TAB_COUPLE_AND_POWER:
                 return this->couplePowerPlot;
-            case TAB_COUPLE_AND_SPECIFIC_POWER:
-                return this->coupleSpecificPowerPlot;
+            case TAB_COUPLE_AND_SPECIFIC_POWER_BENCH_WHEEL:
+                return this->coupleSpecificPowerBenchWheelPlot;
+            case TAB_COUPLE_AND_SPECIFIC_POWER_ENGINE:
+                return this->coupleSpecificPowerEnginePlot;
             case TAB_REDUCTION_RATIO:
                 return this->reductionRatioPlot;
             case TAB_WHEEL_SLIPPAGE:
@@ -426,8 +459,10 @@ void MainWindow::createCoupleAndPowerCurves(QVector<double> const& inertieTimes,
     int indiceMS(0);
 
     QVector<QPointF> powerPoints;
-    QVector<QPointF> couplePoints;
-    QVector<QPointF> specificPowerPoints;
+    QVector<QPointF> couplePointsBenchWheel;
+    QVector<QPointF> couplePointsEngine;
+    QVector<QPointF> specificPowerPointsBenchWheel;
+    QVector<QPointF> specificPowerPointsEngine;
     QVector<QPointF> reductionRatioPoints1;
     QVector<QPointF> reductionRatioPoints2;
 
@@ -550,19 +585,20 @@ void MainWindow::createCoupleAndPowerCurves(QVector<double> const& inertieTimes,
      * N = tours par minute == RPM (tours/minute)                             *
      * ---------------------------------------------------------------------- */
 
-        double rpm_b = (30 * angularSpeed_b) / PI;
+        double rpm_b      = (30 * angularSpeed_b) / PI;
+        double rpm_engine = benchParser.row(indiceMS).at(2).toDouble();
 
         // create curves coordinates
         powerPoints.append(QPointF(rpm_b, power));
-        couplePoints.append(QPointF(rpm_b, couple));
-        specificPowerPoints.append(QPointF(rpm_b, specificPower));
 
-        reductionRatioPoints1.append(
-                   QPointF(rpm_b,
-                           benchParser.row(indiceMS).at(2).toDouble() / rpm_b));
-        reductionRatioPoints2.append(
-                   QPointF(benchParser.row(indiceMS).at(2).toDouble(),
-                           benchParser.row(indiceMS).at(2).toDouble() / rpm_b));
+        couplePointsBenchWheel.append(QPointF(rpm_b, couple));
+        couplePointsEngine.append(QPointF(rpm_engine, couple));
+
+        specificPowerPointsBenchWheel.append(QPointF(rpm_b, specificPower));
+        specificPowerPointsEngine.append(QPointF(rpm_engine, specificPower));
+
+        reductionRatioPoints1.append(QPointF(rpm_b, rpm_engine / rpm_b));
+        reductionRatioPoints2.append(QPointF(rpm_engine, rpm_engine / rpm_b));
 
     }
 
@@ -577,16 +613,35 @@ void MainWindow::createCoupleAndPowerCurves(QVector<double> const& inertieTimes,
 
     // Create specificPower curve
     QwtPointSeriesData* specificPowerSerieData =
-            new QwtPointSeriesData(specificPowerPoints);
+            new QwtPointSeriesData(specificPowerPointsBenchWheel);
     PlotCurve* specificPowerCurve = new PlotCurve(
               tr("Puissance spécifique ") + param.testName(),QPen(Qt::darkBlue));
     specificPowerCurve->setData(specificPowerSerieData);
     specificPowerCurve->setAxes(Plot::xTop, Plot::yRight);
-    specificPowerCurve->attach(this->coupleSpecificPowerPlot);
+    specificPowerCurve->attach(this->coupleSpecificPowerBenchWheelPlot);
     this->setPlotCurveVisibile(specificPowerCurve, true);
 
+    // Create specificPower curve
+    QwtPointSeriesData* specificPowerEngineSerieData =
+            new QwtPointSeriesData(specificPowerPointsEngine);
+    PlotCurve* specificPowerEngineCurve = new PlotCurve(
+                tr("Puissance spécifique ") + param.testName(),QPen(Qt::darkBlue));
+    specificPowerEngineCurve->setData(specificPowerEngineSerieData);
+    specificPowerEngineCurve->setAxes(Plot::xTop, Plot::yRight);
+    specificPowerEngineCurve->attach(this->coupleSpecificPowerEnginePlot);
+    this->setPlotCurveVisibile(specificPowerEngineCurve, true);
+
     // Create couple curve for couplePowerPlot
-    QwtPointSeriesData* coupleSerieData1 = new QwtPointSeriesData(couplePoints);
+    QwtPointSeriesData* coupleEngineSerieData = new QwtPointSeriesData(couplePointsEngine);
+    PlotCurve* coupleEngineCurve = new PlotCurve(
+                tr("Couple ") + param.testName(), QPen(Qt::darkRed));
+    coupleEngineCurve->setData(coupleEngineSerieData);
+    coupleEngineCurve->attach(this->coupleSpecificPowerEnginePlot);
+    this->setPlotCurveVisibile(coupleEngineCurve, true);
+    this->coupleSpecificPowerEnginePlot->zoom(specificPowerEngineCurve);
+
+    // Create couple curve for couplePowerPlot
+    QwtPointSeriesData* coupleSerieData1 = new QwtPointSeriesData(couplePointsBenchWheel);
     PlotCurve* coupleCurve1 = new PlotCurve(
                 tr("Couple ") + param.testName(), QPen(Qt::darkRed));
     coupleCurve1->setData(coupleSerieData1);
@@ -595,13 +650,13 @@ void MainWindow::createCoupleAndPowerCurves(QVector<double> const& inertieTimes,
     this->couplePowerPlot->zoom(powerCurve);
 
     // Create couple curve for coupleSpecificPowerPlot
-    QwtPointSeriesData* coupleSerieData2 = new QwtPointSeriesData(couplePoints);
+    QwtPointSeriesData* coupleSerieData2 = new QwtPointSeriesData(couplePointsBenchWheel);
     PlotCurve* coupleCurve2 = new PlotCurve(
                 tr("Couple ") + param.testName(), QPen(Qt::darkRed));
     coupleCurve2->setData(coupleSerieData2);
-    coupleCurve2->attach(this->coupleSpecificPowerPlot);
+    coupleCurve2->attach(this->coupleSpecificPowerBenchWheelPlot);
     this->setPlotCurveVisibile(coupleCurve2, true);
-    this->coupleSpecificPowerPlot->zoom(coupleCurve2);
+    this->coupleSpecificPowerBenchWheelPlot->zoom(coupleCurve2);
 
     // Create reduction ratio curve for reductionRatioPlot
     QwtPointSeriesData* reductionRatioSerieData1 = new QwtPointSeriesData(reductionRatioPoints1);
@@ -750,8 +805,8 @@ void MainWindow::on_actionImportData_triggered(void)
     /* ---------------------------------------------------------------------- *
      *                         Get proto wheel times                          *
      * ---------------------------------------------------------------------- */
-        QVector<double> protoWheelTimes;
-        this->getTimesFromCSV(protoWheelTimes, protoWheelFilePath);
+//        QVector<double> protoWheelTimes;
+//        this->getTimesFromCSV(protoWheelTimes, protoWheelFilePath);
 
     /* ---------------------------------------------------------------------- *
      *       Generate csv file by extracting needed data from dat file        *
@@ -770,8 +825,8 @@ void MainWindow::on_actionImportData_triggered(void)
      *                             Create curves                              *
      * ---------------------------------------------------------------------- */
         this->createCoupleAndPowerCurves(inertieTimes, importParamDial);
-        this->createWheelSlippageCurve(
-                    inertieTimes, protoWheelTimes, importParamDial);
+//        this->createWheelSlippageCurve(
+//                    inertieTimes, protoWheelTimes, importParamDial);
     }
     catch(QException const& ex)
     {

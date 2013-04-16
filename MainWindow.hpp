@@ -1,3 +1,8 @@
+/* TODO
+ * ----------------
+ * Ajouter l'option renommer lors du clique droit sur un élément de légende
+ */
+
 #ifndef __MAINWINDOW_HPP__
 #define __MAINWINDOW_HPP__
 
@@ -24,10 +29,11 @@
 #include <qwt_plot_rescaler.h>
 
 #define TAB_BENCH_TEST       0
-    #define TAB_COUPLE_AND_POWER          0
-    #define TAB_COUPLE_AND_SPECIFIC_POWER 1
-    #define TAB_REDUCTION_RATIO           2
-    #define TAB_WHEEL_SLIPPAGE            3
+    #define TAB_COUPLE_AND_POWER                      0
+    #define TAB_COUPLE_AND_SPECIFIC_POWER_BENCH_WHEEL 1
+    #define TAB_COUPLE_AND_SPECIFIC_POWER_ENGINE      2
+    #define TAB_REDUCTION_RATIO                       3
+    #define TAB_WHEEL_SLIPPAGE                        4
 #define TAB_MEGASQUIRT_DATA  1
 
 #define KEY_INERTIE        "Inertie"
@@ -58,7 +64,8 @@ class MainWindow : public QMainWindow
         void  createPlotLegendContextMenu(void);
         void  createMegasquirtDataPlotZone(void);
         void  createCouplePowerPlotZone(void);
-        void  createCoupleSpecificPowerPlotZone(void);
+        void  createCoupleSpecificPowerBenchWheelPlotZone(void);
+        void  createCoupleSpecificPowerEnginePlotZone(void);
         void  createReductionRatioPlotZone(void);
         void  createWheelSlippagePlotZone(void);
         Plot* currentPlot(void) const;
@@ -118,7 +125,8 @@ class MainWindow : public QMainWindow
 
         // Bench test plots
         DoubleYAxisPlot* couplePowerPlot;
-        DoubleYAxisPlot* coupleSpecificPowerPlot;
+        DoubleYAxisPlot* coupleSpecificPowerBenchWheelPlot;
+        DoubleYAxisPlot* coupleSpecificPowerEnginePlot;
         DoubleXAxisPlot* reductionRatioPlot;
         Plot* wheelSlippagePlot;
         QCSVParser benchParser;
